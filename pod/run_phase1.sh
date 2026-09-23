@@ -2,7 +2,8 @@
 # Phase 1 on a pod. Pulls Phase 0 inputs from the private HF dataset, runs one or more models, pushes outputs back.
 #   MODELS="gemma3_27b"            one model per pod when fanning out (pod/fanout.sh)
 #   SMOKE=1                        ~10-minute validation of the whole GPU path on the real model (outputs under <model>_smoke)
-set -euo pipefail
+set -uo pipefail
+FAILED=0
 cd "$(dirname "$0")/.."
 # Weights and results live on the LOCAL container disk: /workspace is frequently a slow FUSE network mount
 # (and only 50GB when no network volume is attached). Results are pushed to HF, so nothing needs to persist here.
@@ -24,13 +25,16 @@ for m in $MODELS; do
   echo "================ $m  smoke=$SMOKE  $(date) ================"
   $PY -m dprobe.cli check_template "$m"
   if [ "$SMOKE" = "1" ]; then
-    $PY -m dprobe.cli pod_phase1 "$m" --smoke
+    $PY -m dprobe.cli pod_phase1 "$m" --smoke || { echo "!! $m FAILED"; FAILED=1; }
   else
-    $PY -m dprobe.cli pod_phase1 "$m"
+    $PY -m dprobe.cli pod_phase1 "$m" || { echo "!! $m FAILED"; FAILED=1; }
   fi
   if [ "$SYNC" = "1" ]; then
     $PY -m dprobe.cli sync_up --subsets vectors,probe,selfother
   fi
   echo "---- $m done $(date) ----"
 done
-echo "ALL DONE $(date)"
+echo "ALL DONE $(date) failed=$FAILED"
+# SHUTDOWN=stop|terminate: stop billing when finished (results are already on HF). Runs even if a model failed,
+# because an idle pod is worse than a stopped one; the log says what failed.
+SHUTDOWN=${SHUTDOWN:-} bash pod/self_stop.sh
