@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Pre-download model weights to the local HF cache so the first model load is fast. MODELS = HF ids.
 set -euo pipefail
-export HF_HOME=${HF_HOME:-/hf_cache} HF_HUB_ENABLE_HF_TRANSFER=1
+# rp run exports HF_HOME=/workspace/hf (a FUSE mount with a 50GB quota when no network volume): override unconditionally.
+export HF_HOME=${DPROBE_HF_HOME:-/hf_cache} HF_HUB_ENABLE_HF_TRANSFER=1
 PY=${PY:-/venv/bin/python}
 for m in ${MODELS:-google/gemma-3-27b-it}; do
   $PY - "$m" <<'PYEOF'

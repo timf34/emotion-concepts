@@ -4,7 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 export DPROBE_RESULTS=${DPROBE_RESULTS:-/results} PYTHONUNBUFFERED=1
-export HF_HOME=${HF_HOME:-/hf_cache}
+export HF_HOME=${DPROBE_HF_HOME:-/hf_cache}   # rp run pre-sets HF_HOME=/workspace/hf; override unconditionally
 MODEL=${MODEL:-gemma3_27b}
 LABELS=${LABELS:-"depressed,clinical_depression,worthless,sad,frustrated,calm"}
 STRENGTHS=${STRENGTHS:-"-0.08,-0.04,0.04,0.08"}

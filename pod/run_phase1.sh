@@ -7,7 +7,7 @@ FAILED=0
 cd "$(dirname "$0")/.."
 # Weights and results live on the LOCAL container disk: /workspace is frequently a slow FUSE network mount
 # (and only 50GB when no network volume is attached). Results are pushed to HF, so nothing needs to persist here.
-export HF_HOME=${HF_HOME:-/hf_cache}
+export HF_HOME=${DPROBE_HF_HOME:-/hf_cache}   # rp run pre-sets HF_HOME=/workspace/hf; override unconditionally
 export HF_HUB_ENABLE_HF_TRANSFER=1
 export PYTHONUNBUFFERED=1
 export DPROBE_RESULTS=${DPROBE_RESULTS:-/results}
