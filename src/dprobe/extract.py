@@ -244,6 +244,12 @@ def run_extract(model_key: str, sets: tuple[str, ...] = ("emotions", "syndromes"
         auc.to_csv(out / f"heldout_auc_{set_name}.csv", index=False)
         best = auc[auc.kind == "dn"].groupby("label").auc.max().round(3).to_dict()
         print(f"[extract] saved {set_name}: {len(labels)} vectors, raw@{len(layers_all)} layers, denoised@{len(layers_an)} layers; held-out AUC (best layer, denoised): {best}")
+    # z-score statistics for the externally supplied pain axis too (same direction at every layer)
+    pain = load_pain_axis(model_key)
+    if pain is not None:
+        pv = torch.as_tensor(pain["s2_pain_vector"]).float()
+        pst = _neutral_stats(samples, {"pain_axis": {l: pv for l in layers_an}})
+        stats["pain_axis"] = {"raw": pst, "dn": pst}
     torch.save(stats, out / "neutral_stats.pt")
     with open(out / "meta.json", "w") as f:
         json.dump({"model": spec.hf_id, "n_blocks": spec.n_blocks, "hidden": spec.hidden, "analysis_layers": layers_an, "cfg": cfg.__dict__}, f, indent=1)

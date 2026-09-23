@@ -38,8 +38,9 @@ def _out(model_key: str) -> Path:
 def _load(model_key: str, condition: str = "extended", tag: str = ""):
     p = RESULTS_DIR / "probe" / model_key / (condition + (f"_{tag}" if tag else "")) / "probe.pt"
     P = torch.load(p)
-    # a "from-<key>" tag means the transcripts (and their judgments) belong to another model
-    src, src_tag = model_key, tag
+    # a "from-<key>" tag means the transcripts (and their judgments) belong to another model;
+    # a "_smoke" model key still reads the real model's transcripts
+    src, src_tag = model_key.replace("_smoke", ""), tag
     if tag.startswith("from-"):
         src = tag[len("from-"):].split("_")[0]
         src_tag = tag[len("from-") + len(src) + 1:]
@@ -56,7 +57,7 @@ def _zscore(P: dict, model_key: str, which: str = "proj_mean") -> np.ndarray:
     kind = "dn" if P.get("denoised", True) else "raw"
     for li, l in enumerate(layers):
         for ei, e in enumerate(labels):
-            for set_name in ("emotions", "syndromes"):
+            for set_name in ("emotions", "syndromes", "pain_axis"):
                 st = stats.get(set_name, {}).get(kind, {}).get(l)
                 if st and e in st["labels"]:
                     j = st["labels"].index(e)
