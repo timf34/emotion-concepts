@@ -2,6 +2,7 @@
 # Phase 0 for one model: stories -> spiral transcripts -> judge (frustration + petri). Resumable; safe to re-run.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+export PYTHONUNBUFFERED=1
 M=$1
 LOG=results/logs/phase0_$M.log
 {

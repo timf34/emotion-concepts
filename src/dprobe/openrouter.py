@@ -55,6 +55,14 @@ class OpenRouterClient:
             self._sems[lid] = asyncio.Semaphore(self.max_concurrency)
         return self._clients[lid], self._sems[lid]
 
+    async def aclose(self):
+        """Close the client bound to the current loop (avoids 'Event loop is closed' noise at interpreter exit)."""
+        lid = id(asyncio.get_running_loop())
+        c = self._clients.pop(lid, None)
+        self._sems.pop(lid, None)
+        if c is not None:
+            await c.close()
+
     # ------------------------------------------------------------------
     async def chat(
         self,
@@ -152,6 +160,7 @@ class OpenRouterClient:
         grid: list[list[str | None]] = [[None] * n for _ in message_lists]
         for i, s, c in results:
             grid[i][s] = c
+        await self.aclose()
         return grid
 
 

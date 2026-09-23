@@ -92,6 +92,7 @@ def run_extended(model_key: str, cfg: SpiralConfig | None = None, generate_fn=No
     if not jobs:
         return out_path
 
+    client = None
     if generate_fn is None:
         if spec.openrouter_id is None:
             raise ValueError(f"{model_key} not on OpenRouter; pass generate_fn (vLLM) on the pod")
@@ -119,6 +120,8 @@ def run_extended(model_key: str, cfg: SpiralConfig | None = None, generate_fn=No
                 print(f"[spiral] {model_key}: {n_done}/{len(jobs)} conversations finished")
 
         await asyncio.gather(*[one(j) for j in jobs])
+        if client is not None:
+            await client.aclose()
 
     run(main())
     return out_path
