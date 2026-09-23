@@ -55,14 +55,24 @@ class CLI:
         out = run(c.chat(j.model, [{"role": "user", "content": "Reply with the JSON {\"ok\": true}"}], temperature=0.0, max_tokens=40, force=True))
         print(f"judge {j.model}: {str(out.get('content'))[:80]!r}")
 
-    def stories(self, model, sets="emotions,syndromes,neutral", n_per_call=6, concurrency=48):
-        from dprobe.config import StoryGenConfig
+    def stories(self, model, sets="emotions,syndromes,neutral", n_per_call=6, concurrency=48, emotions=None, order="default"):
+        """--emotions a,b,c restricts the emotion set; --order smoke_first|reverse changes processing order
+        (lets a second worker start from the other end of the list without duplicating calls)."""
+        from dprobe.config import EMOTIONS, SMOKE_EMOTIONS, StoryGenConfig
         from dprobe.stories import generate_emotion_stories, generate_neutral_stories, generate_syndrome_stories, story_summary
 
         ensure_dirs()
         cfg = StoryGenConfig(n_per_call=int(n_per_call), max_concurrency=int(concurrency))
+        emo = _list(emotions) or list(EMOTIONS)
+        if order == "reverse":
+            emo = emo[::-1]
+        elif order == "smoke_first":
+            emo = SMOKE_EMOTIONS + [e for e in emo[::-1] if e not in SMOKE_EMOTIONS]
         for s in _list(sets):
-            {"emotions": generate_emotion_stories, "syndromes": generate_syndrome_stories, "neutral": generate_neutral_stories}[s](model, cfg=cfg)
+            if s == "emotions":
+                generate_emotion_stories(model, emotions=emo, cfg=cfg)
+            else:
+                {"syndromes": generate_syndrome_stories, "neutral": generate_neutral_stories}[s](model, cfg=cfg)
         print(json.dumps(story_summary(model), indent=1))
 
     def story_summary(self, model):
