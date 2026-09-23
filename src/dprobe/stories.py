@@ -103,8 +103,10 @@ async def _generate_set(
                     still.append(t)
             pending = still
             rows = [{"topic": t, "text": s} for t in topics for s in existing.get(t, [])]
-            with open(out_path, "w") as f:
+            tmp = out_path.with_suffix(".json.tmp")
+            with open(tmp, "w") as f:
                 json.dump(rows, f, indent=1)
+            tmp.replace(out_path)          # atomic: a concurrent sync never sees a half-written file
             if pending and attempt < 2:
                 # a retry must miss the cache: vary the prompt with a nonce so the key changes
                 build_prompt_prev = build_prompt
