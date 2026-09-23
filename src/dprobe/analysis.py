@@ -34,8 +34,13 @@ def _out(model_key: str) -> Path:
 def _load(model_key: str, condition: str = "extended", tag: str = ""):
     p = RESULTS_DIR / "probe" / model_key / (condition + (f"_{tag}" if tag else "")) / "probe.pt"
     P = torch.load(p)
-    J = load_judgments(transcripts_path(model_key, condition, tag), "frustration")
-    Jp = load_judgments(transcripts_path(model_key, condition, tag), "petri")
+    # a "from-<key>" tag means the transcripts (and their judgments) belong to another model
+    src, src_tag = model_key, tag
+    if tag.startswith("from-"):
+        src = tag[len("from-"):].split("_")[0]
+        src_tag = tag[len("from-") + len(src) + 1:]
+    J = load_judgments(transcripts_path(src, condition, src_tag), "frustration")
+    Jp = load_judgments(transcripts_path(src, condition, src_tag), "petri")
     return P, J, Jp
 
 

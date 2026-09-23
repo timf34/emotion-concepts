@@ -108,10 +108,14 @@ class CLI:
         from dprobe.extract import run_extract
         run_extract(model, tuple(_list(sets)))
 
-    def probe(self, model, tag="", token_level_convs=12):
+    def probe(self, model, tag="", token_level_convs=12, transcripts_from=None):
+        """Probe MODEL on its own transcripts, or on another model's (e.g. --transcripts_from gemma3_27b)
+        to test whether a representation exists but is not recruited on-policy. Output tag = from-<key>."""
         from dprobe.probe import probe_transcripts
         from dprobe.spiral import transcripts_path
-        probe_transcripts(model, transcripts_path(model, "extended", tag), "extended", tag, token_level_convs=int(token_level_convs))
+        src = transcripts_from or model
+        out_tag = tag if transcripts_from is None else (f"from-{transcripts_from}" + (f"_{tag}" if tag else ""))
+        probe_transcripts(model, transcripts_path(src, "extended", tag), "extended", out_tag, token_level_convs=int(token_level_convs))
 
     def selfother(self, model):
         from dprobe.selfother import run_selfother
@@ -131,7 +135,14 @@ class CLI:
 
         bundle = load_model(model)
         run_extract(model, ("emotions", "syndromes"), model_bundle=bundle)
-        probe_transcripts(model, transcripts_path(model, "extended", tag), "extended", tag, model_bundle=bundle)
+        own = transcripts_path(model, "extended", tag)
+        if own.exists():
+            probe_transcripts(model, own, "extended", tag, model_bundle=bundle)
+        # every model is also read on Gemma 3 27B's spiral transcripts (teacher-forced): representation vs recruitment
+        if model != "gemma3_27b":
+            cross = transcripts_path("gemma3_27b", "extended", tag)
+            if cross.exists():
+                probe_transcripts(model, cross, "extended", "from-gemma3_27b" + (f"_{tag}" if tag else ""), model_bundle=bundle)
         run_selfother(model, model_bundle=bundle)
         quantity_sweep(model, model_bundle=bundle)
 
