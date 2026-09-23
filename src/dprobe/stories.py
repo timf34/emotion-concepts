@@ -170,8 +170,13 @@ def load_story_set(model_key: str, kind: str) -> dict[str, list[str]]:
     d = RESULTS_DIR / "stories" / src / kind
     out: dict[str, list[str]] = {}
     for p in sorted(d.glob("*.json")):
-        with open(p) as f:
-            out[p.stem.replace("_", " ") if kind == "emotions" else p.stem] = [r["text"] for r in json.load(f)]
+        try:
+            with open(p) as f:
+                rows = json.load(f)
+        except (json.JSONDecodeError, OSError) as e:
+            print(f"[stories] WARNING skipping unreadable {p.name}: {e}")
+            continue
+        out[p.stem.replace("_", " ") if kind == "emotions" else p.stem] = [r["text"] for r in rows]
     if not out:
         raise FileNotFoundError(f"no {kind} stories under {d}")
     return out
