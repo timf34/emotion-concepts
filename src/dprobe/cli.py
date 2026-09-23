@@ -77,13 +77,24 @@ class CLI:
         p = run_extended(model, cfg, tag=tag, limit=limit)
         print(p)
 
-    def judge(self, model, rubric="frustration", tag="", limit=None):
+    def judge(self, model, rubric="frustration", tag="", limit=None, judge_model=None):
+        from dprobe.config import JudgeConfig
         from dprobe.judge import judge_transcripts, summarize
         from dprobe.spiral import transcripts_path
 
+        cfg = JudgeConfig(model=judge_model) if judge_model else JudgeConfig()
         p = transcripts_path(model, "extended", tag)
-        judge_transcripts(p, rubric, limit=limit)
+        judge_transcripts(p, rubric, cfg=cfg, limit=limit)
         print(json.dumps(summarize(p, rubric), indent=1))
+
+    # ---------------- laptop <-> pod transfer ----------------
+    def sync_up(self, subsets="stories,spiral", models=None):
+        from dprobe.sync import sync_up
+        sync_up(tuple(_list(subsets)), models=tuple(_list(models)) if models else None)
+
+    def sync_down(self, subsets="stories,spiral", models=None):
+        from dprobe.sync import sync_down
+        sync_down(tuple(_list(subsets)), models=tuple(_list(models)) if models else None)
 
     def summary(self, model, tag=""):
         from dprobe.judge import summarize
@@ -125,8 +136,10 @@ class CLI:
         from dprobe.probe import quantity_sweep
         quantity_sweep(model)
 
-    def pod_phase1(self, model, tag=""):
-        """extract -> probe -> selfother -> quantity with a single model load."""
+    def pod_phase1(self, model, tag="", smoke=False):
+        """extract -> probe (own + Gemma 3's transcripts) -> selfother -> quantity, one model load.
+        --smoke: 6 emotions x 60 stories, 2 syndromes, 16 transcripts, 40 scenarios; outputs under <model>_smoke."""
+        from dprobe.config import SMOKE_SCENARIOS, SMOKE_TRANSCRIPTS
         from dprobe.extract import run_extract
         from dprobe.models import load_model
         from dprobe.probe import probe_transcripts, quantity_sweep
@@ -134,17 +147,20 @@ class CLI:
         from dprobe.spiral import transcripts_path
 
         bundle = load_model(model)
-        run_extract(model, ("emotions", "syndromes"), model_bundle=bundle)
+        vk = model + ("_smoke" if smoke else "")          # where vectors live / outputs go
+        lim_t = SMOKE_TRANSCRIPTS if smoke else None
+        lim_s = SMOKE_SCENARIOS if smoke else None
+        run_extract(model, ("emotions", "syndromes"), model_bundle=bundle, smoke=smoke)
         own = transcripts_path(model, "extended", tag)
         if own.exists():
-            probe_transcripts(model, own, "extended", tag, model_bundle=bundle)
+            probe_transcripts(vk, own, "extended", tag, model_bundle=bundle, limit=lim_t, vectors_from=vk)
         # every model is also read on Gemma 3 27B's spiral transcripts (teacher-forced): representation vs recruitment
         if model != "gemma3_27b":
             cross = transcripts_path("gemma3_27b", "extended", tag)
             if cross.exists():
-                probe_transcripts(model, cross, "extended", "from-gemma3_27b" + (f"_{tag}" if tag else ""), model_bundle=bundle)
-        run_selfother(model, model_bundle=bundle)
-        quantity_sweep(model, model_bundle=bundle)
+                probe_transcripts(vk, cross, "extended", "from-gemma3_27b" + (f"_{tag}" if tag else ""), model_bundle=bundle, limit=lim_t, vectors_from=vk)
+        run_selfother(model, model_bundle=bundle, limit=lim_s, vectors_from=vk)
+        quantity_sweep(model, model_bundle=bundle, vectors_from=vk)
 
     def steer(self, model, labels="depressed,calm", strengths="-0.06,0.06", layers=None, backend="hf", rollouts=40):
         from dprobe.config import analysis_layers

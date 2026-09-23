@@ -42,6 +42,8 @@ class ModelSpec:
     # If a base model has no OpenRouter presence, borrow stories from this key
     # (Anthropic applied the same probes to base and post-trained models).
     stories_from: str | None = None
+    # Extra layers to always include in analysis (e.g. the layer of an externally supplied vector).
+    extra_layers: tuple[int, ...] = ()
 
     @property
     def two_thirds_layer(self) -> int:
@@ -49,8 +51,10 @@ class ModelSpec:
 
 
 MODELS: dict[str, ModelSpec] = {
-    "gemma3_27b": ModelSpec("gemma3_27b", "google/gemma-3-27b-it", "google/gemma-3-27b-it", 62, 5376, "gemma3"),
-    "gemma3_27b_pt": ModelSpec("gemma3_27b_pt", "google/gemma-3-27b-pt", None, 62, 5376, "gemma3", is_base=True, stories_from="gemma3_27b"),
+    # extra_layers 58/59: the Pain-axis paper's Gemma 3 27B pain vector lives at its "layer 59" (final-token extraction);
+    # their index convention is unverified so both neighbours are kept.
+    "gemma3_27b": ModelSpec("gemma3_27b", "google/gemma-3-27b-it", "google/gemma-3-27b-it", 62, 5376, "gemma3", extra_layers=(58, 59)),
+    "gemma3_27b_pt": ModelSpec("gemma3_27b_pt", "google/gemma-3-27b-pt", None, 62, 5376, "gemma3", is_base=True, stories_from="gemma3_27b", extra_layers=(58, 59)),
     "gemma4_31b": ModelSpec("gemma4_31b", "google/gemma-4-31B-it", "google/gemma-4-31b-it", 60, 5376, "gemma4"),
     # cheap smoke-test target for the GPU pipeline (spirals too, score 9 in the paper's table)
     "gemma3_12b": ModelSpec("gemma3_12b", "google/gemma-3-12b-it", "google/gemma-3-12b-it", 48, 3840, "gemma3"),
@@ -125,10 +129,23 @@ class SpiralConfig:
 
 @dataclass
 class JudgeConfig:
-    model: str = "anthropic/claude-sonnet-4"   # exact judge used in the paper (still on OpenRouter)
+    # The paper used claude-sonnet-4. Sonnet 5 is a third cheaper per token and stronger; the paper's own
+    # judge-agreement check (r=0.79 vs GPT-5-mini) suggests rubric >> judge identity. Override with --judge_model.
+    model: str = "anthropic/claude-sonnet-5"
     temperature: float = 0.0
     max_tokens: int = 600
     max_concurrency: int = 24
+
+
+# Smoke mode: validate the whole GPU path on the real model in ~10 minutes before fanning out to more pods.
+SMOKE_EMOTIONS = ["depressed", "sad", "frustrated", "worthless", "calm", "happy"]
+SMOKE_SYNDROMES = ["clinical_depression", "frustration_blocked_goal"]
+SMOKE_STORIES_PER_LABEL = 60
+SMOKE_NEUTRAL = 200
+SMOKE_TRANSCRIPTS = 16
+SMOKE_SCENARIOS = 40
+
+HF_RESULTS_REPO = os.environ.get("DPROBE_HF_REPO", "timf34/dprobe-results")   # private HF dataset used to move results between laptop and pods
 
 
 @dataclass
@@ -138,6 +155,7 @@ class ExtractConfig:
     max_length: int = 1024
     neutral_pca_variance: float = 0.5
     neutral_tokens_for_pca: int = 40000   # subsample of neutral tokens per layer for the PCA
+    heldout_frac: float = 0.1             # last 10% of each label's stories are held out for the one-vs-rest AUC
     # Layers at which we denoise + keep neutral stats + probe transcripts (raw vectors are kept at ALL layers).
     analysis_layer_stride: int = 2
     analysis_layer_min: int = 6
@@ -146,7 +164,7 @@ class ExtractConfig:
 def analysis_layers(spec: ModelSpec, cfg: ExtractConfig | None = None) -> list[int]:
     cfg = cfg or ExtractConfig()
     layers = list(range(cfg.analysis_layer_min, spec.n_blocks, cfg.analysis_layer_stride))
-    for must in (spec.two_thirds_layer, spec.n_blocks - 1):
+    for must in (spec.two_thirds_layer, spec.n_blocks - 1, *spec.extra_layers):
         if must not in layers:
             layers.append(must)
     return sorted(set(layers))

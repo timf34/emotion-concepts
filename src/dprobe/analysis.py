@@ -20,7 +20,11 @@ import numpy as np
 import pandas as pd
 import torch
 
-from dprobe.config import FOCUS, RESULTS_DIR, get_model
+from dprobe.config import FOCUS, RESULTS_DIR, get_model as _get_model
+
+
+def get_model(key: str):
+    return _get_model(key.replace("_smoke", ""))
 from dprobe.judge import load_judgments
 from dprobe.spiral import transcripts_path
 

@@ -64,7 +64,7 @@ uv run python -m dprobe.cli smoke
 for m in gemma3_27b gemma4_31b; do
   uv run python -m dprobe.cli stories $m            # ~42 emotions x 100 topics x 6 + 6 syndromes + neutral
   uv run python -m dprobe.cli spiral  $m            # 200 rollouts of the paper's extended prompt + 10 per puzzle
-  uv run python -m dprobe.cli judge   $m            # paper judge (anthropic/claude-sonnet-4), per turn
+  uv run python -m dprobe.cli judge   $m            # judge per turn (anthropic/claude-sonnet-5; --judge_model anthropic/claude-sonnet-4 for the paper's exact judge)
   uv run python -m dprobe.cli judge   $m --rubric petri
 done
 ```
@@ -72,17 +72,29 @@ done
 The judge summary should reproduce the paper's Gemma 3 27B numbers: mean frustration rising from
 about 1.5 at turn 1 to about 5.5 at turn 8, with over 70% of turn-8 responses scoring >= 5.
 
-## Phase 1 (pod, one H200 or H100 80GB)
+## Phase 1 (pods)
+
+GPU work only ever runs on pods; everything else runs on the laptop. Files move through a private HF
+dataset (`timf34/dprobe-results`, override with `DPROBE_HF_REPO`).
 
 ```bash
-rp up --name dprobe --gpu h200 --volume <your-volume> --disk 80
-rp bootstrap dprobe --repo https://github.com/timf34/emotion-concepts --env .env --req pod/requirements-pod.txt
-rp scp dprobe results pod:/workspace/dprobe_results -r        # stories + transcripts from Phase 0
-rp run dprobe --job phase1 -- bash pod/run_phase1.sh          # extract -> probe -> selfother -> quantity, 3 models
-rp logs dprobe --job phase1 -f
-```
+uv run python -m dprobe.cli sync_up --subsets stories,spiral          # laptop: publish Phase 0 inputs
 
-Then locally: `uv run python -m dprobe.cli analyze gemma3_27b` and `compare`.
+# 1. validate the whole GPU path once, on the real model, in ~10 minutes (outputs under gemma3_27b_smoke)
+rp up --name dprobe-smoke --gpu h200 --volume none --disk 120
+rp bootstrap dprobe-smoke --repo https://github.com/timf34/emotion-concepts --env .env --req pod/requirements-pod.txt --deploy-key
+rp run dprobe-smoke --job smoke --env MODELS=gemma3_27b --env SMOKE=1 -- bash pod/run_phase1.sh
+rp logs dprobe-smoke --job smoke -f
+uv run python -m dprobe.cli sync_down --subsets vectors,probe,selfother && uv run python -m dprobe.cli analyze gemma3_27b_smoke
+
+# 2. fan out: one pod per model, in parallel (reuse dprobe-smoke for one of them)
+bash pod/fanout.sh                                                     # gemma3_27b gemma3_27b_pt gemma4_31b
+rp logs dprobe-gemma4_31b --job phase1 -f
+# each pod pushes vectors/probe/selfother to HF and prints ALL DONE; then `rp down <name>`
+
+uv run python -m dprobe.cli sync_down --subsets vectors,probe,selfother   # laptop
+uv run python -m dprobe.cli analyze gemma3_27b && uv run python -m dprobe.cli compare
+```
 
 ## Phase 2 (pod, steering)
 

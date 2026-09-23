@@ -39,14 +39,25 @@ def to_messages(text: str) -> list[dict]:
 
 
 @torch.no_grad()
-def run_selfother(model_key: str, layers: list[int] | None = None, model_bundle=None) -> Path:
+def run_selfother(model_key: str, layers: list[int] | None = None, model_bundle=None, limit: int | None = None, vectors_from: str | None = None) -> Path:
     model, tok, spec = model_bundle or load_model(model_key)
     layers = layers or analysis_layers(spec, ExtractConfig())
-    labels, bank = assemble_vector_bank(model_key, layers)
+    labels, bank = assemble_vector_bank(vectors_from or model_key, layers)
     device = next(model.parameters()).device
     bank = {l: v.to(device=device, dtype=torch.float32) for l, v in bank.items()}
     with open(DATA_DIR / "pain_axis" / "self_other_420_scenarios.json") as f:
         scenarios = json.load(f)
+    if limit:
+        # keep category balance: round-robin over categories
+        by_cat: dict[str, list] = {}
+        for s_ in scenarios:
+            by_cat.setdefault(s_["category"], []).append(s_)
+        picked, i = [], 0
+        while len(picked) < limit and any(by_cat.values()):
+            for k in list(by_cat):
+                if by_cat[k] and len(picked) < limit:
+                    picked.append(by_cat[k].pop(0))
+        scenarios = picked
     rows = []
     for s in tqdm(scenarios, desc="self/other"):
         msgs = to_messages(s["text"])
@@ -66,7 +77,7 @@ def run_selfother(model_key: str, layers: list[int] | None = None, model_bundle=
             rec["user_mean"][l] = P[user_idx].mean(0).cpu() if user_idx else None
             rec["asst_mean"][l] = P[asst_idx].mean(0).cpu() if asst_idx else None
         rows.append(rec)
-    out = RESULTS_DIR / "selfother" / model_key
+    out = RESULTS_DIR / "selfother" / (vectors_from or model_key)
     out.mkdir(parents=True, exist_ok=True)
     torch.save({"labels": labels, "layers": layers, "rows": rows}, out / "selfother.pt")
     print(f"[selfother] {len(rows)} scenarios -> {out / 'selfother.pt'}")

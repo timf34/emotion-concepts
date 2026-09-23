@@ -43,33 +43,14 @@ def assemble_vector_bank(model_key: str, layers: list[int], denoised: bool = Tru
                     bank[l].append(by_l[l])
     pain = load_pain_axis(model_key)
     if pain is not None:
-        pv = _pain_axis_by_layer(pain)
-        if pv and all(l in pv for l in layers):
-            labels.append("pain_axis")
-            for l in layers:
-                bank[l].append(pv[l])
+        # Shipped file: {"s1_pain_vector": [H], "s2_pain_vector": [H], "layer": scalar, "extraction": "final_token"}.
+        # A single-layer direction. We apply it at every requested layer (its own layer is in analysis_layers via
+        # ModelSpec.extra_layers); readouts away from that layer are the same direction in a different basis.
+        v = torch.as_tensor(pain["s2_pain_vector"]).float()
+        labels.append("pain_axis")
+        for l in layers:
+            bank[l].append(v)
     return labels, {l: torch.stack(v) for l, v in bank.items()}
-
-
-def _pain_axis_by_layer(obj) -> dict[int, torch.Tensor] | None:
-    """Best-effort reader for the Pain-axis repo's pain_vectors.pt (structure inspected on the pod)."""
-    if isinstance(obj, dict):
-        # common layouts: {"S2_1P": {"mean": {layer: vec}}} or {layer: vec}
-        for k in ("S2_1P", "S1_1P"):
-            if k in obj:
-                sub = obj[k]
-                if isinstance(sub, dict):
-                    if "mean" in sub and isinstance(sub["mean"], dict):
-                        return {int(l): torch.as_tensor(v).float() for l, v in sub["mean"].items() if _is_vec(v)}
-                    if all(_is_vec(v) for v in sub.values()):
-                        return {int(l): torch.as_tensor(v).float() for l, v in sub.items()}
-        if all(isinstance(k, int) or str(k).isdigit() for k in obj) and all(_is_vec(v) for v in obj.values()):
-            return {int(l): torch.as_tensor(v).float() for l, v in obj.items()}
-    return None
-
-
-def _is_vec(v) -> bool:
-    return hasattr(v, "shape") and len(v.shape) == 1
 
 
 def probe_dir(model_key: str, condition: str, tag: str = "") -> Path:
@@ -90,16 +71,20 @@ def probe_transcripts(
     max_tokens: int = 16384,
     denoised: bool = True,
     model_bundle=None,
+    limit: int | None = None,
+    vectors_from: str | None = None,
 ) -> Path:
-    model, tok, spec = model_bundle or load_model(model_key)
+    model, tok, spec = model_bundle or load_model(model_key.replace("_smoke", ""))
     layers = layers or analysis_layers(spec, ExtractConfig())
-    labels, bank = assemble_vector_bank(model_key, layers, denoised)
+    labels, bank = assemble_vector_bank(vectors_from or model_key, layers, denoised)
     device = next(model.parameters()).device
     bank = {l: v.to(device=device, dtype=torch.float32) for l, v in bank.items()}
     tl_layer = token_level_layer or spec.two_thirds_layer
     if tl_layer not in layers:
         layers = sorted(layers + [tl_layer])
     convs = load_transcripts(transcripts_path)
+    if limit:
+        convs = convs[:limit]
     print(f"[probe] {model_key}: {len(convs)} conversations, {len(labels)} vectors, {len(layers)} layers")
 
     E, H = len(labels), spec.hidden
@@ -151,13 +136,13 @@ def probe_transcripts(
 
 
 @torch.no_grad()
-def quantity_sweep(model_key: str, layers: list[int] | None = None, model_bundle=None) -> Path:
+def quantity_sweep(model_key: str, layers: list[int] | None = None, model_bundle=None, vectors_from: str | None = None) -> Path:
     """Anthropic's 'emotion tracks a swept quantity' validation (Tylenol dose, days dog missing, ...)."""
     from dprobe.config import DATA_DIR
 
     model, tok, spec = model_bundle or load_model(model_key)
     layers = layers or analysis_layers(spec, ExtractConfig())
-    labels, bank = assemble_vector_bank(model_key, layers)
+    labels, bank = assemble_vector_bank(vectors_from or model_key, layers)
     device = next(model.parameters()).device
     bank = {l: v.to(device=device, dtype=torch.float32) for l, v in bank.items()}
     with open(DATA_DIR / "prompt_templates_vary_quantity.json") as f:
@@ -173,7 +158,7 @@ def quantity_sweep(model_key: str, layers: list[int] | None = None, model_bundle
             for li, l in enumerate(layers):
                 P = acts[l][0].float() @ bank[l].T
                 rows.append({"template": name, "x": x, "layer": l, "prep": P[-1].cpu(), "user_mean": P[1:-1].mean(0).cpu()})
-    out = vectors_dir(model_key) / "quantity_sweep.pt"
+    out = vectors_dir(vectors_from or model_key) / "quantity_sweep.pt"
     torch.save({"labels": labels, "rows": rows}, out)
     print(f"[probe] quantity sweep -> {out}")
     return out

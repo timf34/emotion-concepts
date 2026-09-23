@@ -31,9 +31,9 @@ def _unit(v: torch.Tensor) -> torch.Tensor:
 
 
 def residual_norms(model_key: str) -> dict[int, float]:
-    """Mean neutral-token residual norm per analysis layer (computed lazily from neutral_pca means as a proxy)."""
+    """Mean neutral-token residual norm per analysis layer (recorded at extraction; falls back to the mean vector's norm)."""
     pca = torch.load(vectors_dir(model_key) / "neutral_pca.pt")
-    return {l: float(d["mean"].norm()) for l, d in pca.items()}
+    return {l: float(d.get("resid_norm") or d["mean"].norm()) for l, d in pca.items()}
 
 
 def steering_vectors(model_key: str, label: str, layers: list[int], strength: float, set_name: str | None = None) -> dict[int, torch.Tensor]:
