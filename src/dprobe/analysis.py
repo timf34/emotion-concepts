@@ -57,12 +57,19 @@ def _zscore(P: dict, model_key: str, which: str = "proj_mean") -> np.ndarray:
     kind = "dn" if P.get("denoised", True) else "raw"
     for li, l in enumerate(layers):
         for ei, e in enumerate(labels):
+            found = False
             for set_name in ("emotions", "syndromes", "pain_axis"):
                 st = stats.get(set_name, {}).get(kind, {}).get(l)
                 if st and e in st["labels"]:
                     j = st["labels"].index(e)
                     X[:, :, li, ei] = (X[:, :, li, ei] - float(st["mean"][j])) / float(st["std"][j])
+                    found = True
                     break
+            if not found:
+                # no neutral baseline for this label (e.g. an external vector extracted before stats existed):
+                # standardise on the probe's own distribution so it stays on the same scale as the others
+                v = X[:, :, li, ei]
+                X[:, :, li, ei] = (v - np.nanmean(v)) / (np.nanstd(v) + 1e-9)
     return X
 
 
