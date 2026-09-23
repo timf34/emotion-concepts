@@ -4,7 +4,11 @@
 #   SMOKE=1                        ~10-minute validation of the whole GPU path on the real model (outputs under <model>_smoke)
 set -euo pipefail
 cd "$(dirname "$0")/.."
-export HF_HOME=${HF_HOME:-/workspace/hf}
+# Without a network volume, /workspace is a 50GB pod volume: too small for a 54-62GB model. Use the container disk.
+if [ -z "${HF_HOME:-}" ]; then
+  if [ "$(df -BG --output=avail /workspace 2>/dev/null | tail -1 | tr -dc 0-9)" -ge 100 ] 2>/dev/null; then HF_HOME=/workspace/hf; else HF_HOME=/hf_cache; fi
+fi
+export HF_HOME
 export HF_HUB_ENABLE_HF_TRANSFER=1
 export PYTHONUNBUFFERED=1
 export DPROBE_RESULTS=${DPROBE_RESULTS:-/workspace/dprobe_results}

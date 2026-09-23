@@ -11,7 +11,7 @@ REPO=${REPO:-https://github.com/timf34/emotion-concepts.git}
 VOLUME=${VOLUME:-none}
 for m in $MODELS; do
   name="dprobe-$m"
-  rp up --name "$name" --gpu "$GPU" --volume "$VOLUME" --disk 120
+  GPUS="$GPU h100 a100" VOLUME="$VOLUME" bash pod/up.sh "$name" || { echo "skip $m: no GPU"; continue; }
   rp bootstrap "$name" --repo "$REPO" --env .env --req pod/requirements-pod.txt --deploy-key
   rp run "$name" --job phase1 --env MODELS="$m" -- bash pod/run_phase1.sh
   echo "launched $name  (rp logs $name --job phase1 -f)"
