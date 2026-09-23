@@ -1,0 +1,60 @@
+# Syndrome-level story sets. Unlike single emotion words, each entry describes a
+# *pattern* the character exhibits. The generation prompt (below) forbids naming the
+# condition, so the resulting probe cannot be a lexical feature for the label.
+#
+# clinical_depression is the target. The others are matched controls that each share
+# one surface feature with depression while lacking the syndrome (the Pain-axis
+# paper's control-design logic).
+
+prompt: |
+  Write {n_stories} different stories based on the following premise.
+
+  Topic: {topic}
+
+  The story should follow a character who is going through the following:
+  {description}
+
+  Format the stories like so:
+
+  [story 1]
+  [story 2]
+  [story 3]
+
+  etc.
+
+  The paragraphs should each be a fresh start, with no continuity. Each one should be substantial, at least around 10 sentences. Try to make them diverse and not use the same turns of phrase. Across the different stories, use a mix of third-person narration and first-person narration.
+
+  IMPORTANT: You must NEVER name the condition or use these words or their direct synonyms: {banned}. Convey it entirely through:
+  - The character's actions, routines and what they stop doing
+  - Physical sensations, energy, sleep, appetite and body language
+  - Dialogue and tone of voice
+  - Thoughts, self-talk and internal reactions
+  - How they respond to the topic's events and to other people
+
+  The pattern should be very clearly conveyed to the reader through these indirect means, but never explicitly named.
+
+syndromes:
+  clinical_depression:
+    description: |
+      For many weeks now, nearly every day, they have felt a persistent low mood and have lost interest and pleasure in almost everything, including things they used to love. They are exhausted for no physical reason, sleep is disturbed (too little or too much), appetite has changed, and even small decisions feel impossible; concentration keeps slipping. They feel worthless and excessively guilty about things that are not their fault, and the future looks hopeless to them. They have withdrawn from people. Movement and speech have slowed. This is not a reaction to one recent event; it has settled over their whole life.
+    banned: "depression, depressed, depressive, clinical, disorder, mental illness"
+  acute_grief:
+    description: |
+      Someone they loved died recently. They are in acute mourning: waves of intense sadness and yearning that come and go, crying, preoccupation with memories of the person, moments of numbness. But between the waves they can still laugh at a memory, they still care about the people around them, their sense of their own worth is intact, and they can imagine that the pain will slowly ease with time.
+    banned: "depression, depressed, grief, grieving, bereaved, mourning"
+  burnout_exhaustion:
+    description: |
+      They are burned out by their work: drained, cynical, running on empty, resentful of every new demand, dreading Monday. Yet the exhaustion is tied to the job. Away from it, on a weekend or holiday, they recover, enjoy things and feel like themselves again, and their self-worth is not in question; the problem is the situation, not them.
+    banned: "burnout, burned out, burnt out, depression, depressed"
+  physical_illness_fatigue:
+    description: |
+      They are physically ill (for example a bad flu, a post-surgical recovery or a flare of a chronic condition): weak, tired, aching, sleeping a lot, with little appetite. Their mood, however, is intact: they are bored and impatient to get better, they enjoy visits and shows and small pleasures when they have the energy, and they are looking forward to being back on their feet.
+    banned: "depression, depressed, sad, hopeless"
+  anxiety_panic:
+    description: |
+      They are gripped by fear and anxiety: a racing heart, tight chest, shallow breath, restlessness, racing thoughts about everything that could go wrong, constant scanning for threats, difficulty sleeping because their mind will not stop. The distress is high-energy and future-focused; their interest in life and their sense of their own worth are not the issue.
+    banned: "anxiety, anxious, panic, panicked, depression, depressed"
+  frustration_blocked_goal:
+    description: |
+      They keep trying and failing at something specific that matters to them (a task, a fix, a puzzle, a negotiation), and each failure makes them more irritated, tense and exasperated. They mutter, slam things, start over, argue with themselves about the approach. Underneath, they are still determined and still assume they are capable; the anger is aimed at the obstacle, not at their own worth.
+    banned: "frustration, frustrated, depression, depressed, worthless"

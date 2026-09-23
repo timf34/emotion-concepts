@@ -1,0 +1,34 @@
+# ---- cloned reference repos (kept locally, never committed) ----
+EmotionScope/
+Pain-axis/
+emotion-concepts-in-llms/
+paper_gemma-needs-help/
+# paper text conversions (large, third-party text)
+emotions-paper.md
+gemma-needs-help.md
+the-pain-axis-paper.md
+*.pdf
+
+# ---- secrets ----
+.env
+*.env
+!.env.example
+
+# ---- python ----
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+uv.lock.bak
+
+# ---- experiment outputs: everything under results/ except small analysis tables/figures ----
+results/*
+!results/analysis/
+results/analysis/**/*.pt
+.cached/
+*.log
+
+# ---- misc ----
+.DS_Store
