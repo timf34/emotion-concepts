@@ -69,7 +69,7 @@ def run_selfother(model_key: str, layers: list[int] | None = None, model_bundle=
             model(input_ids=ids)
         user_idx = [i for t in r.turns if t["role"] == "user" for i in range(t["start"], t["end"])]
         asst_idx = [i for t in r.turns if t["role"] == "assistant" for i in range(t["start"], t["end"])]
-        rec = {k: s[k] for k in ("id", "category", "stratum", "perspective", "intensity")}
+        rec = {k: s.get(k) for k in ("id", "category", "stratum", "perspective", "intensity")}
         rec["final"], rec["user_mean"], rec["asst_mean"] = {}, {}, {}
         for l in layers:
             P = acts[l][0].float() @ bank[l].T

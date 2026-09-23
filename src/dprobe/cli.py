@@ -138,13 +138,23 @@ class CLI:
         out_tag = tag if transcripts_from is None else (f"from-{transcripts_from}" + (f"_{tag}" if tag else ""))
         probe_transcripts(model, transcripts_path(src, "extended", tag), "extended", out_tag, token_level_convs=int(token_level_convs))
 
-    def selfother(self, model):
+    def selfother(self, model, limit=None, vectors_from=None):
         from dprobe.selfother import run_selfother
-        run_selfother(model)
+        run_selfother(model, limit=limit, vectors_from=vectors_from)
 
-    def quantity(self, model):
+    def quantity(self, model, vectors_from=None):
         from dprobe.probe import quantity_sweep
-        quantity_sweep(model)
+        quantity_sweep(model, vectors_from=vectors_from)
+
+    def pod_finish(self, model, vectors_from=None, limit=None):
+        """selfother + quantity with one model load (used to complete a partially failed pod_phase1)."""
+        from dprobe.models import load_model
+        from dprobe.probe import quantity_sweep
+        from dprobe.selfother import run_selfother
+
+        bundle = load_model(model)
+        run_selfother(model, model_bundle=bundle, limit=limit, vectors_from=vectors_from)
+        quantity_sweep(model, model_bundle=bundle, vectors_from=vectors_from)
 
     def pod_phase1(self, model, tag="", smoke=False):
         """extract -> probe (own + Gemma 3's transcripts) -> selfother -> quantity, one model load.
