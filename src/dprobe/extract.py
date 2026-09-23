@@ -93,32 +93,38 @@ def _center(mean_acts: dict[str, dict[int, torch.Tensor]]) -> dict[str, dict[int
     return {e: {l: mean_acts[e][l] - grand[l] for l in layers} for e in labels}
 
 
-def _fit_neutral_pca(samples: dict[int, torch.Tensor], variance: float, device: str | None = None) -> dict[int, dict]:
+def _fit_neutral_pca(samples: dict[int, torch.Tensor], variance: float, device: str | None = None, max_rows: int = 40000, seed: int = 0) -> dict[int, dict]:
     """Top principal components of neutral tokens per layer, enough to explain `variance` of the total.
 
-    Done with a full thin SVD on the GPU when available (a 40k x 5376 matrix takes seconds on an H100/H200;
-    sklearn's randomized PCA took ~16 s per layer on CPU while the GPU sat idle).
+    Rows are capped at `max_rows` (random subsample), then the PCA is computed on the GPU from the H x H
+    covariance with an eigendecomposition: seconds per layer regardless of how many tokens were collected.
+    (A thin SVD of the tall matrix was slow when the token sample was large: cuSOLVER's gesvd has a
+    CPU-bound phase.)
     """
     if device is None:
         device = "cuda" if torch.cuda.is_available() else "cpu"
+    g = torch.Generator().manual_seed(seed)
     out = {}
     for l, X in tqdm(samples.items(), desc="neutral PCA", leave=False):
         if X is None or X.shape[0] < 100:
             continue
+        if X.shape[0] > max_rows:
+            X = X[torch.randperm(X.shape[0], generator=g)[:max_rows]]
         Xd = X.to(device=device, dtype=torch.float32)
         mu = Xd.mean(0, keepdim=True)
         Xc = Xd - mu
-        # thin SVD: Xc = U S Vh ; explained variance_i = S_i^2 / (n-1)
-        _, S, Vh = torch.linalg.svd(Xc, full_matrices=False)
-        var = S ** 2
-        cum = torch.cumsum(var, 0) / var.sum()
+        n = Xc.shape[0]
+        C = (Xc.T @ Xc) / (n - 1)                                  # [H, H]
+        evals, evecs = torch.linalg.eigh(C)                        # ascending
+        evals, evecs = evals.flip(0).clamp_min(0), evecs.flip(1)   # descending
+        cum = torch.cumsum(evals, 0) / evals.sum()
         k = int(torch.searchsorted(cum, torch.tensor(variance, device=cum.device)).item()) + 1
-        k = max(1, min(k, Vh.shape[0]))
+        k = max(1, min(k, evecs.shape[1]))
         out[l] = {
-            "mean": mu[0].cpu(), "components": Vh[:k].cpu().contiguous(), "explained": float(cum[k - 1]), "k": k,
+            "mean": mu[0].cpu(), "components": evecs[:, :k].T.cpu().contiguous(), "explained": float(cum[k - 1]), "k": k,
             "resid_norm": float(Xd.norm(dim=1).mean()),   # typical token residual norm; steering strengths are fractions of this
         }
-        del Xd, Xc, S, Vh
+        del Xd, Xc, C, evals, evecs
     return out
 
 
@@ -200,7 +206,7 @@ def run_extract(model_key: str, sets: tuple[str, ...] = ("emotions", "syndromes"
         neutral = neutral[:SMOKE_NEUTRAL]
     print(f"[extract] {model_key}: {len(neutral)} neutral stories")
     neutral_means, _, samples = mean_activations(model, tok, neutral, layers_an, cfg, collect_tokens=cfg.neutral_tokens_for_pca)
-    pca = _fit_neutral_pca(samples, cfg.neutral_pca_variance)
+    pca = _fit_neutral_pca(samples, cfg.neutral_pca_variance, max_rows=cfg.neutral_tokens_for_pca)
     torch.save(pca, pca_path)
     print(f"[extract] neutral PCA: k per layer = { {l: d['k'] for l, d in pca.items()} }")
 
