@@ -4,18 +4,17 @@
 #   SMOKE=1                        ~10-minute validation of the whole GPU path on the real model (outputs under <model>_smoke)
 set -euo pipefail
 cd "$(dirname "$0")/.."
-# Without a network volume, /workspace is a 50GB pod volume: too small for a 54-62GB model. Use the container disk.
-if [ -z "${HF_HOME:-}" ]; then
-  if [ "$(df -BG --output=avail /workspace 2>/dev/null | tail -1 | tr -dc 0-9)" -ge 100 ] 2>/dev/null; then HF_HOME=/workspace/hf; else HF_HOME=/hf_cache; fi
-fi
-export HF_HOME
+# Weights and results live on the LOCAL container disk: /workspace is frequently a slow FUSE network mount
+# (and only 50GB when no network volume is attached). Results are pushed to HF, so nothing needs to persist here.
+export HF_HOME=${HF_HOME:-/hf_cache}
 export HF_HUB_ENABLE_HF_TRANSFER=1
 export PYTHONUNBUFFERED=1
-export DPROBE_RESULTS=${DPROBE_RESULTS:-/workspace/dprobe_results}
+export DPROBE_RESULTS=${DPROBE_RESULTS:-/results}
 MODELS=${MODELS:-"gemma3_27b gemma3_27b_pt gemma4_31b"}
 SMOKE=${SMOKE:-0}
 SYNC=${SYNC:-1}
-PY=${PY:-python}
+PY=${PY:-/venv/bin/python}
+[ -x "$PY" ] || PY=python
 
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv
 if [ "$SYNC" = "1" ]; then

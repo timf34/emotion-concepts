@@ -82,8 +82,8 @@ uv run python -m dprobe.cli sync_up --subsets stories,spiral          # laptop: 
 
 # 1. validate the whole GPU path once, on the real model, in ~10 minutes (outputs under gemma3_27b_smoke)
 rp up --name dprobe-smoke --gpu h200 --volume none --disk 120
-rp bootstrap dprobe-smoke --repo https://github.com/timf34/emotion-concepts --env .env --req pod/requirements-pod.txt --deploy-key
-rp run dprobe-smoke --job smoke --env MODELS=gemma3_27b --env SMOKE=1 -- bash pod/run_phase1.sh
+rp bootstrap dprobe-smoke --repo https://github.com/timf34/emotion-concepts --env .env      # no --req: /workspace is a slow FUSE mount
+rp run dprobe-smoke --job smoke --env MODELS=gemma3_27b --env SMOKE=1 -- "bash pod/fast_venv.sh && bash pod/predownload.sh && bash pod/run_phase1.sh"
 rp logs dprobe-smoke --job smoke -f
 uv run python -m dprobe.cli sync_down --subsets vectors,probe,selfother && uv run python -m dprobe.cli analyze gemma3_27b_smoke
 
