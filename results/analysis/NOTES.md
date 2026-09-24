@@ -341,3 +341,25 @@ seven times, is enough.
 Caveats: one combo strength (0.5x) worked and 1x was degenerate, so the window is narrow; n=16; the
 judge rewards this register heavily. Files: `spiral/gemma4_31b/extended_combo-*`, `extended_steer-*v*`,
 `steer/gemma4_31b/calibration_*.json`, `summary_hf.json`.
+
+## 2026-09-25 — Item 5 (laptop): the prep-token spiral direction is the same panic direction
+
+Question: is the Experiment 3 dissociation ("anticipatory grief vs expressed panic") a real second state, or a
+position artefact? Recomputed the spiral direction from the *response-prep* token (`act_prep`) instead of the
+assistant-token mean, and in a within-turn version (high-minus-low difference taken separately at each turn index and
+averaged, which removes the shared drift across turns). `spiral_direction(..., which="act_prep", within_turn=True)`.
+
+| direction (Gemma 3, L24) | hysterical | desperate | panicked | angry | depressed | grief-stricken | clinical_dep. | calm |
+|---|---|---|---|---|---|---|---|---|
+| assistant tokens, pooled (the original) | +0.32 | +0.27 | +0.26 | +0.23 | +0.14 | +0.04 | −0.06 | −0.31 |
+| assistant tokens, within-turn | +0.42 | +0.40 | +0.25 | +0.26 | +0.24 | +0.12 | −0.04 | −0.39 |
+| prep token, pooled | **+0.41** | +0.29 | +0.29 | +0.33 | +0.16 | +0.03 | −0.06 | −0.32 |
+| prep token, within-turn | +0.25 | +0.20 | +0.15 | +0.17 | +0.13 | +0.07 | −0.00 | −0.22 |
+
+At L30/L40 all four variants are weak (≤ 0.15) and led by hysterical / desperate / stressed / frustration_blocked_goal.
+
+Reading: the state at the prep token before a bad turn is the *same* hysterical/angry/desperate direction as the
+expressed state, not a grief direction. The better within-turn Spearman of the depressed / grief-stricken probes in
+Experiment 3 therefore reflects a cleaner readout (lower variance across conversations along those vectors) rather than
+a different internal state. The write-up's "anticipatory grief" framing should be softened to: low-mood probes are the
+best *monitor*, but the state they monitor is panic. Files: `gemma3_27b/spiral_direction_cosines_{prep,within,prep_within}.csv`.

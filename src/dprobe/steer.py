@@ -76,10 +76,25 @@ def combo_tag(parts: dict[str, float], layers: list[int]) -> str:
     return "combo-" + "_".join(f"{k.replace(' ', '_')}{v:+g}" for k, v in parts.items()) + f"@{ls}"
 
 
+def base_vectors(model_key: str, label: str) -> dict[int, torch.Tensor]:
+    """Denoised vectors for a label. 'A_minus_B' = A with its component along B removed at each layer, rescaled to
+    |A| so a multiplier means the same as for A (e.g. assistant_axis_minus_calm: the axis with no calm in it)."""
+    if "_minus_" in label:
+        a_lab, b_lab = label.split("_minus_", 1)
+        A, B = base_vectors(model_key, a_lab), base_vectors(model_key, b_lab)
+        out = {}
+        for l, a in A.items():
+            if l in B:
+                b = _unit(B[l]); r = a - (a @ b) * b
+                out[l] = r * (a.norm() / (r.norm() + 1e-6))
+        return out
+    return load_vectors(model_key, _set_for(label), denoised=True)[label]
+
+
 def steering_vectors(model_key: str, label: str, layers: list[int], strength: float, mode: str = "vec") -> dict[int, torch.Tensor]:
     """mode "vec":   {layer: strength * v_l}                    (multiples of the difference-of-means vector)
        mode "resid": {layer: strength * ||resid_l|| * unit(v_l)} (fraction of residual norm; unsuitable for Gemma)"""
-    vecs = load_vectors(model_key, _set_for(label), denoised=True)[label]
+    vecs = base_vectors(model_key, label)
     missing = [l for l in layers if l not in vecs]
     if missing:
         raise ValueError(f"no denoised vector at layers {missing} (available: {sorted(vecs)})")

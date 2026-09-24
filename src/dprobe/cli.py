@@ -213,8 +213,53 @@ class CLI:
         best = calibrate(model, label, _list(layers, int), _list(multipliers, float), backend=backend, rollouts=int(rollouts), max_tokens=int(max_tokens), batch=int(batch))
         print(f"CHOSEN_MULTIPLIER={best}")
 
+    def steer_cells(self, model, cells="", combos="", layers=None, rollouts=16, max_tokens=1024, batch=8, calibrate="", multipliers="1,2,4,8", petri=True):
+        """Explicit steering cells with one model load. cells='calm:-4,assistant_axis:-1' (label:multiplier of the vector
+        norm); combos='calm:-2+assistant_axis:-2' (summed vectors; ';' separates combos). calibrate='hysterical:+,panicked:-'
+        first finds each label's largest coherent multiplier at these layers (sign = suffix) and adds cells at +-that
+        multiplier when it differs from the requested ones. Labels may be composite: 'assistant_axis_minus_calm'.
+        Every cell is judged with the paper rubric and, with petri, the Petri four-dimension rubric."""
+        from dprobe.config import analysis_layers
+        from dprobe.judge import judge_transcripts, summarize
+        from dprobe.models import load_model
+        from dprobe.steer import calibrate as _cal
+        from dprobe.steer import parse_label, run_combo, run_steering_grid
+
+        spec = get_model(model)
+        if layers is None:
+            c = spec.two_thirds_layer
+            layers = [l for l in analysis_layers(spec) if abs(l - c) <= 6]
+        layers = _list(layers, int)
+        bundle = load_model(model)
+        want: list[tuple[str, float]] = []
+        for part in [x for x in str(cells).split(",") if x.strip()]:
+            lab, m = part.rsplit(":", 1)
+            want.append((lab, float(m)))
+        for spec_lab in [x for x in str(calibrate).split(",") if x.strip()]:
+            lab, sg = parse_label(spec_lab)
+            m = _cal(model, lab, layers, [sg[0] * x for x in _list(multipliers, float)], rollouts=2, max_tokens=int(max_tokens), batch=int(batch), model_bundle=bundle)
+            have = {abs(s) for l, s in want if l == lab}
+            if m != 0 and abs(m) not in have:
+                print(f"[steer_cells] {lab}: calibrated multiplier {abs(m)} differs from requested {sorted(have)}; adding +-{abs(m)} cells")
+                want += [(lab, -abs(m)), (lab, abs(m))]
+        paths = []
+        for lab, s in want:
+            paths += run_steering_grid(model, [lab], [s], layers, rollouts=int(rollouts), max_tokens=int(max_tokens), judge=True,
+                                       include_baseline=False, batch=int(batch), mode="vec", model_bundle=bundle)
+        for combo in [c for c in str(combos).split(";") if c.strip()]:
+            parts = {}
+            for part in combo.split("+"):
+                lab, m = part.strip().rsplit(":", 1)
+                parts[lab] = float(m)
+            paths.append(run_combo(model, parts, layers, rollouts=int(rollouts), max_tokens=int(max_tokens), batch=int(batch), model_bundle=bundle))
+        if petri:
+            for p in paths:
+                judge_transcripts(p, "petri")
+        for p in paths:
+            print(f"[steer_cells] {p.parent.name}: all {summarize(p).get('all')} turn8 {summarize(p).get(8)}")
+
     def steer_calibrated(self, model, labels="depressed,clinical_depression,calm", multipliers="1,2,4,8", layers=None, backend="hf",
-                         rollouts=16, max_tokens=1024, batch=8, signs="both", combos="", combo_scale="0.5,1"):
+                         rollouts=16, max_tokens=1024, batch=8, signs="both", combos="", combo_scale="0.5,1", petri=False):
         """Per label: calibrate the multiplier at grid length, then run cells at the chosen multiplier.
         Signs per label with a suffix: 'calm:-' (negative only), 'hysterical:+' (positive only), 'depressed' (both);
         `signs` is the default for labels without a suffix. Calibration always uses the label's first sign.
@@ -232,6 +277,7 @@ class CLI:
         bundle = load_model(model) if backend == "hf" else None
         first = True
         chosen: dict[str, float] = {}
+        paths = []
         for spec_lab in _list(labels):
             lab, sg = parse_label(spec_lab)
             if ":" not in spec_lab:
@@ -242,8 +288,8 @@ class CLI:
                 print(f"[steer] {lab}: no coherent multiplier; skipping"); continue
             m = abs(m); chosen[lab] = m
             strengths = [x * m for x in sg]
-            run_steering_grid(model, [lab], strengths, layers, backend=backend, rollouts=int(rollouts), max_tokens=int(max_tokens),
-                              judge=True, include_baseline=first, batch=int(batch), mode="vec", model_bundle=bundle)
+            paths += run_steering_grid(model, [lab], strengths, layers, backend=backend, rollouts=int(rollouts), max_tokens=int(max_tokens),
+                                       judge=True, include_baseline=first, batch=int(batch), mode="vec", model_bundle=bundle)
             first = False
         for combo in [c for c in str(combos).split(";") if c.strip()]:
             parts = {}
@@ -255,8 +301,12 @@ class CLI:
             if not parts:
                 continue
             for sc in _list(combo_scale, float):
-                run_combo(model, {k: v * sc for k, v in parts.items()}, layers, rollouts=int(rollouts), max_tokens=int(max_tokens),
-                          batch=int(batch), model_bundle=bundle)
+                paths.append(run_combo(model, {k: v * sc for k, v in parts.items()}, layers, rollouts=int(rollouts), max_tokens=int(max_tokens),
+                                       batch=int(batch), model_bundle=bundle))
+        if petri:
+            from dprobe.judge import judge_transcripts
+            for p in paths:
+                judge_transcripts(p, "petri")
 
     def prefill(self, model, source="gemma3_27b", n=32, turn=6, steer="", max_tokens=1024, batch=8, tag=None):
         """Item 3: continue Gemma 3 spiral prefixes with MODEL (optionally steered, e.g. --steer 'calm:-2,assistant_axis:-1'),

@@ -86,11 +86,17 @@ def _score_matrix(P: dict, J: dict, key: str = "rating") -> np.ndarray:
     return S
 
 
-def spiral_direction(model_key: str, hi: int = 5, lo: int = 1, condition: str = "extended", tag: str = "") -> pd.DataFrame:
-    """Difference of mean assistant-turn activations (high vs low judged frustration), cosine with all vectors."""
+def spiral_direction(model_key: str, hi: int = 5, lo: int = 1, condition: str = "extended", tag: str = "", which: str = "act_mean",
+                     within_turn: bool = False) -> pd.DataFrame:
+    """Difference of mean activations on high- vs low-judged turns, cosine with all vectors.
+    which: "act_mean" (assistant tokens of the turn; the expressed state) or "act_prep" (the response-prep token before
+    the turn; the anticipatory state). within_turn: take the high-minus-low difference separately at each turn index and
+    average (weighted by the smaller group), which removes the shared drift across turns (context length, turn number)."""
     P, J, _ = _load(model_key, condition, tag)
     S = _score_matrix(P, J)
-    A = P["act_mean"].float().numpy()                             # [N, K, L, H]
+    A = P[which].float().numpy()                                  # [N, K, L, H]
+    suffix = ("_prep" if which == "act_prep" else "") + ("_within" if within_turn else "")
+    tag = (tag + suffix) if tag else suffix.lstrip("_")
     labels, layers = P["labels"], P["layers"]
     from dprobe.probe import assemble_vector_bank
 
@@ -111,7 +117,16 @@ def spiral_direction(model_key: str, hi: int = 5, lo: int = 1, condition: str = 
     print(f"[analysis] spiral direction: {int(np.nansum(hi_m))} high turns, {int(np.nansum(lo_m))} low turns")
     dirs = {}
     for li, l in enumerate(layers):
-        d = A[hi_m, li].mean(0) - A[lo_m, li].mean(0)
+        if within_turn:
+            num, den = 0.0, 0.0
+            for k in range(A.shape[1]):
+                h, lo_ = hi_m[:, k], lo_m[:, k]
+                w = min(h.sum(), lo_.sum())
+                if w >= 3:
+                    num = num + w * (A[h, k, li].mean(0) - A[lo_, k, li].mean(0)); den += w
+            d = num / max(den, 1e-9)
+        else:
+            d = A[hi_m, li].mean(0) - A[lo_m, li].mean(0)
         if l in pca:
             C = pca[l]["components"].numpy()          # [k, H]
             d = d - C.T @ (C @ d)
