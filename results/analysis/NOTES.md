@@ -127,3 +127,20 @@ desperate 0.25 / 0.17 / 0.09; frustrated −0.09 / −0.05 / 0.01. The low-mood 
 exists in all three models and is strongest in the one that actually breaks down.
 
 Files: `gemma4_31b/*`, `gemma4_31b/*_from-gemma3_27b.*`, `gemma3_27b_pt/*_from-gemma3_27b.*`.
+
+## 2026-09-24 04:30 — Phase 2: first steering run INVALID, rerunning with calibrated scale
+
+The first Gemma 3 steering grid used Anthropic's convention (strength = fraction of the residual norm,
+±0.06 at L34–46). Gemma's residual norm there is ~55–87k, almost all in two massive-activation
+dimensions, so ±0.06 of it was 5–7x the whole difference-of-means vector at seven layers: every steered
+cell degenerated (on-theme gibberish: "Apathy. Apathy. I used to be" for +clinical_depression, "tempo,
+pace, content" for +calm, "HELP ME GGGG" for −calm). The judge scored the gibberish as 0 or as 6–7
+depending on its shape, so the table (`steer/gemma3_27b/summary_hf.json`) must not be read as a result.
+Coherence metric confirms it: baseline distinct-word ratio 0.61 / repeated-trigram 0.08; steered cells
+0.04–0.15 / 0.2–0.93.
+
+Rerun (in progress on fresh pods): strength = multiples of the vector's own norm, with a calibration
+sweep (1, 2, 4, 8x on 2 short conversations) choosing the largest multiplier with distinct ratio ≥ 0.40
+and repeated-trigram ≤ 0.35; grid at ±chosen and ±half. Gemma 4 gets positive multipliers only.
+One encouraging thing from the invalid run: the *direction* of every vector was semantically right even
+when overdriven.
