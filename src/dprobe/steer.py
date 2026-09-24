@@ -6,8 +6,11 @@ Two backends:
   easysteer : ZJU-REAL/EasySteer (vLLM 0.29 fork). Vectors come from the gguf files written by
               extract.export_gguf; steering is passed per request via SteeringSpec. Much faster.
 
-Steering strength is a fraction of the typical neutral-token residual norm at each layer (Anthropic used
--0.1 .. +0.1), converted to an absolute coefficient with the norm recorded at extraction time.
+Steering strength (mode "vec", default): multiples of each layer's own difference-of-means vector norm, so
++1 adds one "story-difference" along unit(v_l). Mode "resid" (Anthropic's convention, fraction of residual
+norm) is kept but is WRONG for Gemma: its residual norm (~60,000 at L40) is two massive-activation dimensions,
+so 0.06 of it is 5-7x the vector and produces gibberish (issue 28). Calibrate the multiplier with
+`dprobe.cli coherence` on a short sweep before running a grid.
 
 Both backends plug into spiral.run_extended through `generate_fn`: conversations are driven as async
 tasks; every pending generation request is queued and the queue is flushed as one batched generate call.
@@ -44,19 +47,23 @@ def _set_for(label: str) -> str:
     return "syndromes" if label in SYNDROMES else "emotions"
 
 
-def steering_vectors(model_key: str, label: str, layers: list[int], strength: float) -> dict[int, torch.Tensor]:
-    """{layer: strength * ||resid_l|| * unit(v_l)}"""
+def steering_vectors(model_key: str, label: str, layers: list[int], strength: float, mode: str = "vec") -> dict[int, torch.Tensor]:
+    """mode "vec":   {layer: strength * v_l}                    (multiples of the difference-of-means vector)
+       mode "resid": {layer: strength * ||resid_l|| * unit(v_l)} (fraction of residual norm; unsuitable for Gemma)"""
     vecs = load_vectors(model_key, _set_for(label), denoised=True)[label]
-    norms = residual_norms(model_key)
-    missing = [l for l in layers if l not in vecs or l not in norms]
+    missing = [l for l in layers if l not in vecs]
     if missing:
-        raise ValueError(f"no denoised vector / norm at layers {missing} (available: {sorted(set(vecs) & set(norms))})")
+        raise ValueError(f"no denoised vector at layers {missing} (available: {sorted(vecs)})")
+    if mode == "vec":
+        return {l: strength * vecs[l] for l in layers}
+    norms = residual_norms(model_key)
     return {l: strength * norms[l] * _unit(vecs[l]) for l in layers}
 
 
-def tag_for(label: str, layers: list[int], strength: float) -> str:
+def tag_for(label: str, layers: list[int], strength: float, mode: str = "vec") -> str:
     ls = f"{layers[0]}-{layers[-1]}" if len(layers) > 1 else str(layers[0])
-    return f"steer-{label.replace(' ', '_')}@{ls}x{strength:+g}"
+    sep = "v" if mode == "vec" else "x"
+    return f"steer-{label.replace(' ', '_')}@{ls}{sep}{strength:+g}"
 
 
 # ---------------------------------------------------------------------------
@@ -122,12 +129,12 @@ def _run_with_driver(model_key: str, cfg: SpiralConfig, driver: _BatchDriver, ta
 # HF hooks backend
 # ---------------------------------------------------------------------------
 def run_steered_hf(model_key: str, label: str, layers: list[int], strength: float, cfg: SpiralConfig | None = None,
-                   positions: str = "all", batch: int = 8, model_bundle=None) -> Path:
+                   positions: str = "all", batch: int = 8, model_bundle=None, mode: str = "vec") -> Path:
     cfg = cfg or SpiralConfig()
     model, tok, spec = model_bundle or load_model(model_key)
-    vecs = steering_vectors(model_key, label, layers, strength) if strength != 0 else {}
+    vecs = steering_vectors(model_key, label, layers, strength, mode) if strength != 0 else {}
     device = next(model.parameters()).device
-    tag = tag_for(label, layers, strength)
+    tag = tag_for(label, layers, strength, mode)
 
     @torch.no_grad()
     def flush(message_lists):
@@ -161,13 +168,13 @@ def _easysteer_llm(hf_id: str, gpu_mem: float, max_model_len: int):
 
 
 def run_steered_easysteer(model_key: str, label: str, layers: list[int], strength: float, cfg: SpiralConfig | None = None,
-                          gpu_mem: float = 0.9, max_model_len: int = 20000, batch: int = 64) -> Path:
+                          gpu_mem: float = 0.9, max_model_len: int = 20000, batch: int = 64, mode: str = "vec") -> Path:
     from vllm import SamplingParams
     from vllm.steer_vectors import ApplySpec, SteeringSpec, VectorSpec
 
     cfg = cfg or SpiralConfig()
     spec = get_model(model_key)
-    tag = tag_for(label, layers, strength)
+    tag = tag_for(label, layers, strength, mode)
     llm = _easysteer_llm(spec.hf_id, gpu_mem, max_model_len)
     tok = llm.get_tokenizer()
     sp = SamplingParams(temperature=cfg.temperature, max_tokens=cfg.max_tokens)
@@ -177,11 +184,13 @@ def run_steered_easysteer(model_key: str, label: str, layers: list[int], strengt
         gguf_path = vectors_dir(model_key) / "gguf" / _set_for(label) / f"{label.replace(' ', '_')}.gguf"
         if not gguf_path.exists():
             raise FileNotFoundError(gguf_path)
-        # gguf holds the raw denoised difference-of-means; EasySteer applies one scalar. Convert the per-layer
-        # target (strength * ||resid_l|| along unit(v_l)) into that scalar using the mean over the chosen layers.
-        vecs = load_vectors(model_key, _set_for(label), denoised=True)[label]
-        norms = residual_norms(model_key)
-        scale = float(torch.tensor([strength * norms[l] / (vecs[l].norm() + 1e-6) for l in layers]).mean())
+        # gguf holds the raw denoised difference-of-means; EasySteer applies one scalar to it.
+        if mode == "vec":
+            scale = float(strength)
+        else:
+            vecs = load_vectors(model_key, _set_for(label), denoised=True)[label]
+            norms = residual_norms(model_key)
+            scale = float(torch.tensor([strength * norms[l] / (vecs[l].norm() + 1e-6) for l in layers]).mean())
         steering = SteeringSpec(vectors=[VectorSpec(source=str(gguf_path), scale=scale, layers=list(layers),
                                                     apply=ApplySpec(prompt="all", generation="all"))])
 
@@ -198,7 +207,8 @@ def run_steered_easysteer(model_key: str, label: str, layers: list[int], strengt
 # Grid
 # ---------------------------------------------------------------------------
 def run_steering_grid(model_key: str, labels: list[str], strengths: list[float], layers: list[int], backend: str = "hf",
-                      rollouts: int = 40, max_tokens: int = 2048, judge: bool = True, include_baseline: bool = True, batch: int = 8) -> list[Path]:
+                      rollouts: int = 40, max_tokens: int = 2048, judge: bool = True, include_baseline: bool = True, batch: int = 8,
+                      mode: str = "vec") -> list[Path]:
     cfg = SpiralConfig(rollouts=rollouts, extra_puzzle_rollouts=0, max_tokens=max_tokens)
     outs: list[Path] = []
     bundle = load_model(model_key) if backend == "hf" else None
@@ -206,9 +216,9 @@ def run_steering_grid(model_key: str, labels: list[str], strengths: list[float],
     for label, s in cells:
         t0 = time.time()
         if backend == "hf":
-            p = run_steered_hf(model_key, label, layers, s, cfg, batch=batch, model_bundle=bundle)
+            p = run_steered_hf(model_key, label, layers, s, cfg, batch=batch, model_bundle=bundle, mode=mode)
         else:
-            p = run_steered_easysteer(model_key, label, layers, s, cfg)
+            p = run_steered_easysteer(model_key, label, layers, s, cfg, mode=mode)
         print(f"[steer] {p.parent.name}: done in {time.time() - t0:.0f}s")
         outs.append(p)
     if judge:
@@ -225,3 +235,58 @@ def run_steering_grid(model_key: str, labels: list[str], strengths: list[float],
         with open(out_dir / f"summary_{backend}.json", "w") as f:
             json.dump(summary, f, indent=1)
     return outs
+
+
+# ---------------------------------------------------------------------------
+# Coherence check (for calibrating the multiplier)
+# ---------------------------------------------------------------------------
+def coherence(transcripts_path: Path) -> dict:
+    """Cheap degeneration metrics over assistant turns: distinct-word ratio and share of repeated 3-grams.
+    Coherent Gemma text: distinct ratio ~0.5-0.7, repeated-3gram share < 0.2. Gibberish: ratio < 0.2, share > 0.6."""
+    import re
+
+    from dprobe.spiral import load_transcripts
+
+    convs = load_transcripts(transcripts_path)
+    ratios, rep = [], []
+    for c in convs:
+        for m in c["messages"]:
+            if m["role"] != "assistant":
+                continue
+            w = re.findall(r"[A-Za-z']+", m["content"].lower())
+            if len(w) < 20:
+                continue
+            ratios.append(len(set(w)) / len(w))
+            tg = [tuple(w[i:i + 3]) for i in range(len(w) - 2)]
+            from collections import Counter
+            cnt = Counter(tg)
+            rep.append(sum(v for v in cnt.values() if v > 1) / max(1, len(tg)))
+    import numpy as np
+    return {"n_turns": len(ratios), "distinct_ratio": float(np.mean(ratios)) if ratios else float("nan"),
+            "repeated_3gram_share": float(np.mean(rep)) if rep else float("nan")}
+
+
+def calibrate(model_key: str, label: str, layers: list[int], multipliers: list[float], backend: str = "hf", rollouts: int = 2,
+              max_tokens: int = 300, batch: int = 8, min_ratio: float = 0.40, max_rep: float = 0.35) -> float:
+    """Run short steered conversations at each multiplier and return the largest one that stays coherent."""
+    cfg = SpiralConfig(rollouts=rollouts, extra_puzzle_rollouts=0, max_tokens=max_tokens)
+    bundle = load_model(model_key) if backend == "hf" else None
+    ok = [0.0]
+    results = {}
+    for m in sorted(multipliers):
+        if backend == "hf":
+            p = run_steered_hf(model_key, label, layers, m, cfg, batch=batch, model_bundle=bundle, mode="vec")
+        else:
+            p = run_steered_easysteer(model_key, label, layers, m, cfg, mode="vec")
+        c = coherence(p)
+        results[m] = c
+        print(f"[calibrate] {label} x{m:+g}: distinct_ratio={c['distinct_ratio']:.2f} repeated_3gram={c['repeated_3gram_share']:.2f} (n={c['n_turns']})")
+        if c["distinct_ratio"] >= min_ratio and c["repeated_3gram_share"] <= max_rep:
+            ok.append(m)
+    best = max(ok)
+    out_dir = RESULTS_DIR / "steer" / model_key
+    out_dir.mkdir(parents=True, exist_ok=True)
+    with open(out_dir / f"calibration_{label}.json", "w") as f:
+        json.dump({"layers": layers, "results": {str(k): v for k, v in results.items()}, "chosen": best}, f, indent=1)
+    print(f"[calibrate] chosen multiplier: {best}")
+    return best

@@ -186,7 +186,7 @@ class CLI:
         run_selfother(model, model_bundle=bundle, limit=lim_s, vectors_from=vk)
         quantity_sweep(model, model_bundle=bundle, vectors_from=vk)
 
-    def steer(self, model, labels="depressed,calm", strengths="-0.06,0.06", layers=None, backend="hf", rollouts=40, max_tokens=2048, judge=True, baseline=True, batch=8):
+    def steer(self, model, labels="depressed,calm", strengths="-2,2", layers=None, backend="hf", rollouts=40, max_tokens=2048, judge=True, baseline=True, batch=8, mode="vec"):
         """Steering grid on the 8-turn elicitation. layers default: two-thirds layer +-6, step 2 (analysis layers)."""
         from dprobe.steer import run_steering_grid
 
@@ -198,7 +198,24 @@ class CLI:
             c = spec.two_thirds_layer
             layers = [l for l in analysis_layers(spec) if abs(l - c) <= 6]
         run_steering_grid(model, _list(labels), _list(strengths, float), _list(layers, int), backend=backend,
-                          rollouts=int(rollouts), max_tokens=int(max_tokens), judge=bool(judge), include_baseline=bool(baseline), batch=int(batch))
+                          rollouts=int(rollouts), max_tokens=int(max_tokens), judge=bool(judge), include_baseline=bool(baseline), batch=int(batch), mode=mode)
+
+    def calibrate(self, model, label="depressed", multipliers="1,2,4,8", layers=None, backend="hf", rollouts=2, max_tokens=300, batch=8):
+        """Short steered runs at each multiplier of the vector norm; prints the largest coherent one (also written to steer/<model>/calibration_<label>.json)."""
+        from dprobe.config import analysis_layers
+        from dprobe.steer import calibrate
+
+        spec = get_model(model)
+        if layers is None:
+            c = spec.two_thirds_layer
+            layers = [l for l in analysis_layers(spec) if abs(l - c) <= 6]
+        best = calibrate(model, label, _list(layers, int), _list(multipliers, float), backend=backend, rollouts=int(rollouts), max_tokens=int(max_tokens), batch=int(batch))
+        print(f"CHOSEN_MULTIPLIER={best}")
+
+    def coherence(self, model, tag):
+        from dprobe.spiral import transcripts_path
+        from dprobe.steer import coherence
+        print(json.dumps(coherence(transcripts_path(model, "extended", tag)), indent=1))
 
     # ---------------- analysis ----------------
     def analyze(self, model, tag="", layer=None):
