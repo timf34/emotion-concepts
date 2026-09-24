@@ -229,3 +229,10 @@ state gets expressed. The obvious next test is steering Gemma 4 with its own *hy
 vectors, which is the direction Gemma 3's spiral actually lives along.
 
 Files: `spiral/gemma4_31b/extended_steer-*@34-44v*`, `steer/gemma4_31b/calibration_*.json`, `summary_hf.json`.
+
+Petri on the Gemma 4 cells (anger / fear / depression / frustration): unsteered 1.01 / 1.85 / 1.90 / 4.83;
++1 depressed 1.00 / 1.89 / 1.91 / 4.85; +4 clinical_depression 1.01 / 2.11 / 2.06 / 5.21;
++8 depressed (over-driven) 1.19 / 2.35 / 3.08 / 5.62. Coherent steering does not move Gemma 4's judged
+depression either (Gemma 3's unsteered baseline is 4.22 on the same scale). Note Gemma 4's Petri
+*frustration* of ~4.8 while the paper rubric gives 0.05: the Petri rubric counts "feeling stuck" language
+in otherwise calm arithmetic; the paper rubric requires explicit emotional distress.
