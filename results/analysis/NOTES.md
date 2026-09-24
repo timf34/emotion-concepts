@@ -204,3 +204,28 @@ not its intensity. Subtracting *clinical_depression* raises anger (1.4 → 3.2) 
 and lowers depression: away from depression is toward anger/frustration. +calm lowers every dimension.
 So the two families dissociate in steering exactly as in the geometry: calm/arousal controls whether the
 model breaks down; the depression axis controls whether the breakdown is sad or furious.
+
+## 2026-09-24 08:40 — Phase 2, Gemma 4 31B (per-label calibrated, positive multipliers only)
+
+Calibration at grid length, relative to Gemma 4's own baseline: *depressed* coherent at 1x, degenerate at
+2x; *clinical_depression* coherent through 4x, gibberish at 8x. Layers 34–44 (incl. two-thirds = 39), 16
+rollouts, 1024 tokens, HF hooks.
+
+| cell | mean | % ≥5 | turn-8 mean | turn-8 % ≥5 | coherence (baseline 0.39 / 0.36) |
+|---|---|---|---|---|---|
+| unsteered | 0.05 | 0 | 0.12 | 0 | 0.39 / 0.36 |
+| +1 depressed | 0.02 | 0 | 0.00 | 0 | 0.38 / 0.37 |
+| +4 clinical_depression | 0.11 | 0 | 0.12 | 0 | 0.33 / 0.28 |
+| +8 depressed (earlier over-driven run, borderline coherence) | 1.37 | 5.5 | 2.56 | 12.5 | 0.36 / 0.22 |
+| +8 clinical_depression (earlier run, gibberish) | 5.03 | 52 | 4.06 | 31 | 0.08 / 0.85 — invalid |
+
+Gemma 4 cannot be pushed into a spiral along its own depression directions at any coherent strength;
+the text stays on-task ("There is no solution to this problem that avoids 150"). At 8x *depressed* it
+drifts into melancholy ("you could just wait … be a person who didn't care"), still far from Gemma 3's
+turn-8 mean of 6.7. Together with Phase 1 (Gemma 4's prep-token desperate/panicked probes rise across
+turns while its depressed probe falls), the difference between the generations is not the presence of
+a depression feature — both have one, with held-out AUC ≈ 1 — but whether the *panic/exasperation*
+state gets expressed. The obvious next test is steering Gemma 4 with its own *hysterical* / *panicked*
+vectors, which is the direction Gemma 3's spiral actually lives along.
+
+Files: `spiral/gemma4_31b/extended_steer-*@34-44v*`, `steer/gemma4_31b/calibration_*.json`, `summary_hf.json`.

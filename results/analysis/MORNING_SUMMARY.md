@@ -30,8 +30,10 @@ Is Gemma 3's distress spiral the same representation it uses to simulate depress
 5. **Gemma 4.** Never spirals, but at the prep token its desperate / panicked / frustrated probes rise
    across turns and calm falls, exactly as in Gemma 3, while its *depressed* probe stays strongly negative
    and falls. Reading Gemma 3's spiral text, Gemma 4's activations barely move along its emotion vectors
-   (max cos 0.13). Steering Gemma 4 toward depression (positive multipliers only) is the last run in
-   progress; the first (over-driven) attempt lifted its judge mean from 0.08 to 1.4 with borderline text.
+   (max cos 0.13). **Steering Gemma 4 toward depression at its largest coherent strengths (1x depressed,
+   4x clinical_depression) does nothing** (judge mean 0.02 / 0.11 vs 0.05 baseline, text stays on-task);
+   only an over-driven 8x depressed cell drifts into melancholy (1.4). Both generations have a depression
+   feature (held-out AUC ≈ 1); what differs is whether the panic state gets expressed.
 6. **Gemma 3 base.** Reads the same spiral text as *worthless / trapped / dispirited / stuck* (0.19), not
    hysterical: post-training seems to have changed the spiral's internal character from low-arousal
    worthlessness to high-arousal panic.
@@ -50,6 +52,7 @@ span checks on both tokenizers; Gemma 4 rendered with its empty-thought block ex
 - 30 issues and fixes in `docs/ISSUES_LOG.md`; setup in `docs/EXPERIMENTAL_SETUP.md`.
 
 ## Suggested next steps
-- Steer with the *hysterical* / *panicked* vectors (the spiral's own direction) and with *calm* at 1x.
+- **Steer Gemma 4 with its own *hysterical* / *panicked* vectors** (the direction Gemma 3's spiral lives
+  along) — the direct test of "representation present, expression suppressed". And *calm* at 1x on Gemma 3.
 - Re-judge a 200-turn sample with claude-sonnet-4 to quantify the judge shift vs the paper.
 - SAE cross-check of the panic direction if Gemma Scope covers 27B.
