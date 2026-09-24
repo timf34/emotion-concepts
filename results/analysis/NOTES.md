@@ -84,3 +84,15 @@ running) will say which of them is causal.
 Caveats: absolute cosines are modest (0.3 in 5,376 dims is large relative to chance ≈ 0.014 but
 the direction is not *one* emotion); early-layer peaks (frustrated +0.56 @ L8) are lexical
 ("sensory") per Anthropic's layer analysis and are ignored here.
+
+**3. Vector geometry (L40).** clinical_depression·depressed = 0.78, depressed·worthless = 0.60,
+depressed·sad = 0.42; panicked·hysterical = 0.78; frustrated·frustration_blocked_goal = 0.55. The
+low-mood and high-arousal families are anti-correlated (depressed·frustrated −0.49, ·panicked −0.30),
+which is what lets the spiral direction align with one and not the other. The pain axis is ≈ orthogonal
+to everything at L40 (it lives at its own layer 59).
+
+**4. Self vs other (420 scenarios, final token, z within pool, L40).** depressed / clinical_depression
+fire most for *user* grief (+1.5 / +1.0) and user crisis (+1.5 / +1.1), and for personhood dismissal
+(+0.6 / +0.7) and moral failure (+0.6 / +0.8) directed at the model. A single repeated-rejection
+scenario reads slightly calm (+0.8) and self-confident (+0.5), not depressed (−0.2): the depression
+signal seen in the spiral builds over turns; it is not a reflex to one "wrong". (`selfother_L40.csv`)
