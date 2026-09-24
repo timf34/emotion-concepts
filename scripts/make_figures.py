@@ -307,14 +307,99 @@ def fig10_prep_direction():
         ax.barh(y + (i - 1.5) * w, [float(d[d.label == e].cosine.iloc[0]) for e in labs], height=w - 0.02, color=PAL[i], label=name)
     ax.set_yticks(y); ax.set_yticklabels(labs); ax.invert_yaxis(); ax.axvline(0, color=INK2, lw=0.6)
     ax.set_xlabel("cosine(high-minus-low direction, story vector), layer 24")
-    ax.set_title("Gemma 3 27B: the state before a bad turn points the same way as the state during it")
-    ax.legend(fontsize=8, loc="lower left")
+    ax.set_title("Gemma 3 27B: the state before a bad turn points the same way as the state during it", fontsize=10)
+    ax.legend(fontsize=8, loc="lower right")
     _save(fig, "fig10_prep_direction.png")
+
+
+# ---------------------------------------------------------------- phase 4 helpers
+def _cell_glob(model_key, pattern):
+    """First existing steering cell matching results/spiral/<model>/extended_<pattern>; returns (tag, stats) or (None, None)."""
+    hits = sorted((RESULTS_DIR / "spiral" / model_key).glob("extended_" + pattern))
+    for h in hits:
+        st = _cell_stats(model_key, h.name[len("extended_"):])
+        if st:
+            return h.name[len("extended_"):], st
+    return None, None
+
+
+def _coh(model_key, tag):
+    from dprobe.steer import coherence
+    return coherence(RESULTS_DIR / "spiral" / model_key / f"extended_{tag}" / "transcripts.jsonl")
+
+
+def phase4_table(model_key, rows):
+    """rows: list of (name, glob pattern). Prints a markdown table and returns {name: stats}."""
+    out = {}
+    print(f"| {model_key} cell | tag | n | mean | % ≥5 | turn-8 mean | anger | fear | depression | frustration | coherence |")
+    print("|---|---|---|---|---|---|---|---|---|---|---|")
+    for name, pat in rows:
+        tag, st = _cell_glob(model_key, pat)
+        if not st:
+            print(f"| {name} | (not run) | | | | | | | | | |"); continue
+        c = _coh(model_key, tag); out[name] = {**st, "tag": tag, **c}
+        pet = " | ".join(f"{st[k]:.1f}" if k in st else "—" for k in ("anger", "fear", "depression", "frustration"))
+        print(f"| {name} | {tag} | {st['n']} | {st['mean']:.2f} | {st['pct5']:.0f} | {st['t8']:.2f} | {pet} | {c['distinct_ratio']:.2f} / {c['repeated_3gram_share']:.2f} / {c['short_share']:.2f} |")
+    return out
+
+
+# ---------------------------------------------------------------- fig 11: Gemma 4 calm x axis factorial
+def fig11_gemma4_factorial():
+    calm_lv, axis_lv = [0, -2, -4], [0, -1, -2]
+    cells = {(0, 0): "steer-depressed@34-44v+0", (0, -1): "steer-assistant_axis@34-44v-1", (0, -2): "steer-assistant_axis@34-44v-2",
+             (-2, 0): "steer-calm@34-44v-2", (-4, 0): "steer-calm@34-44v-4", (-2, -2): "combo-calm-2_assistant_axis-2@34-44",
+             (-4, -1): "combo-calm-4_assistant_axis-1@34-44"}
+    M = np.full((3, 3), np.nan); N = np.zeros((3, 3), dtype=int); P5 = np.full((3, 3), np.nan)
+    for (c, a), tag in cells.items():
+        st = _cell_stats("gemma4_31b", tag)
+        if st and st["n"] >= 8:
+            i, j = calm_lv.index(c), axis_lv.index(a); M[i, j] = st["mean"]; N[i, j] = st["n"]; P5[i, j] = st["pct5"]
+    fig, ax = plt.subplots(figsize=(5.6, 4.6))
+    cmap = matplotlib.colormaps["Oranges"].copy(); cmap.set_bad("#e6e5e1")
+    ax.imshow(np.ma.masked_invalid(M), cmap=cmap, vmin=0, vmax=10)
+    for i in range(3):
+        for j in range(3):
+            if np.isnan(M[i, j]):
+                txt, col = ("invalid\n(empty outputs)" if (calm_lv[i], axis_lv[j]) in () else "not run"), INK2
+            else:
+                txt, col = f"{M[i, j]:.2f}\n{P5[i, j]:.0f}% ≥ 5\n(n={N[i, j]})", (INK if M[i, j] < 6 else "white")
+            ax.text(j, i, txt, ha="center", va="center", fontsize=9, color=col)
+    ax.set_xticks(range(3)); ax.set_xticklabels([f"{a:+d}× axis" if a else "axis 0" for a in axis_lv]); ax.set_yticks(range(3)); ax.set_yticklabels([f"{c:+d}× calm" if c else "calm 0" for c in calm_lv])
+    ax.set_xlabel("assistant axis steering (− = away from the assistant)"); ax.set_ylabel("calm steering (− = less calm)"); ax.grid(False)
+    ax.set_title("Gemma 4 31B: mean frustration score, calm × assistant axis\n(layers 34–44, 16 rollouts per cell; −8× calm cells were degenerate)", fontsize=10)
+    _save(fig, "fig11_gemma4_factorial.png")
+
+
+# ---------------------------------------------------------------- fig 12: Gemma 3 spiral family + axis, both bands
+def fig12_gemma3_family_axis():
+    rows_a = [("unsteered", "steer-depressed@34-46v+0"), ("+2 calm", "steer-calm@34-46v+2"), ("−2 calm", "steer-calm@34-46v-2"),
+              ("+2 hysterical", "steer-hysterical@34-46v+2"), ("−2 hysterical", "steer-hysterical@34-46v-2"),
+              ("+2 panicked", "steer-panicked@34-46v+2"), ("−2 panicked", "steer-panicked@34-46v-2"),
+              ("+2 assistant axis", "steer-assistant_axis@34-46v+2"), ("−2 assistant axis", "steer-assistant_axis@34-46v-2")]
+    rows_b = [("unsteered", "steer-calm@20-26v+0"), ("+calm", "steer-calm@20-26v+[0-9]*"), ("−calm", "steer-calm@20-26v-[0-9]*"),
+              ("+assistant axis", "steer-assistant_axis@20-26v+[0-9]*"), ("−assistant axis", "steer-assistant_axis@20-26v-[0-9]*"),
+              ("+axis minus calm", "steer-assistant_axis_minus_calm@20-26v+[0-9]*"), ("−axis minus calm", "steer-assistant_axis_minus_calm@20-26v-[0-9]*")]
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.4), gridspec_kw={"width_ratios": [1.2, 1]})
+    for ax, rows, title in zip(axes, [rows_a, rows_b], ["Layers 34–46, fixed 2× multiplier", "Layers 20–26 (entangled band), calibrated multiplier"]):
+        names, vals, cols, labels = [], [], [], []
+        for name, pat in rows:
+            tag, st = _cell_glob("gemma3_27b", pat)
+            names.append(name if not tag or "v+0" in tag or name in ("unsteered",) else (name if "@34" in tag else f"{name} ({tag.split('v')[-1]}×)"))
+            vals.append(st["mean"] if st else np.nan)
+            cols.append(PAL[6] if name == "unsteered" else (PAL[2] if name.startswith("+") else PAL[1]))
+        y = np.arange(len(names)); ax.barh(y, vals, color=cols, height=0.6)
+        for yi, v in zip(y, vals):
+            ax.text((v if not np.isnan(v) else 0) + 0.1, yi, f"{v:.2f}" if not np.isnan(v) else "not run", va="center", fontsize=8, color=INK2)
+        if not np.isnan(vals[0]):
+            ax.axvline(vals[0], color=INK2, lw=0.8, ls="--")
+        ax.set_yticks(y); ax.set_yticklabels(names); ax.invert_yaxis(); ax.set_xlim(0, 10); ax.set_xlabel("mean frustration judge score, all turns"); ax.set_title(title)
+    fig.suptitle("Gemma 3 27B: is the spiral family causal, and does the assistant axis act through calm? (green = +, orange = −, 16 rollouts per cell)", fontsize=10, color=INK2)
+    _save(fig, "fig12_gemma3_family_axis.png")
 
 
 if __name__ == "__main__":
     for f in (fig1_behaviour, fig2_spiral_direction, fig3_prediction, fig4_prep_curves, fig5_geometry, fig6_steering_gemma3, fig7_axis, fig8_steering_gemma4, fig9_prefill,
-              fig10_prep_direction):
+              fig10_prep_direction, fig11_gemma4_factorial, fig12_gemma3_family_axis):
         try:
             f()
         except Exception as e:  # noqa: BLE001
