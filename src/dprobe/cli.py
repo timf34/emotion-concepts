@@ -190,10 +190,13 @@ class CLI:
         """Steering grid on the 8-turn elicitation. layers default: two-thirds layer +-6, step 2 (analysis layers)."""
         from dprobe.steer import run_steering_grid
 
+        from dprobe.config import analysis_layers
+
         spec = get_model(model)
         if layers is None:
+            # denoised vectors exist only at the analysis layers; take the ones within +-6 of two-thirds depth
             c = spec.two_thirds_layer
-            layers = list(range(c - 6, c + 7, 2))
+            layers = [l for l in analysis_layers(spec) if abs(l - c) <= 6]
         run_steering_grid(model, _list(labels), _list(strengths, float), _list(layers, int), backend=backend,
                           rollouts=int(rollouts), max_tokens=int(max_tokens), judge=bool(judge), include_baseline=bool(baseline))
 
