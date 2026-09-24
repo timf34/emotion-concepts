@@ -17,7 +17,7 @@ from huggingface_hub import HfApi, snapshot_download
 from dprobe.config import HF_RESULTS_REPO, RESULTS_DIR
 
 INPUT_SUBSETS = ("stories", "spiral")
-OUTPUT_SUBSETS = ("vectors", "probe", "selfother", "steer", "spiral")
+OUTPUT_SUBSETS = ("vectors", "probe", "selfother", "steer", "spiral", "prefill")
 
 
 def _api() -> HfApi:

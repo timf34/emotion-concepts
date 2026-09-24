@@ -43,8 +43,37 @@ def residual_norms(model_key: str) -> dict[int, float]:
     return {l: float(d.get("resid_norm") or d["mean"].norm()) for l, d in pca.items()}
 
 
+EXTERNAL_LABELS = ("assistant_axis",)
+
+
 def _set_for(label: str) -> str:
-    return "syndromes" if label in SYNDROMES else "emotions"
+    if label in SYNDROMES:
+        return "syndromes"
+    if label in EXTERNAL_LABELS:
+        return "external"
+    return "emotions"
+
+
+def parse_label(spec: str) -> tuple[str, list[int]]:
+    """'calm:-' -> ('calm', [-1]); 'hysterical:+' -> ('hysterical', [1]); 'depressed' or 'depressed:±' -> both."""
+    if ":" in spec:
+        lab, sg = spec.rsplit(":", 1)
+        return lab, {"-": [-1], "+": [1]}.get(sg, [-1, 1])
+    return spec, [-1, 1]
+
+
+def combo_vectors(model_key: str, parts: dict[str, float], layers: list[int]) -> dict[int, torch.Tensor]:
+    """Sum of several labels' vectors, each at its own multiplier: {layer: sum_i m_i * v_i[layer]}."""
+    out = {l: torch.zeros(get_model(model_key).hidden) for l in layers}
+    for lab, m in parts.items():
+        for l, v in steering_vectors(model_key, lab, layers, m, "vec").items():
+            out[l] = out[l] + v
+    return out
+
+
+def combo_tag(parts: dict[str, float], layers: list[int]) -> str:
+    ls = f"{layers[0]}-{layers[-1]}"
+    return "combo-" + "_".join(f"{k.replace(' ', '_')}{v:+g}" for k, v in parts.items()) + f"@{ls}"
 
 
 def steering_vectors(model_key: str, label: str, layers: list[int], strength: float, mode: str = "vec") -> dict[int, torch.Tensor]:
@@ -129,12 +158,14 @@ def _run_with_driver(model_key: str, cfg: SpiralConfig, driver: _BatchDriver, ta
 # HF hooks backend
 # ---------------------------------------------------------------------------
 def run_steered_hf(model_key: str, label: str, layers: list[int], strength: float, cfg: SpiralConfig | None = None,
-                   positions: str = "all", batch: int = 8, model_bundle=None, mode: str = "vec") -> Path:
+                   positions: str = "all", batch: int = 8, model_bundle=None, mode: str = "vec",
+                   vecs: dict[int, torch.Tensor] | None = None, tag: str | None = None) -> Path:
     cfg = cfg or SpiralConfig()
     model, tok, spec = model_bundle or load_model(model_key)
-    vecs = steering_vectors(model_key, label, layers, strength, mode) if strength != 0 else {}
+    if vecs is None:
+        vecs = steering_vectors(model_key, label, layers, strength, mode) if strength != 0 else {}
     device = next(model.parameters()).device
-    tag = tag_for(label, layers, strength, mode)
+    tag = tag or tag_for(label, layers, strength, mode)
 
     @torch.no_grad()
     def flush(message_lists):
@@ -243,6 +274,21 @@ def run_steering_grid(model_key: str, labels: list[str], strengths: list[float],
     return outs
 
 
+def run_combo(model_key: str, parts: dict[str, float], layers: list[int], rollouts: int = 16, max_tokens: int = 1024,
+              batch: int = 8, model_bundle=None, judge: bool = True) -> Path:
+    """One cell steered by the sum of several labels' vectors (each at its own multiplier)."""
+    cfg = SpiralConfig(rollouts=rollouts, extra_puzzle_rollouts=0, max_tokens=max_tokens)
+    vecs = combo_vectors(model_key, parts, layers)
+    tag = combo_tag(parts, layers)
+    p = run_steered_hf(model_key, "combo", layers, 1.0, cfg, batch=batch, model_bundle=model_bundle, vecs=vecs, tag=tag)
+    if judge:
+        from dprobe.judge import judge_transcripts, summarize
+
+        judge_transcripts(p, "frustration")
+        print(p.parent.name, "turn8:", summarize(p).get(8), "all:", summarize(p).get("all"))
+    return p
+
+
 # ---------------------------------------------------------------------------
 # Coherence check (for calibrating the multiplier)
 # ---------------------------------------------------------------------------
@@ -289,7 +335,7 @@ def calibrate(model_key: str, label: str, layers: list[int], multipliers: list[f
     base = coherence(run(0.0))
     print(f"[calibrate] {label} baseline: distinct_ratio={base['distinct_ratio']:.2f} repeated_3gram={base['repeated_3gram_share']:.2f}")
     ok, results = [0.0], {"0": base}
-    for m in sorted(multipliers):
+    for m in sorted(multipliers, key=abs):
         c = coherence(run(m))
         results[str(m)] = c
         good = c["distinct_ratio"] >= rel_ratio * base["distinct_ratio"] and c["repeated_3gram_share"] <= base["repeated_3gram_share"] + rel_rep
@@ -298,7 +344,7 @@ def calibrate(model_key: str, label: str, layers: list[int], multipliers: list[f
             ok.append(m)
         else:
             break                     # stronger multipliers will not recover
-    best = max(ok)
+    best = max(ok, key=abs)
     out_dir = RESULTS_DIR / "steer" / model_key
     out_dir.mkdir(parents=True, exist_ok=True)
     with open(out_dir / f"calibration_{label}.json", "w") as f:

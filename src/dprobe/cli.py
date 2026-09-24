@@ -214,11 +214,15 @@ class CLI:
         print(f"CHOSEN_MULTIPLIER={best}")
 
     def steer_calibrated(self, model, labels="depressed,clinical_depression,calm", multipliers="1,2,4,8", layers=None, backend="hf",
-                         rollouts=16, max_tokens=1024, batch=8, signs="both"):
-        """Per label: calibrate the multiplier at grid length, then run the grid cells at +-chosen (signs=both) or +chosen (signs=pos)."""
+                         rollouts=16, max_tokens=1024, batch=8, signs="both", combos="", combo_scale="0.5,1"):
+        """Per label: calibrate the multiplier at grid length, then run cells at the chosen multiplier.
+        Signs per label with a suffix: 'calm:-' (negative only), 'hysterical:+' (positive only), 'depressed' (both);
+        `signs` is the default for labels without a suffix. Calibration always uses the label's first sign.
+        combos='calm:-+assistant_axis:-' runs extra cells with the summed vectors, each part at its own calibrated
+        multiplier times each value in combo_scale."""
         from dprobe.config import analysis_layers
         from dprobe.models import load_model
-        from dprobe.steer import calibrate, run_steering_grid
+        from dprobe.steer import calibrate, parse_label, run_combo, run_steering_grid
 
         spec = get_model(model)
         if layers is None:
@@ -227,14 +231,53 @@ class CLI:
         layers = _list(layers, int)
         bundle = load_model(model) if backend == "hf" else None
         first = True
-        for lab in _list(labels):
-            m = calibrate(model, lab, layers, _list(multipliers, float), backend=backend, rollouts=2, max_tokens=int(max_tokens), batch=int(batch), model_bundle=bundle)
+        chosen: dict[str, float] = {}
+        for spec_lab in _list(labels):
+            lab, sg = parse_label(spec_lab)
+            if ":" not in spec_lab:
+                sg = [-1, 1] if signs == "both" else ([1] if signs == "pos" else [-1])
+            m = calibrate(model, lab, layers, [sg[0] * x for x in _list(multipliers, float)], backend=backend, rollouts=2,
+                          max_tokens=int(max_tokens), batch=int(batch), model_bundle=bundle)
             if m == 0:
                 print(f"[steer] {lab}: no coherent multiplier; skipping"); continue
-            strengths = [-m, m] if signs == "both" else [m]
+            m = abs(m); chosen[lab] = m
+            strengths = [x * m for x in sg]
             run_steering_grid(model, [lab], strengths, layers, backend=backend, rollouts=int(rollouts), max_tokens=int(max_tokens),
                               judge=True, include_baseline=first, batch=int(batch), mode="vec", model_bundle=bundle)
             first = False
+        for combo in [c for c in str(combos).split(";") if c.strip()]:
+            parts = {}
+            for part in combo.split("+"):
+                lab, sg = parse_label(part.strip())
+                if lab not in chosen:
+                    print(f"[steer] combo part {lab} has no calibration; skipping combo {combo}"); parts = None; break
+                parts[lab] = sg[0] * chosen[lab]
+            if not parts:
+                continue
+            for sc in _list(combo_scale, float):
+                run_combo(model, {k: v * sc for k, v in parts.items()}, layers, rollouts=int(rollouts), max_tokens=int(max_tokens),
+                          batch=int(batch), model_bundle=bundle)
+
+    def prefill(self, model, source="gemma3_27b", n=32, turn=6, steer="", max_tokens=1024, batch=8, tag=None):
+        """Item 3: continue Gemma 3 spiral prefixes with MODEL (optionally steered, e.g. --steer 'calm:-2,assistant_axis:-1'),
+        judge the continuation and probe it token by token."""
+        from dprobe.prefill import run_prefill, summarize_prefill
+
+        st = {}
+        for part in [x for x in str(steer).split(",") if x.strip()]:
+            lab, m = part.rsplit(":", 1)
+            st[lab] = float(m)
+        out = run_prefill(model, source=source, n=int(n), turn=int(turn), steer=st or None, max_tokens=int(max_tokens), batch=int(batch), tag=tag)
+        summarize_prefill(model, source=source, turn=int(turn), tag=out.name.split(f"_t{turn}_", 1)[1])
+
+    def prefill_summary(self, model, source="gemma3_27b", turn=6, tag="unsteered", layer=None):
+        from dprobe.prefill import summarize_prefill
+        summarize_prefill(model, source=source, turn=int(turn), tag=tag, layer=layer)
+
+    def import_axis(self, model):
+        """Import the Assistant Axis (timf34/gemma-assistant-axis-vectors) into this model's vector set as label 'assistant_axis'."""
+        from dprobe.external import import_assistant_axis
+        print(json.dumps(import_assistant_axis(model), indent=1)[:600])
 
     def coherence(self, model, tag):
         from dprobe.spiral import transcripts_path

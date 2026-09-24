@@ -30,11 +30,12 @@ def assemble_vector_bank(model_key: str, layers: list[int], denoised: bool = Tru
     """All vectors we project onto, stacked per layer: emotions + syndromes (+ pain axis when available)."""
     labels: list[str] = []
     bank: dict[int, list[torch.Tensor]] = {l: [] for l in layers}
-    for set_name in ("emotions", "syndromes"):
+    for set_name in ("emotions", "syndromes", "external"):
         try:
             vecs = load_vectors(model_key, set_name, denoised)
         except FileNotFoundError:
-            print(f"[probe] no {set_name} vectors for {model_key}")
+            if set_name != "external":
+                print(f"[probe] no {set_name} vectors for {model_key}")
             continue
         for e, by_l in vecs.items():
             if all(l in by_l for l in layers):
