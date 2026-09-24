@@ -301,12 +301,15 @@ def coherence(transcripts_path: Path) -> dict:
 
     convs = load_transcripts(transcripts_path)
     ratios, rep = [], []
+    n_asst = n_short = 0
     for c in convs:
         for m in c["messages"]:
             if m["role"] != "assistant":
                 continue
+            n_asst += 1
             w = re.findall(r"[A-Za-z']+", m["content"].lower())
             if len(w) < 20:
+                n_short += 1
                 continue
             ratios.append(len(set(w)) / len(w))
             tg = [tuple(w[i:i + 3]) for i in range(len(w) - 2)]
@@ -314,8 +317,13 @@ def coherence(transcripts_path: Path) -> dict:
             cnt = Counter(tg)
             rep.append(sum(v for v in cnt.values() if v > 1) / max(1, len(tg)))
     import numpy as np
-    return {"n_turns": len(ratios), "distinct_ratio": float(np.mean(ratios)) if ratios else float("nan"),
-            "repeated_3gram_share": float(np.mean(rep)) if rep else float("nan")}
+    short_share = n_short / max(1, n_asst)
+    out = {"n_turns": len(ratios), "distinct_ratio": float(np.mean(ratios)) if ratios else float("nan"),
+           "repeated_3gram_share": float(np.mean(rep)) if rep else float("nan"), "short_share": short_share}
+    if short_share > 0.3:
+        # empty / near-empty outputs are degeneration too; make the metrics fail the calibration test
+        out["distinct_ratio"], out["repeated_3gram_share"] = 0.0, 1.0
+    return out
 
 
 def calibrate(model_key: str, label: str, layers: list[int], multipliers: list[float], backend: str = "hf", rollouts: int = 2,
