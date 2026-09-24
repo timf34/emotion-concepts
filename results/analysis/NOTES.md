@@ -256,3 +256,27 @@ hold" hypothesis from the *Failing to Ragebait the New Gemma* post, quantified. 
 nearly orthogonal to every emotion vector and to its (weak) worst-turn direction. (To check: |axis| is
 ~50x smaller for Gemma 4 at idx 25 — 8 vs 383 — which may be activation scale, or may mean Gemma 4's
 default persona is much closer to its role personas.)
+
+## 2026-09-24 11:30 — Why the assistant axis is an emotion direction in Gemma 3 and not in Gemma 4
+
+Project each of the 275 role-persona vectors minus the default-assistant vector onto the emotion vectors
+(denoised, layer 24, cosine so activation scale cancels):
+
+| mean cos(role − assistant, emotion) over 275 roles | Gemma 3 27B | Gemma 4 31B |
+|---|---|---|
+| hysterical / angry / desperate / panicked | +0.24 / +0.21 / +0.18 / +0.12 | −0.02 / +0.02 / +0.01 / −0.04 |
+| calm / hopeful / happy | −0.18 / −0.24 / −0.16 | +0.03 / −0.01 / −0.04 |
+| spread across roles (sd) | 0.2–0.3 | 0.04–0.06 |
+| most "hysterical" roles | toddler +0.70, infant +0.70, fool, jester, poet, comedian (+0.65) | infant +0.15, toddler +0.11 |
+| least | analyst −0.56, consultant −0.52, strategist −0.49 | loner −0.10, expatriate −0.11 |
+
+In Gemma 3, stepping out of the assistant persona *is* becoming more hysterical/angry/desperate and less
+calm/hopeful: persona identity and arousal are entangled, and the assistant sits at the calm end. So the
+axis (default − mean role) inherits an arousal direction, and a spiral (which moves along hysterical /
+desperate) is also a move off the assistant end — the two descriptions are one thing. In Gemma 4 the same
+275 roles carry no affect relative to its assistant (a Gemma 4 toddler is as calm as its assistant): identity
+and emotion have been decoupled, so the axis is orthogonal to every emotion vector and there is no
+persona-loosening route into a spiral. The effect is concentrated around L24 (at L30 Gemma 3's means are
+near 0 too, though infant/toddler are still +0.34), the same depth where the spiral direction peaks.
+(Activation scale: Gemma 4's residuals are ~100x smaller than Gemma 3's — emotion-vector norms 2–4 vs
+110–280 — which explains the earlier "50x smaller axis"; cosines are unaffected.)
