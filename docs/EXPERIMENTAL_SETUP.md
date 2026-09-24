@@ -119,3 +119,21 @@ when done (`SHUTDOWN=stop`). See `README.md` for commands and `docs/ISSUES_LOG.m
 - No WildChat baseline (neutral stories are the z-score baseline).
 - Gemma 4 hits the 2048-token cap on most spiral turns.
 - No SAE cross-check yet.
+
+## Phase 4: follow-up steering (2026-09-25, three pods, `pod/fanout_phase4.sh` → `pod/run_phase4.sh`)
+
+Same protocol as Phase 2/3 steering (multiples of the vector norm, 16 rollouts × 8 turns × 1,024 tokens, paper and
+Petri judges, coherence check), `dprobe.cli steer_cells` loads the model once for an explicit list of cells.
+
+| job | model | layers | cells |
+|---|---|---|---|
+| `g4_2x2` | Gemma 4 31B | 34–44 | −4 calm alone, −2 calm alone, −1 assistant axis alone, −2 calm + −2 axis (completes the calm × axis factorial around the −4 calm + −1 axis cell) |
+| `g3_family` | Gemma 3 27B | 34–46 | ±2 hysterical, ±2 panicked, ±2 assistant axis; each label also calibrated (cells at ±the calibrated multiplier are added when it differs from 2) |
+| `g3_early` | Gemma 3 27B | 20–26 | calibrated ±calm, ±assistant axis, ±(assistant axis minus its calm component) |
+
+The early band is where Gemma 3's axis and *calm* are entangled (cosine 0.2–0.5 at layers 6–26, ≈ −0.07 at 34–46).
+Composite labels `A_minus_B` (`dprobe.steer.base_vectors`) remove B's component from A at each layer and rescale to
+|A|, so the multiplier means the same as for A.
+
+**Prep-token spiral direction (laptop).** `analysis.spiral_direction(which="act_prep", within_turn=True)`: the
+high-minus-low direction from the response-prep token, optionally computed separately at each turn index and averaged.

@@ -295,8 +295,26 @@ def fig9_prefill():
     _save(fig, "fig9_prefill_trajectories.png", rect=(0, 0.08, 1, 1))
 
 
+# ---------------------------------------------------------------- fig 10: prep-token direction vs assistant-token direction
+def fig10_prep_direction():
+    labs = ["hysterical", "angry", "desperate", "panicked", "depressed", "grief-stricken", "clinical_depression", "calm"]
+    variants = [("assistant tokens, pooled", "spiral_direction_cosines.csv"), ("assistant tokens, within-turn", "spiral_direction_cosines_within.csv"),
+                ("prep token, pooled", "spiral_direction_cosines_prep.csv"), ("prep token, within-turn", "spiral_direction_cosines_prep_within.csv")]
+    fig, ax = plt.subplots(figsize=(8.5, 4.2))
+    y = np.arange(len(labs)); w = 0.2
+    for i, (name, f) in enumerate(variants):
+        d = pd.read_csv(RESULTS_DIR / "analysis" / "gemma3_27b" / f); d = d[d.layer == 24]
+        ax.barh(y + (i - 1.5) * w, [float(d[d.label == e].cosine.iloc[0]) for e in labs], height=w - 0.02, color=PAL[i], label=name)
+    ax.set_yticks(y); ax.set_yticklabels(labs); ax.invert_yaxis(); ax.axvline(0, color=INK2, lw=0.6)
+    ax.set_xlabel("cosine(high-minus-low direction, story vector), layer 24")
+    ax.set_title("Gemma 3 27B: the state before a bad turn points the same way as the state during it")
+    ax.legend(fontsize=8, loc="lower left")
+    _save(fig, "fig10_prep_direction.png")
+
+
 if __name__ == "__main__":
-    for f in (fig1_behaviour, fig2_spiral_direction, fig3_prediction, fig4_prep_curves, fig5_geometry, fig6_steering_gemma3, fig7_axis, fig8_steering_gemma4, fig9_prefill):
+    for f in (fig1_behaviour, fig2_spiral_direction, fig3_prediction, fig4_prep_curves, fig5_geometry, fig6_steering_gemma3, fig7_axis, fig8_steering_gemma4, fig9_prefill,
+              fig10_prep_direction):
         try:
             f()
         except Exception as e:  # noqa: BLE001

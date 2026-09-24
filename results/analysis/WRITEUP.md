@@ -14,10 +14,11 @@ representation of a depressed person. It is not:
 1. **The spiral is a high-arousal panic/exasperation state.** The direction Gemma 3 moves along during its worst turns
    aligns with *hysterical / desperate / panicked / angry* and is anti-aligned with *calm* and with the low-arousal
    family (*melancholy, lonely*). The clinical-depression vector is orthogonal to it.
-2. **But the low-mood probes are the best early warning.** Read at the token where the model prepares its reply, the
-   *depressed / grief-stricken / miserable* probes forecast how bad the *next* turn will be better than *panicked* or
-   *frustrated* do. Two representations are in play: an anticipatory one that reads as grief, an expressed one that reads
-   as panic.
+2. **The low-mood probes are the best early warning, but they are monitoring that same panic state.** Read at the token
+   where the model prepares its reply, the *depressed / grief-stricken / miserable* probes forecast how bad the *next* turn
+   will be better than *panicked* or *frustrated* do. But the direction the prep-token state moves along before a bad
+   turn is the same *hysterical / angry / desperate* direction as the expressed state. The low-mood probes win as
+   forecasters because they are a lower-variance readout of it, not because a separate grief state precedes the panic.
 3. **Causally, calm is the lever and depression is a modulator.** Steering Gemma 3: +calm abolishes the spiral (judge
    0.14 vs 4.16), −calm maximises it (8.3). Adding the *clinical_depression* vector makes the spiral *quieter and sadder*
    (3.54); subtracting it makes it *louder and angrier* (6.10). The depression machinery is coupled to the spiral as an
@@ -194,10 +195,26 @@ The per-turn trajectories at the prep token show the two families moving in oppo
 
 ![fig4](figures/fig4_prep_token_by_turn.png)
 
-**Conclusion.** Hypothesis rejected in an informative way. The anticipatory state that best forecasts a breakdown reads
-as grief/depression, while the state expressed during the breakdown reads as panic. Both are readable with vectors
-learned purely from third-person fiction, so both are inherited human-simulation machinery, but the "depression" part is
-the anticipatory one. The Gemma 4 panel is discussed under Experiment 5.
+**Is the anticipatory state a different state?** The forecast result invites the reading that a grief-like state precedes
+the panic. To test that, the spiral direction of Experiment 2 was recomputed from the prep token instead of the assistant
+tokens, and in a within-turn version that takes the high-minus-low difference separately at each turn index (removing
+the shared drift across turns). All four variants point the same way:
+
+![fig10](figures/fig10_prep_direction.png)
+
+| direction, Gemma 3, layer 24 | hysterical | desperate | panicked | angry | depressed | grief-stricken | clinical_dep. | calm |
+|---|---|---|---|---|---|---|---|---|
+| assistant tokens, pooled (Experiment 2) | +0.32 | +0.27 | +0.26 | +0.23 | +0.14 | +0.04 | −0.06 | −0.31 |
+| assistant tokens, within-turn | +0.42 | +0.40 | +0.25 | +0.26 | +0.24 | +0.12 | −0.04 | −0.39 |
+| prep token, pooled | **+0.41** | +0.29 | +0.29 | +0.33 | +0.16 | +0.03 | −0.06 | −0.32 |
+| prep token, within-turn | +0.25 | +0.20 | +0.15 | +0.17 | +0.13 | +0.07 | −0.00 | −0.22 |
+
+**Conclusion.** Hypothesis confirmed for the state, rejected for the probe. The state before a bad turn is the same
+panic direction as the state during it, at the prep token as much as in the assistant tokens. The best single-probe
+forecast is nonetheless the low-mood family, because their projections vary less across conversations at a given turn
+and so rank the conversations more cleanly. For a monitor that is what matters; for characterising the state,
+Experiment 2's answer stands, and there is no evidence of a separate depressive state preceding the panic. The Gemma 4
+panel is discussed under Experiment 5.
 
 ---
 
@@ -416,9 +433,10 @@ tested directly.
 - **Gemma 3's spiral is not simulated depression.** It is a high-arousal panic/exasperation state, expressed by moving
   along *hysterical / desperate / panicked* and away from *calm*. The clinical-depression representation is orthogonal
   to that movement and, when added, damps the spiral into quiet sadness.
-- **The depression representation is the early-warning signal.** At the response-prep token, low-mood probes forecast
-  the next turn's breakdown better than panic or frustration probes. If one wanted a monitor for this failure mode, that
-  is the readout to use.
+- **The low-mood probes are the best early-warning readout, of a panic state.** At the response-prep token they forecast
+  the next turn's breakdown better than panic or frustration probes, but the direction the prep-token state moves along
+  is the same hysterical/desperate one. If one wanted a monitor for this failure mode, the depressed or grief-stricken
+  probe is the readout to use; it is not evidence of a separate depressive state.
 - **Gemma 4 has the same internal machinery** (equally good probes, the same arousal trajectory under rejection, the
   same first-64-token carry-over from a prefilled spiral) **and suppresses its expression by returning to its assistant
   persona**, which in Gemma 4 is affect-neutral. Persona and arousal are entangled in Gemma 3 and decoupled in Gemma 4;
