@@ -20,6 +20,8 @@ PY=${PY:-/venv/bin/python}
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv
 if [ "$SYNC" = "1" ]; then
   $PY -m dprobe.cli sync_down --subsets stories,spiral
+  # resume support: previously extracted vectors (mean_acts + held-out) skip re-extraction
+  $PY -m dprobe.cli sync_down --subsets vectors --models "$MODELS" || true
 fi
 for m in $MODELS; do
   echo "================ $m  smoke=$SMOKE  $(date) ================"

@@ -53,6 +53,12 @@ def load_model(model_key: str, device: str = "cuda", attn: str = "sdpa"):
 
     spec = get_model(model_key)
     tok = AutoTokenizer.from_pretrained(spec.hf_id)
+    if getattr(tok, "chat_template", None) is None and spec.stories_from:
+        # base checkpoints ship no chat template; borrow the instruct model's (identical vocabulary and
+        # turn tokens) so transcripts render exactly as the instruct model saw them
+        donor = get_model(spec.stories_from)
+        tok.chat_template = AutoTokenizer.from_pretrained(donor.hf_id).chat_template
+        print(f"[models] {spec.hf_id} has no chat template; using {donor.hf_id}'s")
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
     tok.padding_side = "right"

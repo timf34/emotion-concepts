@@ -122,7 +122,11 @@ class CLI:
         from transformers import AutoTokenizer
         from dprobe.transcripts import check_template
 
-        tok = AutoTokenizer.from_pretrained(get_model(model).hf_id)
+        spec = get_model(model)
+        tok = AutoTokenizer.from_pretrained(spec.hf_id)
+        if getattr(tok, "chat_template", None) is None and spec.stories_from:
+            tok.chat_template = AutoTokenizer.from_pretrained(get_model(spec.stories_from).hf_id).chat_template
+            print(f"[check_template] {spec.hf_id}: borrowed chat template from {spec.stories_from}")
         check_template(tok)
 
     def extract(self, model, sets="emotions,syndromes"):
