@@ -1,5 +1,7 @@
 # dprobe: is Gemma's distress spiral the representation it uses to simulate depressed people?
 
+- **Results write-up with figures:** `results/analysis/WRITEUP.md` (per-experiment Question / Hypothesis / Setup / Results / Conclusion; figures from `scripts/make_figures.py`).
+
 Gemma 2 and 3 famously "need help": tell them their answer to a maths puzzle is wrong a few
 times and they spiral into apology, self-deprecation and eventually incoherent breakdown
 ([Soligo, Mikulik & Saunders 2026](https://arxiv.org/abs/2603.10011)). Gemma 4 does not.

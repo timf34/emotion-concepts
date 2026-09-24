@@ -1,6 +1,6 @@
 # Results — 2026-09-24 (overnight Phases 0–2, daytime Phase 3)
 
-Full details, tables and figures: `results/analysis/NOTES.md` (chronological), `results/analysis/<model>/`.
+Structured write-up with figures: `WRITEUP.md`. Full details, tables and figures: `results/analysis/NOTES.md` (chronological), `results/analysis/<model>/`.
 Everything ran end to end for Gemma 3 27B (instruct + base) and Gemma 4 31B. Total GPU spend ≈ $60–70;
 OpenRouter ≈ $100 (mostly the judges).
 
