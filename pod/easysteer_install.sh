@@ -7,7 +7,8 @@ VENV=${EASYSTEER_VENV:-/easysteer_venv}
 SRC=${EASYSTEER_SRC:-/easysteer_src}
 python3 -m venv "$VENV"
 "$VENV/bin/pip" install -q -U pip
-"$VENV/bin/pip" install vllm==0.29.0
+"$VENV/bin/pip" install ninja vllm==0.29.0
+apt-get install -y -qq ninja-build >/dev/null 2>&1 || true
 [ -d "$SRC/.git" ] || git clone --recurse-submodules https://github.com/ZJU-REAL/EasySteer.git "$SRC"
 VLLM_DIR=$("$VENV/bin/python" -c "import vllm, os; print(os.path.dirname(vllm.__file__))")
 rsync -a "$SRC/vllm-steer/vllm/" "$VLLM_DIR"/
