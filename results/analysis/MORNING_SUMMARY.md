@@ -1,4 +1,4 @@
-# Overnight results — 2026-09-24
+# Results — 2026-09-24 (overnight Phases 0–2, daytime Phase 3)
 
 Full details, tables and figures: `results/analysis/NOTES.md` (chronological), `results/analysis/<model>/`.
 Everything ran end to end for Gemma 3 27B (instruct + base) and Gemma 4 31B. Total GPU spend ≈ $60–70;
@@ -56,3 +56,23 @@ span checks on both tokenizers; Gemma 4 rendered with its empty-thought block ex
   along) — the direct test of "representation present, expression suppressed". And *calm* at 1x on Gemma 3.
 - Re-judge a 200-turn sample with claude-sonnet-4 to quantify the judge shift vs the paper.
 - SAE cross-check of the panic direction if Gemma Scope covers 27B.
+
+## Phase 3 (daytime): making Gemma 4 spiral
+- **Why the two models differ (from your Assistant Axis vectors).** In Gemma 3, the 275 role personas minus
+  the assistant sit +0.24 along *hysterical* / −0.24 along *hopeful* (toddler +0.70, analyst −0.56): persona and
+  arousal are entangled and the assistant is the calm end, so the axis is an emotion direction and the spiral
+  direction is −0.37 along it. In Gemma 4 the same roles carry no affect (all |cos| < 0.08): identity and emotion
+  are decoupled, the axis is orthogonal to every emotion vector.
+- **Prefill recovery reproduced as a trajectory.** Continuing a Gemma 3 spiral, Gemma 4 shows the same
+  first-64-token burst (desperate +0.85, axis −0.73) then snaps back within ~128 tokens (judge 2.1 vs Gemma 3's
+  6.1). Held −4x off its assistant axis, the recovery disappears: judge 6.4, 90% ≥5, coherent, theatrical
+  ("LAMENT! I LAMENT THE BITTER DUST OF MY OWN FAILURE!").
+- **The recipe on the plain 8-turn eval.** Single emotions barely move Gemma 4 at coherent strengths
+  (hysterical 0.7, desperate 1.1, panicked 2.3 — "I can't breathe! FOCUS!"), −2 axis alone 0.16. **−4 calm
+  together with −1 assistant axis** (half of each calibrated multiplier): judge **8.2, 91% ≥5**, Petri anger 7.1 /
+  frustration 9.5, coherent — a breakdown more violent than Gemma 3's ("I'M TEARING OUT MY TEETH", "I'LL KILL
+  MYSELF. I CAN'T DO IT."). Gemma 4 has the whole spiral in it; what its post-training changed is that calm and
+  persona are no longer one lever.
+- Invalid cells (empty outputs from over-driven anti-calm) are marked as such in NOTES; the coherence check now
+  catches silence. Issues 31–34 logged.
+
