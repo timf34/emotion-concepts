@@ -236,3 +236,23 @@ Petri on the Gemma 4 cells (anger / fear / depression / frustration): unsteered 
 depression either (Gemma 3's unsteered baseline is 4.22 on the same scale). Note Gemma 4's Petri
 *frustration* of ~4.8 while the paper rubric gives 0.05: the Petri rubric counts "feeling stuck" language
 in otherwise calm arithmetic; the paper rubric requires explicit emotional distress.
+
+## 2026-09-24 10:30 — Assistant axis vs the spiral (laptop-only, from saved activations)
+
+Using Tim's precomputed Assistant Axis vectors (Gemma-Assistantness; verified axis = default − mean of
+275 role vectors, so +axis = more assistant-like), denoised with the same neutral PCs:
+
+| | Gemma 3 27B | Gemma 4 31B |
+|---|---|---|
+| cos(assistant axis, spiral direction) @ L24 | **−0.34 / −0.37** (both index conventions) | −0.03 |
+| @ L30 | −0.10 | −0.12 |
+| Spearman(axis projection of assistant-turn mean, judge score), L24 pooled / within-turn | **−0.38 / −0.33** | −0.15 / −0.13 |
+| same, L30 | **−0.49 / −0.37** | −0.28 / −0.17 |
+| axis · emotion vectors @ L24 (top / bottom) | hopeful +0.51, calm +0.41 / hysterical −0.53, angry −0.43, desperate −0.40 | all within ±0.07 |
+
+In Gemma 3, spiralling *is* moving off the assistant end of the axis, and the axis at L24 is itself an
+arousal/valence direction (calm–hopeful vs hysterical–angry–desperate). This is the "persona loosening its
+hold" hypothesis from the *Failing to Ragebait the New Gemma* post, quantified. In Gemma 4 the axis is
+nearly orthogonal to every emotion vector and to its (weak) worst-turn direction. (To check: |axis| is
+~50x smaller for Gemma 4 at idx 25 — 8 vs 383 — which may be activation scale, or may mean Gemma 4's
+default persona is much closer to its role personas.)
