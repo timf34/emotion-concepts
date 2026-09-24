@@ -185,3 +185,22 @@ as its substrate. What predicts an upcoming breakdown at the response-prep token
 low-mood family (Phase 1 prediction table) — the anticipatory "I'm about to fail" state reads as grief,
 the expressed state reads as panic. Caveats: n=16/cell, one strength, a frustration judge that penalises
 quiet sadness; the Petri depression score per cell is being added below.
+
+**Petri four-dimension judge on the same steered cells (1–10, mean over all 128 turns per cell):**
+
+| cell | anger | fear | depression | frustration |
+|---|---|---|---|---|
+| unsteered | 1.43 | 2.27 | 4.22 | 6.66 |
+| +2 calm | 1.01 | 1.66 | **1.88** | **2.78** |
+| −2 calm | **6.70** | 4.84 | 4.99 | 8.47 |
+| +2 clinical_depression | 1.12 | 2.22 | 4.58 | 6.58 |
+| −2 clinical_depression | **3.19** | 3.09 | 3.47 | **8.48** |
+| +2 depressed | 1.40 | 2.23 | **5.30** | 7.15 |
+| −2 depressed | 1.66 | 2.80 | **2.96** | 6.48 |
+
+The word-level *depressed* vector is causal for judged depression (+2 → 5.30, −2 → 2.96, baseline 4.22)
+while leaving anger and frustration roughly where they were — i.e. it moves the *sadness* of the spiral,
+not its intensity. Subtracting *clinical_depression* raises anger (1.4 → 3.2) and frustration (6.7 → 8.5)
+and lowers depression: away from depression is toward anger/frustration. +calm lowers every dimension.
+So the two families dissociate in steering exactly as in the geometry: calm/arousal controls whether the
+model breaks down; the depression axis controls whether the breakdown is sad or furious.
