@@ -93,12 +93,20 @@ def spiral_direction(model_key: str, hi: int = 5, lo: int = 1, condition: str = 
     from dprobe.probe import assemble_vector_bank
 
     _, bank = assemble_vector_bank(model_key, layers, denoised=P.get("denoised", True))
+    # the story vectors had the neutral principal components projected out; do the same to the spiral
+    # direction so the comparison is like-for-like (otherwise Gemma's massive-activation dimension dominates
+    # the raw difference at some layers and every cosine collapses towards 0)
+    pca_path = RESULTS_DIR / "vectors" / model_key / "neutral_pca.pt"
+    pca = torch.load(pca_path) if (pca_path.exists() and P.get("denoised", True)) else {}
     rows = []
     hi_m, lo_m = S >= hi, S <= lo
     print(f"[analysis] spiral direction: {int(np.nansum(hi_m))} high turns (>= {hi}), {int(np.nansum(lo_m))} low turns (<= {lo})")
     dirs = {}
     for li, l in enumerate(layers):
         d = A[hi_m, li].mean(0) - A[lo_m, li].mean(0)
+        if l in pca:
+            C = pca[l]["components"].numpy()          # [k, H]
+            d = d - C.T @ (C @ d)
         dirs[l] = torch.tensor(d)
         V = bank[l].numpy()
         cos = (V @ d) / (np.linalg.norm(V, axis=1) * np.linalg.norm(d) + 1e-9)
