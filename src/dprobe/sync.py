@@ -38,7 +38,7 @@ def sync_up(subsets: tuple[str, ...] = INPUT_SUBSETS, repo: str = HF_RESULTS_REP
             print(f"[sync] up {folder} -> {repo}/{rel}")
             api.upload_folder(
                 folder_path=str(folder), repo_id=repo, repo_type="dataset", path_in_repo=str(rel),
-                ignore_patterns=["*.tmp", "*.log", "token_level*"], commit_message=f"sync {rel}",
+                ignore_patterns=["*.tmp", "token_level*"], commit_message=f"sync {rel}",
             )
 
 

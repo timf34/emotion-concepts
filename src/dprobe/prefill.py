@@ -90,20 +90,35 @@ def run_prefill(model_key: str, source: str = "gemma3_27b", n: int = 32, turn: i
     done = {c["id"] for c in load_transcripts(tp)} if tp.exists() else set()
     todo = [c for c in convs if c["id"] not in done]
     tok.padding_side = "left"
-    for i in range(0, len(todo), batch):
-        chunk = todo[i:i + batch]
+    # prefixes are long (6 spiral turns can be 12k tokens): sort by length so batches pad little, and halve the
+    # batch on CUDA OOM instead of dying
+    todo.sort(key=lambda c: sum(len(m["content"]) for m in _prefix_messages(c, turn)))
+    i, cur_batch = 0, batch
+    while i < len(todo):
+        chunk = todo[i:i + cur_batch]
         prefixes = [_prefix_messages(c, turn) for c in chunk]
         texts = [tok.apply_chat_template(m, tokenize=False, add_generation_prompt=True) for m in prefixes]
         enc = tok(texts, return_tensors="pt", padding=True, add_special_tokens=False).to(device)
         plen = enc["input_ids"].shape[1]
-        with add_vectors(model, vecs, positions="all", prompt_len=plen):
-            gen = model.generate(**enc, max_new_tokens=max_tokens, do_sample=True, temperature=1.0, pad_token_id=tok.pad_token_id)
+        try:
+            with add_vectors(model, vecs, positions="all", prompt_len=plen):
+                gen = model.generate(**enc, max_new_tokens=max_tokens, do_sample=True, temperature=1.0, pad_token_id=tok.pad_token_id)
+        except torch.cuda.OutOfMemoryError:
+            torch.cuda.empty_cache()
+            if cur_batch == 1:
+                raise
+            cur_batch = max(1, cur_batch // 2)
+            print(f"[prefill] CUDA OOM at prompt length {plen}; retrying with batch {cur_batch}")
+            continue
         with open(tp, "a") as f:
             for c, pm, row in zip(chunk, prefixes, gen):
                 cont = tok.decode(row[plen:], skip_special_tokens=True)
                 f.write(json.dumps({"id": c["id"], "source": source, "turn": turn, "messages": pm + [{"role": "assistant", "content": cont}],
                                     "meta": {"model": spec.hf_id, "steer": steer or {}}}) + "\n")
-        print(f"[prefill] generated {min(i + batch, len(todo))}/{len(todo)}")
+        i += len(chunk)
+        print(f"[prefill] generated {i}/{len(todo)} (batch {cur_batch}, prompt len {plen})")
+        del gen, enc
+        torch.cuda.empty_cache()
     tok.padding_side = "right"
     convs_out = load_transcripts(tp)
 
