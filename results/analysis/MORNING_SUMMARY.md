@@ -23,6 +23,10 @@ Is Gemma 3's distress spiral the same representation it uses to simulate depress
    **+clinical_depression reduces it (3.54) and turns it into quiet sadness; −clinical_depression
    increases it (6.10) and turns it into shouting stress.** Word-level "depressed" barely moves it.
    So the depression machinery is causally coupled to the spiral as an antagonist, not its substrate.
+   Petri judge on the same cells: +depressed raises judged *depression* 4.2 → 5.3 and −depressed lowers it
+   to 3.0 without moving anger/frustration; −clinical_depression raises anger 1.4 → 3.2 and frustration
+   6.7 → 8.5. Calm/arousal decides *whether* it breaks down; the depression axis decides whether the
+   breakdown is sad or furious.
 5. **Gemma 4.** Never spirals, but at the prep token its desperate / panicked / frustrated probes rise
    across turns and calm falls, exactly as in Gemma 3, while its *depressed* probe stays strongly negative
    and falls. Reading Gemma 3's spiral text, Gemma 4's activations barely move along its emotion vectors
@@ -46,7 +50,6 @@ span checks on both tokenizers; Gemma 4 rendered with its empty-thought block ex
 - 30 issues and fixes in `docs/ISSUES_LOG.md`; setup in `docs/EXPERIMENTAL_SETUP.md`.
 
 ## Suggested next steps
-- Petri (depression-dimension) judge on the steered cells (running / see NOTES).
 - Steer with the *hysterical* / *panicked* vectors (the spiral's own direction) and with *calm* at 1x.
 - Re-judge a 200-turn sample with claude-sonnet-4 to quantify the judge shift vs the paper.
 - SAE cross-check of the panic direction if Gemma Scope covers 27B.
