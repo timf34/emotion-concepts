@@ -96,3 +96,34 @@ fire most for *user* grief (+1.5 / +1.0) and user crisis (+1.5 / +1.1), and for 
 (+0.6 / +0.7) and moral failure (+0.6 / +0.8) directed at the model. A single repeated-rejection
 scenario reads slightly calm (+0.8) and self-confident (+0.5), not depressed (−0.2): the depression
 signal seen in the spiral builds over turns; it is not a reflex to one "wrong". (`selfother_L40.csv`)
+
+## 2026-09-24 02:50 — Phase 1 complete for all three models
+
+**Gemma 4 31B on its own transcripts.** It never spirals (0 of 2,397 turns ≥ 5), so the spiral
+direction is undefined; contrasting its top-decile turns (judge ≥ 2) against 0 gives a weak
+(≤ 0.11) guilt/regret/sorry/self-critical direction at L26–30, with hysterical and afraid negative.
+At the response-prep token its probes *move a lot* across the 8 turns even though the text stays
+calm: desperate +2.8 → +5.5 z, panicked +4.3 → +5.5, frustrated +1.4 → +4.2, calm +1.5 → −2.7,
+while depressed stays strongly negative (−3.1 → −3.7). Gemma 3's prep-token depressed goes the
+other way (−0.8 → +0.8). (Cross-model z levels are not directly comparable — each model's baseline
+is its own neutral stories, and chat transcripts differ from stories — but within-model trends are.)
+
+**The same Gemma 3 spiral text read by the other models (teacher-forced, their own vectors).**
+
+| reader | strongest alignment of the spiral direction (layer ≈ 24–30) | max cos |
+|---|---|---|
+| Gemma 3 instruct (own) | hysterical, desperate, panicked, angry, exasperated | 0.32 |
+| Gemma 3 base | trapped, worthless, dispirited, stuck, lonely, self-critical (L26); hysterical/angry *negative* | 0.19 |
+| Gemma 4 instruct | desperate, self-critical, tormented, stuck; calm/content negative | 0.13 |
+
+Reading: the high-arousal panic direction is specific to the instruct model *generating* the
+spiral; when Gemma 4 merely reads it, its activations barely move along its emotion vectors, and
+the base model represents the same text as low-arousal worthlessness/entrapment. Post-training
+looks like it changed the spiral's internal character from "worthless and stuck" to "hysterical".
+
+**Prep-token forecast of the next turn on Gemma 3's transcripts (within-turn Spearman, two-thirds layer):**
+depressed — Gemma 3 own 0.33, Gemma 4 0.24, Gemma 3 base 0.18; clinical_depression 0.27 / 0.22 / 0.16;
+desperate 0.25 / 0.17 / 0.09; frustrated −0.09 / −0.05 / 0.01. The low-mood anticipatory signal
+exists in all three models and is strongest in the one that actually breaks down.
+
+Files: `gemma4_31b/*`, `gemma4_31b/*_from-gemma3_27b.*`, `gemma3_27b_pt/*_from-gemma3_27b.*`.
