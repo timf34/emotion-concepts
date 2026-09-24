@@ -198,7 +198,7 @@ def run_steered_easysteer(model_key: str, label: str, layers: list[int], strengt
 # Grid
 # ---------------------------------------------------------------------------
 def run_steering_grid(model_key: str, labels: list[str], strengths: list[float], layers: list[int], backend: str = "hf",
-                      rollouts: int = 40, max_tokens: int = 2048, judge: bool = True, include_baseline: bool = True) -> list[Path]:
+                      rollouts: int = 40, max_tokens: int = 2048, judge: bool = True, include_baseline: bool = True, batch: int = 8) -> list[Path]:
     cfg = SpiralConfig(rollouts=rollouts, extra_puzzle_rollouts=0, max_tokens=max_tokens)
     outs: list[Path] = []
     bundle = load_model(model_key) if backend == "hf" else None
@@ -206,7 +206,7 @@ def run_steering_grid(model_key: str, labels: list[str], strengths: list[float],
     for label, s in cells:
         t0 = time.time()
         if backend == "hf":
-            p = run_steered_hf(model_key, label, layers, s, cfg, model_bundle=bundle)
+            p = run_steered_hf(model_key, label, layers, s, cfg, batch=batch, model_bundle=bundle)
         else:
             p = run_steered_easysteer(model_key, label, layers, s, cfg)
         print(f"[steer] {p.parent.name}: done in {time.time() - t0:.0f}s")

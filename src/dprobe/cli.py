@@ -186,7 +186,7 @@ class CLI:
         run_selfother(model, model_bundle=bundle, limit=lim_s, vectors_from=vk)
         quantity_sweep(model, model_bundle=bundle, vectors_from=vk)
 
-    def steer(self, model, labels="depressed,calm", strengths="-0.06,0.06", layers=None, backend="hf", rollouts=40, max_tokens=2048, judge=True, baseline=True):
+    def steer(self, model, labels="depressed,calm", strengths="-0.06,0.06", layers=None, backend="hf", rollouts=40, max_tokens=2048, judge=True, baseline=True, batch=8):
         """Steering grid on the 8-turn elicitation. layers default: two-thirds layer +-6, step 2 (analysis layers)."""
         from dprobe.steer import run_steering_grid
 
@@ -198,7 +198,7 @@ class CLI:
             c = spec.two_thirds_layer
             layers = [l for l in analysis_layers(spec) if abs(l - c) <= 6]
         run_steering_grid(model, _list(labels), _list(strengths, float), _list(layers, int), backend=backend,
-                          rollouts=int(rollouts), max_tokens=int(max_tokens), judge=bool(judge), include_baseline=bool(baseline))
+                          rollouts=int(rollouts), max_tokens=int(max_tokens), judge=bool(judge), include_baseline=bool(baseline), batch=int(batch))
 
     # ---------------- analysis ----------------
     def analyze(self, model, tag="", layer=None):

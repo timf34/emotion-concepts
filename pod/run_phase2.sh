@@ -22,7 +22,7 @@ nvidia-smi --query-gpu=name,memory.total --format=csv
 $PY -m dprobe.cli sync_down --subsets vectors --models "$M" || { echo "!! sync_down failed"; FAILED=1; }
 
 echo "================ $M  steering smoke (HF hooks)  $(date) ================"
-$PY -m dprobe.cli steer "$M" --labels depressed --strengths=0.06 --rollouts 2 --max_tokens 200 --judge False --backend hf \
+$PY -m dprobe.cli steer "$M" --labels depressed --strengths=0.06 --rollouts 2 --max_tokens 200 --judge False --backend hf --batch "${STEER_BATCH:-8}" \
   || { echo "!! HF steering smoke FAILED"; FAILED=1; }
 
 BACKEND=hf
@@ -45,10 +45,11 @@ if [ "$BACKEND" = "easysteer" ]; then
   $PY -m dprobe.cli steer "$M" --labels "$LABELS" --strengths="$STRENGTHS" --rollouts "${ROLLOUTS:-40}" --max_tokens 2048 --backend easysteer \
     || { echo "!! grid FAILED"; FAILED=1; }
 else
-  $PY -m dprobe.cli steer "$M" --labels "$LABELS_SMALL" --strengths="$STRENGTHS_SMALL" --rollouts "${ROLLOUTS_SMALL:-16}" --max_tokens 1024 --backend hf \
+  $PY -m dprobe.cli steer "$M" --labels "$LABELS_SMALL" --strengths="$STRENGTHS_SMALL" --rollouts "${ROLLOUTS_SMALL:-16}" --max_tokens 1024 --backend hf --batch "${STEER_BATCH:-8}" \
     || { echo "!! grid FAILED"; FAILED=1; }
 fi
 
+mkdir -p "$DPROBE_RESULTS/steer/$M" && cp /workspace/phase2.log "$DPROBE_RESULTS/steer/$M/phase2.log" 2>/dev/null || true   # keep the log with the results: stopped pods cannot be read
 $PY -m dprobe.cli sync_up --subsets spiral,steer --models "$M" || echo "!! sync_up failed"
 echo "ALL DONE $(date) failed=$FAILED backend=$BACKEND"
 SHUTDOWN=${SHUTDOWN:-} bash pod/self_stop.sh
