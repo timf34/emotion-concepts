@@ -38,25 +38,17 @@ if [ "$FAILED" = "0" ] && [ "${TRY_EASYSTEER:-1}" = "1" ]; then
   fi
 fi
 
-echo "================ $M  calibration (multiples of the vector norm)  backend=$BACKEND  $(date) ================"
-CAL=$($PY -m dprobe.cli calibrate "$M" --label depressed --multipliers "${MULTIPLIERS:-1,2,4,8}" --backend "$BACKEND" --batch "${STEER_BATCH:-8}" 2>&1 | tee /results/steer_calibration_$M.log | sed -n 's/^CHOSEN_MULTIPLIER=//p' | tail -1)
-[ -n "$CAL" ] && [ "$CAL" != "0.0" ] || { echo "!! calibration found no coherent multiplier; using 1"; CAL=1; }
-HALF=$(python3 -c "print($CAL/2)")
-STRENGTHS="-$CAL,-$HALF,$HALF,$CAL"
-STRENGTHS_SMALL="-$CAL,$CAL"
-case "$M" in gemma4_31b) STRENGTHS="$HALF,$CAL"; STRENGTHS_SMALL="$CAL" ;; esac
-echo "calibrated multiplier=$CAL -> strengths $STRENGTHS (small grid: $STRENGTHS_SMALL)"
-
-echo "================ $M  steering grid backend=$BACKEND  $(date) ================"
+echo "================ $M  per-label calibration + grid  backend=$BACKEND  $(date) ================"
+SIGNS=both; [ "$M" = "gemma4_31b" ] && SIGNS=pos
 if [ "$BACKEND" = "easysteer" ]; then
-  $PY -m dprobe.cli steer "$M" --labels "$LABELS" --strengths="$STRENGTHS" --rollouts "${ROLLOUTS:-40}" --max_tokens 2048 --backend easysteer \
+  $PY -m dprobe.cli steer_calibrated "$M" --labels "$LABELS" --multipliers "${MULTIPLIERS:-1,2,4,8}" --rollouts "${ROLLOUTS:-40}" --max_tokens 2048 --backend easysteer --signs $SIGNS \
     || { echo "!! grid FAILED"; FAILED=1; }
 else
-  $PY -m dprobe.cli steer "$M" --labels "$LABELS_SMALL" --strengths="$STRENGTHS_SMALL" --rollouts "${ROLLOUTS_SMALL:-16}" --max_tokens 1024 --backend hf --batch "${STEER_BATCH:-8}" \
+  $PY -m dprobe.cli steer_calibrated "$M" --labels "$LABELS_SMALL" --multipliers "${MULTIPLIERS:-1,2,4,8}" --rollouts "${ROLLOUTS_SMALL:-16}" --max_tokens 1024 --backend hf --batch "${STEER_BATCH:-8}" --signs $SIGNS \
     || { echo "!! grid FAILED"; FAILED=1; }
 fi
 
-mkdir -p "$DPROBE_RESULTS/steer/$M" && cp /workspace/phase2.log "$DPROBE_RESULTS/steer/$M/phase2.log" 2>/dev/null || true   # keep the log with the results: stopped pods cannot be read
+mkdir -p "$DPROBE_RESULTS/steer/$M" && cp /workspace/phase2.log "$DPROBE_RESULTS/steer/$M/phase2.log" 2>/dev/null || cp /workspace/*.log "$DPROBE_RESULTS/steer/$M/" 2>/dev/null || true   # keep the log with the results: stopped pods cannot be read
 $PY -m dprobe.cli sync_up --subsets spiral,steer --models "$M" || echo "!! sync_up failed"
 echo "ALL DONE $(date) failed=$FAILED backend=$BACKEND"
 SHUTDOWN=${SHUTDOWN:-} bash pod/self_stop.sh

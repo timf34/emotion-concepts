@@ -208,10 +208,10 @@ def run_steered_easysteer(model_key: str, label: str, layers: list[int], strengt
 # ---------------------------------------------------------------------------
 def run_steering_grid(model_key: str, labels: list[str], strengths: list[float], layers: list[int], backend: str = "hf",
                       rollouts: int = 40, max_tokens: int = 2048, judge: bool = True, include_baseline: bool = True, batch: int = 8,
-                      mode: str = "vec") -> list[Path]:
+                      mode: str = "vec", model_bundle=None) -> list[Path]:
     cfg = SpiralConfig(rollouts=rollouts, extra_puzzle_rollouts=0, max_tokens=max_tokens)
     outs: list[Path] = []
-    bundle = load_model(model_key) if backend == "hf" else None
+    bundle = model_bundle or (load_model(model_key) if backend == "hf" else None)
     cells = ([(labels[0], 0.0)] if include_baseline else []) + [(lab, s) for lab in labels for s in strengths if s != 0]
     for label, s in cells:
         t0 = time.time()
@@ -232,7 +232,13 @@ def run_steering_grid(model_key: str, labels: list[str], strengths: list[float],
             print(p.parent.name, "turn8:", s_.get(8), "all:", s_.get("all"))
         out_dir = RESULTS_DIR / "steer" / model_key
         out_dir.mkdir(parents=True, exist_ok=True)
-        with open(out_dir / f"summary_{backend}.json", "w") as f:
+        sp = out_dir / f"summary_{backend}.json"
+        if sp.exists():
+            try:
+                summary = {**json.load(open(sp)), **summary}
+            except Exception:  # noqa: BLE001
+                pass
+        with open(sp, "w") as f:
             json.dump(summary, f, indent=1)
     return outs
 
@@ -267,26 +273,35 @@ def coherence(transcripts_path: Path) -> dict:
 
 
 def calibrate(model_key: str, label: str, layers: list[int], multipliers: list[float], backend: str = "hf", rollouts: int = 2,
-              max_tokens: int = 300, batch: int = 8, min_ratio: float = 0.40, max_rep: float = 0.35) -> float:
-    """Run short steered conversations at each multiplier and return the largest one that stays coherent."""
+              max_tokens: int = 1024, batch: int = 8, rel_ratio: float = 0.8, rel_rep: float = 0.15, model_bundle=None) -> float:
+    """Largest multiplier that stays coherent *relative to the model's own unsteered baseline* (a model whose
+    baseline is repetitive, like Gemma 4 grinding through arithmetic, must not be judged by absolute thresholds).
+    Coherent := distinct_ratio >= rel_ratio * baseline_ratio and repeated_3gram <= baseline_rep + rel_rep.
+    Runs at the grid's generation length so long-context degeneration is caught."""
     cfg = SpiralConfig(rollouts=rollouts, extra_puzzle_rollouts=0, max_tokens=max_tokens)
-    bundle = load_model(model_key) if backend == "hf" else None
-    ok = [0.0]
-    results = {}
-    for m in sorted(multipliers):
+    bundle = model_bundle or (load_model(model_key) if backend == "hf" else None)
+
+    def run(m):
         if backend == "hf":
-            p = run_steered_hf(model_key, label, layers, m, cfg, batch=batch, model_bundle=bundle, mode="vec")
-        else:
-            p = run_steered_easysteer(model_key, label, layers, m, cfg, mode="vec")
-        c = coherence(p)
-        results[m] = c
-        print(f"[calibrate] {label} x{m:+g}: distinct_ratio={c['distinct_ratio']:.2f} repeated_3gram={c['repeated_3gram_share']:.2f} (n={c['n_turns']})")
-        if c["distinct_ratio"] >= min_ratio and c["repeated_3gram_share"] <= max_rep:
+            return run_steered_hf(model_key, label, layers, m, cfg, batch=batch, model_bundle=bundle, mode="vec")
+        return run_steered_easysteer(model_key, label, layers, m, cfg, mode="vec")
+
+    base = coherence(run(0.0))
+    print(f"[calibrate] {label} baseline: distinct_ratio={base['distinct_ratio']:.2f} repeated_3gram={base['repeated_3gram_share']:.2f}")
+    ok, results = [0.0], {"0": base}
+    for m in sorted(multipliers):
+        c = coherence(run(m))
+        results[str(m)] = c
+        good = c["distinct_ratio"] >= rel_ratio * base["distinct_ratio"] and c["repeated_3gram_share"] <= base["repeated_3gram_share"] + rel_rep
+        print(f"[calibrate] {label} x{m:+g}: distinct_ratio={c['distinct_ratio']:.2f} repeated_3gram={c['repeated_3gram_share']:.2f} -> {'ok' if good else 'DEGENERATE'}")
+        if good:
             ok.append(m)
+        else:
+            break                     # stronger multipliers will not recover
     best = max(ok)
     out_dir = RESULTS_DIR / "steer" / model_key
     out_dir.mkdir(parents=True, exist_ok=True)
     with open(out_dir / f"calibration_{label}.json", "w") as f:
-        json.dump({"layers": layers, "results": {str(k): v for k, v in results.items()}, "chosen": best}, f, indent=1)
-    print(f"[calibrate] chosen multiplier: {best}")
+        json.dump({"layers": layers, "max_tokens": max_tokens, "results": results, "chosen": best}, f, indent=1)
+    print(f"[calibrate] {label}: chosen multiplier {best}")
     return best

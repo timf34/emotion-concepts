@@ -200,8 +200,9 @@ class CLI:
         run_steering_grid(model, _list(labels), _list(strengths, float), _list(layers, int), backend=backend,
                           rollouts=int(rollouts), max_tokens=int(max_tokens), judge=bool(judge), include_baseline=bool(baseline), batch=int(batch), mode=mode)
 
-    def calibrate(self, model, label="depressed", multipliers="1,2,4,8", layers=None, backend="hf", rollouts=2, max_tokens=300, batch=8):
-        """Short steered runs at each multiplier of the vector norm; prints the largest coherent one (also written to steer/<model>/calibration_<label>.json)."""
+    def calibrate(self, model, label="depressed", multipliers="1,2,4,8", layers=None, backend="hf", rollouts=2, max_tokens=1024, batch=8):
+        """Steered runs at each multiplier of the vector norm (grid-length turns); prints the largest one that stays
+        coherent relative to the unsteered baseline (also written to steer/<model>/calibration_<label>.json)."""
         from dprobe.config import analysis_layers
         from dprobe.steer import calibrate
 
@@ -211,6 +212,29 @@ class CLI:
             layers = [l for l in analysis_layers(spec) if abs(l - c) <= 6]
         best = calibrate(model, label, _list(layers, int), _list(multipliers, float), backend=backend, rollouts=int(rollouts), max_tokens=int(max_tokens), batch=int(batch))
         print(f"CHOSEN_MULTIPLIER={best}")
+
+    def steer_calibrated(self, model, labels="depressed,clinical_depression,calm", multipliers="1,2,4,8", layers=None, backend="hf",
+                         rollouts=16, max_tokens=1024, batch=8, signs="both"):
+        """Per label: calibrate the multiplier at grid length, then run the grid cells at +-chosen (signs=both) or +chosen (signs=pos)."""
+        from dprobe.config import analysis_layers
+        from dprobe.models import load_model
+        from dprobe.steer import calibrate, run_steering_grid
+
+        spec = get_model(model)
+        if layers is None:
+            c = spec.two_thirds_layer
+            layers = [l for l in analysis_layers(spec) if abs(l - c) <= 6]
+        layers = _list(layers, int)
+        bundle = load_model(model) if backend == "hf" else None
+        first = True
+        for lab in _list(labels):
+            m = calibrate(model, lab, layers, _list(multipliers, float), backend=backend, rollouts=2, max_tokens=int(max_tokens), batch=int(batch), model_bundle=bundle)
+            if m == 0:
+                print(f"[steer] {lab}: no coherent multiplier; skipping"); continue
+            strengths = [-m, m] if signs == "both" else [m]
+            run_steering_grid(model, [lab], strengths, layers, backend=backend, rollouts=int(rollouts), max_tokens=int(max_tokens),
+                              judge=True, include_baseline=first, batch=int(batch), mode="vec", model_bundle=bundle)
+            first = False
 
     def coherence(self, model, tag):
         from dprobe.spiral import transcripts_path
