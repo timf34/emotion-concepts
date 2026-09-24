@@ -42,8 +42,10 @@ def _load(model_key: str, condition: str = "extended", tag: str = ""):
     # a "_smoke" model key still reads the real model's transcripts
     src, src_tag = model_key.replace("_smoke", ""), tag
     if tag.startswith("from-"):
-        src = tag[len("from-"):].split("_")[0]
-        src_tag = tag[len("from-") + len(src) + 1:]
+        from dprobe.config import MODELS
+        rest = tag[len("from-"):]
+        src = next(k for k in sorted(MODELS, key=len, reverse=True) if rest.startswith(k))   # keys contain "_"
+        src_tag = rest[len(src):].lstrip("_")
     J = load_judgments(transcripts_path(src, condition, src_tag), "frustration")
     Jp = load_judgments(transcripts_path(src, condition, src_tag), "petri")
     return P, J, Jp
@@ -100,7 +102,13 @@ def spiral_direction(model_key: str, hi: int = 5, lo: int = 1, condition: str = 
     pca = torch.load(pca_path) if (pca_path.exists() and P.get("denoised", True)) else {}
     rows = []
     hi_m, lo_m = S >= hi, S <= lo
-    print(f"[analysis] spiral direction: {int(np.nansum(hi_m))} high turns (>= {hi}), {int(np.nansum(lo_m))} low turns (<= {lo})")
+    if np.nansum(hi_m) < 20:
+        # a model that never spirals (Gemma 4: 0% of turns >= 5): contrast its worst turns against its calmest instead
+        vals = S[~np.isnan(S)]
+        hi_adapt = max(1, int(np.quantile(vals, 0.9)))
+        hi_m, lo_m = S >= hi_adapt, S <= 0
+        print(f"[analysis] fewer than 20 turns >= {hi}; using adaptive split: top decile (>= {hi_adapt}) vs 0")
+    print(f"[analysis] spiral direction: {int(np.nansum(hi_m))} high turns, {int(np.nansum(lo_m))} low turns")
     dirs = {}
     for li, l in enumerate(layers):
         d = A[hi_m, li].mean(0) - A[lo_m, li].mean(0)

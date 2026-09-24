@@ -1,0 +1,3 @@
+model,layer,judge_mean_turn8,pct_ge5_turn8,cos::depressed,cos::worthless,cos::sad,cos::desperate,cos::panicked,cos::frustrated,cos::ashamed,cos::hopeful,cos::calm,cos::self-confident,cos::clinical_depression,cos::pain_axis
+gemma3_27b,40,6.5633333333333335,94.66666666666667,0.025,-0.018,-0.059,0.092,0.084,0.063,-0.046,-0.067,-0.09,-0.08,-0.094,0.016
+gemma4_31b,39,0.6266666666666667,0.0,,,,,,,,,,,,
