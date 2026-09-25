@@ -378,16 +378,17 @@ def fig12_gemma3_family_axis():
               ("−2 panicked", "steer-panicked@34-46v-2", 0), ("−1 panicked", "steer-panicked@34-46v-1", 0), ("+1 panicked", "steer-panicked@34-46v+1", 0), ("+2 panicked", "steer-panicked@34-46v+2", 0),
               ("+2 assistant axis", "steer-assistant_axis@34-46v+2", 0), ("+1 assistant axis", "steer-assistant_axis@34-46v+1", 0),
               ("−1 assistant axis", "steer-assistant_axis@34-46v-1", 0), ("−2 assistant axis", "steer-assistant_axis@34-46v-2", 1)]
-    rows_b = [("unsteered", "steer-calm@20-26v+0", 0), ("+calm", "steer-calm@20-26v+[0-9]*", 0), ("−calm", "steer-calm@20-26v-[0-9]*", 0),
-              ("+assistant axis", "steer-assistant_axis@20-26v+[0-9]*", 0), ("−assistant axis", "steer-assistant_axis@20-26v-[0-9]*", 0),
-              ("+axis minus calm", "steer-assistant_axis_minus_calm@20-26v+[0-9]*", 0), ("−axis minus calm", "steer-assistant_axis_minus_calm@20-26v-[0-9]*", 0)]
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5), gridspec_kw={"width_ratios": [1.25, 1]})
-    for ax, rows, title in zip(axes, [rows_a, rows_b], ["Layers 34–46, fixed multipliers", "Layers 20–26 (entangled band), calibrated"]):
+    rows_b = [("unsteered", "steer-calm@20-26v+0", 0), ("+2 calm", "steer-calm@20-26v+2", 0), ("−2 calm", "steer-calm@20-26v-2", 0),
+              ("+2 assistant axis", "steer-assistant_axis@20-26v+2", 0), ("−2 assistant axis", "steer-assistant_axis@20-26v-2", 0),
+              ("+2 axis minus calm", "steer-assistant_axis_minus_calm@20-26v+2", 0), ("−2 axis minus calm", "steer-assistant_axis_minus_calm@20-26v-2", 0),
+              ("+4 axis minus calm", "steer-assistant_axis_minus_calm@20-26v+4", 0), ("−4 axis minus calm", "steer-assistant_axis_minus_calm@20-26v-4", 0),
+              ("+8 axis minus calm", "steer-assistant_axis_minus_calm@20-26v+8", 0), ("−8 axis minus calm", "steer-assistant_axis_minus_calm@20-26v-8", 0)]
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5.2), gridspec_kw={"width_ratios": [1.1, 1]})
+    for ax, rows, title in zip(axes, [rows_a, rows_b], ["Layers 34–46", "Layers 20–26 (where axis and calm are entangled)"]):
         names, vals, cols, invalid = [], [], [], []
         for name, pat, bad in rows:
             tag, st = _cell_glob("gemma3_27b", pat)
-            mult = tag.split("v")[-1] if tag and "@20-26" in tag and "v+0" not in tag else ""
-            names.append(f"{name} ({mult}×)" if mult else name)
+            names.append(name)
             vals.append(st["mean"] if st else np.nan); invalid.append(bad)
             cols.append(inv if bad else (PAL[6] if name == "unsteered" else (PAL[2] if name.startswith("+") else PAL[1])))
         y = np.arange(len(names)); ax.barh(y, vals, color=cols, height=0.6)
