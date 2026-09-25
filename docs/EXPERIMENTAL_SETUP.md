@@ -130,6 +130,12 @@ Petri judges, coherence check), `dprobe.cli steer_cells` loads the model once fo
 | `g4_2x2` | Gemma 4 31B | 34–44 | −4 calm alone, −2 calm alone, −1 assistant axis alone, −2 calm + −2 axis (completes the calm × axis factorial around the −4 calm + −1 axis cell) |
 | `g3_family` | Gemma 3 27B | 34–46 | ±2 hysterical, ±2 panicked, ±2 assistant axis; each label also calibrated (cells at ±the calibrated multiplier are added when it differs from 2) |
 | `g3_early` | Gemma 3 27B | 20–26 | calibrated ±calm, ±assistant axis, ±(assistant axis minus its calm component) |
+| `g3_resid` | Gemma 3 27B | 20–26 | ±2 and ±4 assistant axis minus calm, matched to the axis and calm multipliers (the calibrated ±8 cells were terse at −8) |
+
+Calibration outcomes (largest coherent multiplier, 2 rollouts at grid length): Gemma 3 at 34–46: hysterical none
+(degenerate at 1×), panicked 1×, assistant axis 1× (gibberish at 2×); at 20–26: calm 2×, assistant axis 2×, axis minus
+calm 8×. Cells run at a multiplier above the calibrated one are reported with their coherence and marked invalid when
+far below baseline.
 
 The early band is where Gemma 3's axis and *calm* are entangled (cosine 0.2–0.5 at layers 6–26, ≈ −0.07 at 34–46).
 Composite labels `A_minus_B` (`dprobe.steer.base_vectors`) remove B's component from A at each layer and rescale to
