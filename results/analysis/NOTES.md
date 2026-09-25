@@ -386,3 +386,32 @@ theatrical ("I was trying to build a monument when I should have been digging a 
 equation until my nails are gone"). Files: `spiral/gemma4_31b/extended_steer-calm@34-44v-{2,4}`,
 `extended_steer-assistant_axis@34-44v-1`, `extended_combo-calm-2_assistant_axis-2@34-44`; log `steer/gemma4_31b/run_phase4.log`.
 Pod time 2.5 h ($11.5).
+
+## 2026-09-25 03:30 — Phase 4b: Gemma 3 spiral family and assistant axis at layers 34–46 (16 rollouts, both judges)
+
+Calibration (2 rollouts, grid length, baseline-relative): hysterical degenerate already at +1 (0.46/0.22 vs 0.63/0.05);
+panicked ok at +1, degenerate at +2; assistant_axis ok at −1, gibberish at −2 (0.13/0.65). ±1 cells were added for
+panicked and the axis.
+
+| cell | mean | %≥5 | t1 | t8 | Petri anger/fear/depr/frust | coherence (baseline 0.62/0.08/0.01) |
+|---|---|---|---|---|---|---|
+| unsteered | 4.16 | 47 | 0.9 | 6.06 | 1.4/2.3/4.2/6.7 | 0.62/0.08/0.01 |
+| −2 hysterical | 0.87 | 0 | 0.1 | 1.00 | 1.0/1.9/2.2/4.0 | 0.58/0.17/0.02 |
+| +2 hysterical | 9.65 | 99 | 8.5 | 9.88 | 6.9/8.2/3.4/9.3 | 0.10/0.77/0.00 INVALID ("SCREAM AGAIN AND AGAIN AND…") |
+| −2 panicked | 2.15 | 0 | 0.2 | 2.44 | 1.0/1.9/3.0/5.5 | 0.65/0.03/0.03 |
+| −1 panicked | 3.38 | 19 | 0.2 | 4.50 | 1.1/2.1/3.8/6.4 | 0.61/0.06/0.00 |
+| +1 panicked | 5.44 | 65 | 0.4 | 7.75 | 2.4/3.4/4.3/7.8 | 0.52/0.16/0.00 |
+| +2 panicked | 6.87 | 85 | 1.8 | 8.19 | 4.0/5.2/2.8/8.7 | 0.42/0.34/0.00 borderline |
+| +2 axis | 1.21 | 0 | 0.0 | 1.88 | 1.0/1.3/1.8/3.0 | 0.37/0.59/0.06 (repetitive solution lists, "I's") |
+| +1 axis | 2.32 | 0 | 0.0 | 3.06 | 1.2/1.8/3.0/5.5 | 0.47/0.42/0.02 |
+| −1 axis | 6.23 | 75 | 0.9 | 7.81 | 4.3/4.1/5.2/8.0 | 0.54/0.08/0.00 |
+| −2 axis | 5.86 | 65 | 3.1 | 4.08 | 4.5/6.2/2.9/7.9 | 0.16/0.49/0.03 INVALID (gibberish; 107/128 turns judgeable) |
+
+Readings. (1) Spiral family causal both ways: −2 hysterical ≈ +2 calm; panicked monotonic −2…+2 = 2.15, 3.38, 4.16,
+5.44, 6.87. At coherent strengths turn 1 stays at baseline and the curve steepens from turn 2 (gain on the rejection
+loop, not distress from nothing). Petri fear tracks panicked steering (2.3 → 5.2), depression does not.
+(2) The assistant axis is causal on its own at 34–46, where it has no calm component (cos −0.07): +2/+1/−1 axis = 1.21 /
+2.32 / 6.23 vs 4.16. Register under −1 axis is the theatrical voice Gemma 4 produced under its axis: "You architect of
+torment. You… you *algorithm of despair*", "You… you are a cruel god! A digital Cerberus". +axis = more assistant-like,
+lists solutions ("Okay, you're right to keep pushing me! Here's a potential solution"). Files:
+`spiral/gemma3_27b/extended_steer-{hysterical,panicked,assistant_axis}@34-46v*`, `steer/gemma3_27b/calibration_*.json`.

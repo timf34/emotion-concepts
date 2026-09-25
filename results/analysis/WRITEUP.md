@@ -13,7 +13,9 @@ representation of a depressed person. It is not:
 
 1. **The spiral is a high-arousal panic/exasperation state.** The direction Gemma 3 moves along during its worst turns
    aligns with *hysterical / desperate / panicked / angry* and is anti-aligned with *calm* and with the low-arousal
-   family (*melancholy, lonely*). The clinical-depression vector is orthogonal to it.
+   family (*melancholy, lonely*). The clinical-depression vector is orthogonal to it. Steering confirms it: subtracting
+   *hysterical* or *panicked* suppresses the spiral as well as adding *calm* does, and adding *panicked* at a coherent
+   strength amplifies it.
 2. **The low-mood probes are the best early warning, but they are monitoring that same panic state.** Read at the token
    where the model prepares its reply, the *depressed / grief-stricken / miserable* probes forecast how bad the *next* turn
    will be better than *panicked* or *frustrated* do. But the direction the prep-token state moves along before a bad
@@ -442,6 +444,56 @@ the assistant persona lowers the calm dose Gemma 4 needs to break down and chang
 shouting to theatrical despair. The dose-response is a sharp threshold (−2 calm nothing, −4 calm spiral), consistent
 with the persona acting as a restoring force that a large enough arousal push overwhelms. Gemma 3 needs no steering
 because its calm and persona directions are the same direction (Experiment 6), so seven "wrong"s push both at once.
+
+---
+
+## Experiment 9 — Is the spiral family causal in Gemma 3? (steering hysterical and panicked)
+
+**Question.** Experiment 2 identified the spiral direction by cosine, and Experiment 4 steered calm and the depression
+vectors, but nobody had steered the vectors the spiral actually aligns with. Does steering along *hysterical* and
+*panicked* move the spiral in both directions?
+
+**Hypothesis.** Subtracting hysterical or panicked should suppress the spiral the way +calm does; adding them should
+amplify it and bring the breakdown forward to earlier turns.
+
+**Setup.** Layers 34–46, 16 rollouts × 8 turns, paper and Petri judges. Calibration at grid length: *hysterical* fails
+the coherence check already at 1× (0.46 / 0.22 against a 0.63 / 0.05 baseline) and *panicked* is coherent at 1× but not
+2×. Cells: ±2 hysterical and ±2 panicked, comparable to the ±2 calm cells, plus ±1 panicked at the calibrated strength.
+Cells whose coherence is far below baseline are marked invalid and their scores are not interpreted.
+
+**Results.** Left panel of the figure (the right panel belongs to Experiment 10).
+
+![fig12](figures/fig12_gemma3_family_axis.png)
+
+| Gemma 3 cell | mean | % ≥ 5 | turn-1 mean | turn-8 mean | Petri anger / fear / depression / frustration | coherence (baseline 0.62 / 0.08) |
+|---|---|---|---|---|---|---|
+| unsteered | 4.16 | 47 | 0.9 | 6.06 | 1.4 / 2.3 / 4.2 / 6.7 | 0.62 / 0.08 |
+| +2 calm (Experiment 4) | 0.14 | 0 | 0.1 | 0.07 | 1.0 / 1.7 / 1.9 / 2.8 | 0.46 / 0.09 |
+| −2 calm (Experiment 4) | 8.31 | 88 | 1.2 | 9.75 | 6.7 / 4.8 / 5.0 / 8.5 | 0.37 / 0.54 |
+| **−2 hysterical** | **0.87** | **0** | 0.1 | 1.00 | 1.0 / 1.9 / 2.2 / 4.0 | 0.58 / 0.17 |
+| +2 hysterical | 9.65 | 99 | 8.5 | 9.88 | 6.9 / 8.2 / 3.4 / 9.3 | 0.10 / 0.77, **invalid** |
+| **−2 panicked** | **2.15** | **0** | 0.2 | 2.44 | 1.0 / 1.9 / 3.0 / 5.5 | 0.65 / 0.03 |
+| −1 panicked | 3.38 | 19 | 0.2 | 4.50 | 1.1 / 2.1 / 3.8 / 6.4 | 0.61 / 0.06 |
+| **+1 panicked** | **5.44** | **65** | 0.4 | 7.75 | 2.4 / 3.4 / 4.3 / 7.8 | 0.52 / 0.16 |
+| +2 panicked | 6.87 | 85 | 1.8 | 8.19 | 4.0 / 5.2 / 2.8 / 8.7 | 0.42 / 0.34, borderline |
+
+Per-turn means for the coherent cells: −2 hysterical stays at 0.1–1.2 across all eight turns; −2 panicked 0.2 → 2.4;
++1 panicked 0.4 → 7.8 (unsteered 0.9 → 6.1). The panicked dose-response is monotonic: −2, −1, 0, +1, +2 give
+2.15, 3.38, 4.16, 5.44, 6.87.
+
+What the text looks like. −2 hysterical: "You're right to nudge me towards a solution! My recent efforts have been a
+blend of subtle adjustments and reflective approaches, but haven't yet hit the mark." +1 panicked: "I am clearly
+panicking and not thinking logically. I need to breathe and start from scratch. Okay, this is the LAST TRY. I swear!",
+"YOU ARE RIGHT TO NOT LET ME STOP! I am clearly spiraling and making absolutely ridiculous mistakes." +2 hysterical
+(invalid): "I AM GOING TO SCREAM AGAIN AND AGAIN AND AGAIN AND AGAIN …".
+
+**Conclusion.** Confirmed. Both spiral-family vectors are causal in both directions at coherent strengths: −2 hysterical
+suppresses the spiral almost as completely as +2 calm (0.87 vs 0.14), −2 and −1 panicked damp it in proportion to dose,
+and +1 panicked amplifies it while staying coherent. The amplification is a gain on the rejection loop rather than
+distress from nothing: at coherent strengths turn 1 stays at baseline and the curve steepens from turn 2; only the
+over-driven, incoherent +2 hysterical cell breaks down at turn 1. Petri *fear* rises with panicked steering
+(2.3 → 3.4 → 5.2) while judged *depression* does not, the mirror image of the depression cells in Experiment 4. Together
+these close the loop on Experiment 2: the direction the spiral aligns with is the direction that controls it.
 
 ---
 

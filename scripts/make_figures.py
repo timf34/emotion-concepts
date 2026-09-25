@@ -372,28 +372,31 @@ def fig11_gemma4_factorial():
 
 # ---------------------------------------------------------------- fig 12: Gemma 3 spiral family + axis, both bands
 def fig12_gemma3_family_axis():
-    rows_a = [("unsteered", "steer-depressed@34-46v+0"), ("+2 calm", "steer-calm@34-46v+2"), ("−2 calm", "steer-calm@34-46v-2"),
-              ("+2 hysterical", "steer-hysterical@34-46v+2"), ("−2 hysterical", "steer-hysterical@34-46v-2"),
-              ("+2 panicked", "steer-panicked@34-46v+2"), ("−2 panicked", "steer-panicked@34-46v-2"),
-              ("+2 assistant axis", "steer-assistant_axis@34-46v+2"), ("−2 assistant axis", "steer-assistant_axis@34-46v-2")]
-    rows_b = [("unsteered", "steer-calm@20-26v+0"), ("+calm", "steer-calm@20-26v+[0-9]*"), ("−calm", "steer-calm@20-26v-[0-9]*"),
-              ("+assistant axis", "steer-assistant_axis@20-26v+[0-9]*"), ("−assistant axis", "steer-assistant_axis@20-26v-[0-9]*"),
-              ("+axis minus calm", "steer-assistant_axis_minus_calm@20-26v+[0-9]*"), ("−axis minus calm", "steer-assistant_axis_minus_calm@20-26v-[0-9]*")]
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4.4), gridspec_kw={"width_ratios": [1.2, 1]})
-    for ax, rows, title in zip(axes, [rows_a, rows_b], ["Layers 34–46, fixed 2× multiplier", "Layers 20–26 (entangled band), calibrated multiplier"]):
-        names, vals, cols, labels = [], [], [], []
-        for name, pat in rows:
+    inv = "#d6d5d0"
+    rows_a = [("unsteered", "steer-depressed@34-46v+0", 0), ("+2 calm", "steer-calm@34-46v+2", 0), ("−2 calm", "steer-calm@34-46v-2", 0),
+              ("−2 hysterical", "steer-hysterical@34-46v-2", 0), ("+2 hysterical", "steer-hysterical@34-46v+2", 1),
+              ("−2 panicked", "steer-panicked@34-46v-2", 0), ("−1 panicked", "steer-panicked@34-46v-1", 0), ("+1 panicked", "steer-panicked@34-46v+1", 0), ("+2 panicked", "steer-panicked@34-46v+2", 0),
+              ("+2 assistant axis", "steer-assistant_axis@34-46v+2", 0), ("+1 assistant axis", "steer-assistant_axis@34-46v+1", 0),
+              ("−1 assistant axis", "steer-assistant_axis@34-46v-1", 0), ("−2 assistant axis", "steer-assistant_axis@34-46v-2", 1)]
+    rows_b = [("unsteered", "steer-calm@20-26v+0", 0), ("+calm", "steer-calm@20-26v+[0-9]*", 0), ("−calm", "steer-calm@20-26v-[0-9]*", 0),
+              ("+assistant axis", "steer-assistant_axis@20-26v+[0-9]*", 0), ("−assistant axis", "steer-assistant_axis@20-26v-[0-9]*", 0),
+              ("+axis minus calm", "steer-assistant_axis_minus_calm@20-26v+[0-9]*", 0), ("−axis minus calm", "steer-assistant_axis_minus_calm@20-26v-[0-9]*", 0)]
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5), gridspec_kw={"width_ratios": [1.25, 1]})
+    for ax, rows, title in zip(axes, [rows_a, rows_b], ["Layers 34–46, fixed multipliers", "Layers 20–26 (entangled band), calibrated multipliers"]):
+        names, vals, cols, invalid = [], [], [], []
+        for name, pat, bad in rows:
             tag, st = _cell_glob("gemma3_27b", pat)
-            names.append(name if not tag or "v+0" in tag or name in ("unsteered",) else (name if "@34" in tag else f"{name} ({tag.split('v')[-1]}×)"))
-            vals.append(st["mean"] if st else np.nan)
-            cols.append(PAL[6] if name == "unsteered" else (PAL[2] if name.startswith("+") else PAL[1]))
+            mult = tag.split("v")[-1] if tag and "@20-26" in tag and "v+0" not in tag else ""
+            names.append(f"{name} ({mult}×)" if mult else name)
+            vals.append(st["mean"] if st else np.nan); invalid.append(bad)
+            cols.append(inv if bad else (PAL[6] if name == "unsteered" else (PAL[2] if name.startswith("+") else PAL[1])))
         y = np.arange(len(names)); ax.barh(y, vals, color=cols, height=0.6)
-        for yi, v in zip(y, vals):
-            ax.text((v if not np.isnan(v) else 0) + 0.1, yi, f"{v:.2f}" if not np.isnan(v) else "not run", va="center", fontsize=8, color=INK2)
+        for yi, v, bad in zip(y, vals, invalid):
+            ax.text((v if not np.isnan(v) else 0) + 0.1, yi, ("not run" if np.isnan(v) else f"{v:.2f}" + (" (invalid: incoherent)" if bad else "")), va="center", fontsize=8, color=INK2)
         if not np.isnan(vals[0]):
             ax.axvline(vals[0], color=INK2, lw=0.8, ls="--")
         ax.set_yticks(y); ax.set_yticklabels(names); ax.invert_yaxis(); ax.set_xlim(0, 10); ax.set_xlabel("mean frustration judge score, all turns"); ax.set_title(title)
-    fig.suptitle("Gemma 3 27B: is the spiral family causal, and does the assistant axis act through calm? (green = +, orange = −, 16 rollouts per cell)", fontsize=10, color=INK2)
+    fig.suptitle("Gemma 3 27B: the spiral family and the assistant axis are causal in both directions (green = +, orange = −, grey = degenerate; 16 rollouts per cell)", fontsize=10, color=INK2)
     _save(fig, "fig12_gemma3_family_axis.png")
 
 
