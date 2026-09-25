@@ -384,7 +384,7 @@ def fig12_gemma3_family_axis():
               ("+4 axis minus calm", "steer-assistant_axis_minus_calm@20-26v+4", 0), ("−4 axis minus calm", "steer-assistant_axis_minus_calm@20-26v-4", 0),
               ("+8 axis minus calm", "steer-assistant_axis_minus_calm@20-26v+8", 0), ("−8 axis minus calm", "steer-assistant_axis_minus_calm@20-26v-8", 0)]
     fig, axes = plt.subplots(1, 2, figsize=(12, 5.2), gridspec_kw={"width_ratios": [1.1, 1]})
-    for ax, rows, title in zip(axes, [rows_a, rows_b], ["Layers 34–46", "Layers 20–26 (where axis and calm are entangled)"]):
+    for ax, rows, title in zip(axes, [rows_a, rows_b], ["Layers 34–46", "Layers 20–26 (axis and calm entangled)"]):
         names, vals, cols, invalid = [], [], [], []
         for name, pat, bad in rows:
             tag, st = _cell_glob("gemma3_27b", pat)
