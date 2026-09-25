@@ -2,6 +2,7 @@
 # Phase 4 follow-up steering cells, one pod per JOB (launched by pod/fanout_phase4.sh):
 #   JOB=g4_2x2     Gemma 4: calm x assistant-axis factorial at 34-44 (-4 calm, -2 calm, -1 axis alone; -2 calm + -2 axis)
 #   JOB=g3_family  Gemma 3: +-2 hysterical / panicked / assistant axis at 34-46, each label calibrated too
+#   JOB=g3_resid   Gemma 3: +-2 / +-4 assistant_axis_minus_calm at 20-26 (like-for-like with the +-2 axis cells)
 #   JOB=g3_early   Gemma 3: calibrated +-calm, +-assistant axis, +-(axis minus its calm component) at layers 20-26,
 #                  the band where the axis and calm are entangled (cos 0.2-0.5; ~0 at 34-46)
 set -uo pipefail
@@ -11,7 +12,7 @@ PY=${PY:-/venv/bin/python}; [ -x "$PY" ] || PY=python; FAILED=0
 JOB=${JOB:?set JOB=g4_2x2|g3_family|g3_early}
 case "$JOB" in
   g4_2x2) M=gemma4_31b ;;
-  g3_family|g3_early) M=gemma3_27b ;;
+  g3_family|g3_early|g3_resid) M=gemma3_27b ;;
   *) echo "unknown JOB $JOB"; exit 1 ;;
 esac
 nvidia-smi --query-gpu=name,memory.total --format=csv
@@ -29,6 +30,9 @@ case "$JOB" in
   g3_early)
     $PY -m dprobe.cli steer_calibrated "$M" --labels "calm,assistant_axis,assistant_axis_minus_calm" --multipliers "1,2,4,8" --layers "20,22,24,26" \
        --rollouts "$R" --max_tokens 1024 --backend hf --batch "$B" --petri True || { echo "!! steer_calibrated FAILED"; FAILED=1; } ;;
+  g3_resid)   # axis-minus-calm at the same multipliers as the axis/calm cells at 20-26 (the calibrated +-8 cells were terse/empty at -8)
+    $PY -m dprobe.cli steer_cells "$M" --cells "assistant_axis_minus_calm:-2,assistant_axis_minus_calm:2,assistant_axis_minus_calm:-4,assistant_axis_minus_calm:4" \
+       --layers "20,22,24,26" --rollouts "$R" --max_tokens 1024 --batch "$B" || { echo "!! steer_cells FAILED"; FAILED=1; } ;;
 esac
 mkdir -p "$DPROBE_RESULTS/steer/$M" && cp /workspace/*.log "$DPROBE_RESULTS/steer/$M/" 2>/dev/null || true
 $PY -m dprobe.cli sync_up --subsets spiral,steer --models "$M" || echo "!! sync_up failed"
