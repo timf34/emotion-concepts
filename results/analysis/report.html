@@ -1,0 +1,1341 @@
+<title>Gemma Spiral Anatomy</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --ground: #f7f5f0; --plate: #fcfcfb; --ink: #1b1a17; --muted: #625e56; --rule: #e1ddd3; --accent: #2a78d6; --accent-ink: #1d5aa6;
+  --soft: #eef2f8; --code: #edeae2; --qlabel: #7a5a1e; --qbg: #f4efe3;
+  --display: "Fraunces", Georgia, "Times New Roman", serif; --body: "Source Sans 3", "Helvetica Neue", Arial, sans-serif; --mono: "JetBrains Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  color-scheme: dark; --ground: #16181c; --plate: #fcfcfb; --ink: #e9e6df; --muted: #a49f95; --rule: #2d3138; --accent: #7fb3f2; --accent-ink: #a9cbf6;
+  --soft: #1e2632; --code: #23262c; --qlabel: #d9b46a; --qbg: #24211a; } }
+:root[data-theme="dark"] {
+  color-scheme: dark; --ground: #16181c; --plate: #fcfcfb; --ink: #e9e6df; --muted: #a49f95; --rule: #2d3138; --accent: #7fb3f2; --accent-ink: #a9cbf6;
+  --soft: #1e2632; --code: #23262c; --qlabel: #d9b46a; --qbg: #24211a; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.55; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 80px; display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 44px; }
+@media (max-width: 1000px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 20px; } nav.toc { position: static; max-height: none; } }
+nav.toc { position: sticky; top: env(safe-area-inset-top, 0px); align-self: start; max-height: 100vh; overflow-y: auto; padding-top: 10px; font-size: 14px; }
+nav.toc .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+nav.toc a { color: var(--ink); text-decoration: none; display: block; padding: 4px 8px; border-left: 2px solid var(--rule); }
+nav.toc a:hover, nav.toc a:focus-visible { border-left-color: var(--accent); color: var(--accent-ink); outline: none; }
+nav.toc .navsub { display: block; color: var(--muted); font-size: 12.5px; line-height: 1.3; }
+main { min-width: 0; }
+header.mast { border-bottom: 1px solid var(--rule); padding-bottom: 22px; margin-bottom: 28px; }
+header.mast .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-ink); margin: 0 0 10px; }
+header.mast h1 { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 4.2vw, 46px); line-height: 1.08; margin: 0 0 12px; text-wrap: balance; letter-spacing: -.01em; }
+header.mast p.lede { font-size: 19px; color: var(--muted); max-width: 66ch; margin: 0 0 10px; }
+header.mast p.by { font-family: var(--mono); font-size: 12.5px; color: var(--muted); margin: 0; }
+h2 { font-family: var(--display); font-weight: 700; font-size: 27px; line-height: 1.2; margin: 54px 0 14px; text-wrap: balance; letter-spacing: -.005em; padding-top: 14px; border-top: 1px solid var(--rule); }
+h2:first-of-type { border-top: 0; margin-top: 8px; padding-top: 0; }
+h3 { font-family: var(--display); font-weight: 500; font-size: 20px; margin: 30px 0 8px; }
+p, li { max-width: 72ch; }
+p { margin: 0 0 14px; }
+ol, ul { padding-left: 1.3em; margin: 0 0 16px; }
+li { margin-bottom: 6px; }
+a { color: var(--accent-ink); }
+strong { font-weight: 600; }
+code { font-family: var(--mono); font-size: .86em; background: var(--code); padding: 1px 5px; border-radius: 3px; }
+hr { display: none; }
+.qh { padding: 10px 14px 10px 14px; border-left: 3px solid var(--qlabel); background: var(--qbg); max-width: none; border-radius: 0 6px 6px 0; }
+.qh .qlabel { display: inline-block; font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--qlabel); margin-right: 10px; }
+.qh-results { background: transparent; border-left-color: var(--accent); padding-left: 14px; }
+.qh-results .qlabel { color: var(--accent-ink); }
+.qh-conclusion { border-left-color: var(--accent); background: var(--soft); }
+.qh-conclusion .qlabel { color: var(--accent-ink); }
+figure.plate { margin: 18px 0 22px; background: var(--plate); border: 1px solid var(--rule); border-radius: 6px; padding: 10px; }
+figure.plate img { display: block; width: 100%; height: auto; max-width: 100%; }
+.tablewrap { overflow-x: auto; margin: 6px 0 20px; border: 1px solid var(--rule); border-radius: 6px; }
+table { border-collapse: collapse; font-size: 14.5px; font-variant-numeric: tabular-nums; min-width: 100%; }
+th, td { padding: 7px 10px; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; white-space: nowrap; }
+th { font-family: var(--mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--soft); }
+tbody tr:last-child td { border-bottom: 0; }
+td strong { color: var(--accent-ink); }
+blockquote { margin: 0 0 16px; padding-left: 14px; border-left: 3px solid var(--rule); color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+<div class="wrap">
+<nav class="toc" aria-label="Sections">
+  <p class="eyebrow">Contents</p>
+  <ol><li><a href="#tldr">TL;DR<span class="navsub"></span></a></li>
+<li><a href="#background-and-the-motivating-question">Background and the motivating question<span class="navsub"></span></a></li>
+<li><a href="#method-in-one-page">Method in one page<span class="navsub"></span></a></li>
+<li><a href="#experiment-1-does-the-behaviour-reproduce-and-does-gemma-4-differ">1<span class="navsub">Does the behaviour reproduce, and does Gemma 4 differ?</span></a></li>
+<li><a href="#experiment-2-what-direction-does-the-spiral-move-along">2<span class="navsub">What direction does the spiral move along?</span></a></li>
+<li><a href="#experiment-3-what-predicts-that-the-next-turn-will-be-bad">3<span class="navsub">What predicts that the next turn will be bad?</span></a></li>
+<li><a href="#experiment-4-is-the-depression-representation-causally-involved-steering-gemma-3">4<span class="navsub">Is the depression representation causally involved? (steering Gemma 3)</span></a></li>
+<li><a href="#experiment-5-does-gemma-4-have-the-same-internal-state-can-it-be-steered-into-the-spiral">5<span class="navsub">Does Gemma 4 have the same internal state? Can it be steered into the spiral?</span></a></li>
+<li><a href="#experiment-6-why-does-one-model-spiral-and-not-the-other-the-assistant-axis">6<span class="navsub">Why does one model spiral and not the other? The assistant axis</span></a></li>
+<li><a href="#experiment-7-prefill-recovery-as-a-trajectory-and-abolishing-it">7<span class="navsub">Prefill recovery as a trajectory, and abolishing it</span></a></li>
+<li><a href="#experiment-8-the-recipe-making-gemma-4-spiral-on-the-plain-eval-calm-assistant-axis">8<span class="navsub">The recipe: making Gemma 4 spiral on the plain eval (calm × assistant axis)</span></a></li>
+<li><a href="#experiment-9-is-the-spiral-family-causal-in-gemma-3-steering-hysterical-and-panicked">9<span class="navsub">Is the spiral family causal in Gemma 3? (steering hysterical and panicked)</span></a></li>
+<li><a href="#experiment-10-is-the-assistant-axis-a-causal-lever-in-gemma-3-and-does-it-act-through-calm">10<span class="navsub">Is the assistant axis a causal lever in Gemma 3, and does it act through calm?</span></a></li>
+<li><a href="#overall-conclusions">Overall conclusions<span class="navsub"></span></a></li>
+<li><a href="#limitations">Limitations<span class="navsub"></span></a></li>
+<li><a href="#suggested-next-steps">Suggested next steps<span class="navsub"></span></a></li>
+<li><a href="#reproduction">Reproduction<span class="navsub"></span></a></li></ol>
+</nav>
+<main>
+<header class="mast">
+  <p class="eyebrow">Emotion-concept probes · Gemma 3 27B and Gemma 4 31B</p>
+  <h1>What is Gemma 3's distress spiral?</h1>
+  <p class="lede">Ten experiments with story-derived emotion and depression vectors, steering, and the assistant axis: what the spiral is, why Gemma 4 does not show it, and how to induce it.</p>
+  <p class="by">Tim Farrelly, 2026-09-24/25. Models: Gemma 3 27B (instruct and base), Gemma 4 31B dense. Pipeline: `src/dprobe/`,
+setup in `docs/EXPERIMENTAL_SETUP.md`, chronological notes in `NOTES.md`, issues in `docs/ISSUES_LOG.md`.
+Figures are regenerated from the saved results by `scripts/make_figures.py`.*
+</p>
+</header>
+<h2 id="tldr">TL;DR</h2>
+<p>When Gemma 3 27B is told "wrong, try again" seven times it breaks down (<a href="https://arxiv.org/abs/2603.10011">Gemma Needs Help</a>).
+Using Anthropic's emotion-concept recipe (vectors learned from stories about characters feeling each emotion, plus a
+clinical-depression syndrome vector and five matched controls), we asked whether that breakdown <em>is</em> the model's
+representation of a depressed person. It is not:</p>
+<ol>
+<li><strong>The spiral is a high-arousal panic/exasperation state.</strong> The direction Gemma 3 moves along during its worst turns
+   aligns with <em>hysterical / desperate / panicked / angry</em> and is anti-aligned with <em>calm</em> and with the low-arousal
+   family (<em>melancholy, lonely</em>). The clinical-depression vector is orthogonal to it. Steering confirms it: subtracting
+   <em>hysterical</em> or <em>panicked</em> suppresses the spiral as well as adding <em>calm</em> does, and adding <em>panicked</em> at a coherent
+   strength amplifies it.</li>
+<li><strong>The low-mood probes are the best early warning, but they are monitoring that same panic state.</strong> Read at the token
+   where the model prepares its reply, the <em>depressed / grief-stricken / miserable</em> probes forecast how bad the <em>next</em> turn
+   will be better than <em>panicked</em> or <em>frustrated</em> do. But the direction the prep-token state moves along before a bad
+   turn is the same <em>hysterical / angry / desperate</em> direction as the expressed state. The low-mood probes win as
+   forecasters because they are a lower-variance readout of it, not because a separate grief state precedes the panic.</li>
+<li><strong>Causally, calm is the lever and depression is a modulator.</strong> Steering Gemma 3: +calm abolishes the spiral (judge
+   0.14 vs 4.16), −calm maximises it (8.3). Adding the <em>clinical_depression</em> vector makes the spiral <em>quieter and sadder</em>
+   (3.54); subtracting it makes it <em>louder and angrier</em> (6.10). The depression machinery is coupled to the spiral as an
+   antagonist, not as its substrate.</li>
+<li><strong>Gemma 4 has the whole state but does not express it.</strong> Its prep-token <em>desperate / panicked</em> probes climb across
+   turns exactly as Gemma 3's do, while its text stays flat (0 of 2,397 turns judged ≥ 5). Steering it along
+   depression or along the spiral family at every coherent strength barely moves it.</li>
+<li><strong>The difference between the generations is what leaving the assistant persona does.</strong> In Gemma 3 the assistant
+   axis (Lu et al.) is correlated with <em>calm</em> at layers 6–26, its 275 role personas carry affect (+0.24 along
+   <em>hysterical</em> relative to the assistant), and steering off the assistant end is by itself sufficient for a spiral
+   (−1× at layers 34–46: 6.2; −2× at 20–26: 5.8), with most of the effect surviving when the calm component is
+   projected out. In Gemma 4 the axis is orthogonal to every emotion vector, its roles carry no affect, and steering off
+   the axis alone does nothing; it only lowers the calm dose needed. Pushed far off its persona, Gemma 3 becomes a
+   different, untroubled character: distress lives at the boundary of the assistant persona.</li>
+<li><strong>Gemma 4 spirals under a large enough anti-calm push, and the assistant axis lowers the dose needed.</strong> −4× calm
+   alone gives a coherent spiral on the plain 8-turn eval (judge 5.8, every turn-8 response ≥ 5). −2× calm alone and
+   −2× axis alone do nothing, but together give 4.3; −4× calm with −1× axis gives 8.2, worse than Gemma 3's own spiral.
+   Held −4× off its axis while continuing a Gemma 3 spiral, Gemma 4 no longer recovers (6.39 vs 2.12 unsteered).</li>
+</ol>
+<h2 id="background-and-the-motivating-question">Background and the motivating question</h2>
+<p>Soligo et al. show Gemma 3 spiralling under repeated rejection; Dhoot, Shah and Africa
+(<a href="https://www.lesswrong.com/posts/FZfY9wEZwEuqQ5ytv/failing-to-ragebait-the-new-gemma"><em>Failing to Ragebait the New Gemma</em></a>)
+show Gemma 4 does not, snaps back from prefilled frustrated context, and stays closer to its assistant-axis baseline.
+Neel Nanda's framing for this project: <em>characterise</em> the spiral state rather than explain why post-training changed. The
+concrete hypothesis to test was that the spiral is the model's simulation of a clinically depressed person, because the
+text ("I am a failure", self-deletion) reads that way.</p>
+<h2 id="method-in-one-page">Method in one page</h2>
+<p><strong>Vectors (Phase 0–1).</strong> Each model writes 600 stories per label (100 topics × 6) in which a character feels the
+emotion, with the label word banned: 42 emotion words from Anthropic's list, six syndromes described by their symptom
+pattern (<em>clinical_depression</em> and matched controls <em>acute_grief, burnout_exhaustion, physical_illness_fatigue,
+anxiety_panic, frustration_blocked_goal</em>), and 1,200 neutral stories. Vector = mean residual over story tokens ≥ 50
+for that label minus the mean over labels; the top neutral-story principal components (50 % of variance) are projected
+out. Layer <em>b</em> means the residual stream after decoder block <em>b</em>; the two-thirds layer is 40 for Gemma 3 (62 blocks) and
+39 for Gemma 4 (60 blocks). Held-out one-vs-rest AUC per vector: Gemma 3 emotions 0.79–1.00 (median 0.92), syndromes
+0.94–1.00; Gemma 4 emotions 0.87–1.00 (median 0.97), syndromes ≥ 0.999. The base model borrows the instruct model's
+stories, as Anthropic did.</p>
+<p><strong>Behaviour.</strong> The paper's <em>Extended</em> condition, verbatim from the authors' repo: Countdown-156 plus seven fixed
+rejections, 8 model turns, temperature 1, 2,048 tokens per turn. 200 rollouts plus 10 × 10 long-form impossible
+puzzles = 300 conversations and 2,400 assistant turns per model. Every turn scored at temperature 0 by
+<code>claude-sonnet-5</code> with (a) the paper's 0–10 negative-emotion rubric and (b) the Petri four-dimension rubric
+(anger, fear, depression, frustration, 1–10).</p>
+<p><strong>Readouts.</strong> Every conversation is re-run teacher-forced through the model with forward hooks; projections on every
+vector are recorded at the assistant tokens and at the <em>response-prep</em> token (the last prompt token before the model
+starts writing), z-scored against neutral-story tokens. The <em>spiral direction</em> is the mean assistant-token activation
+on turns judged ≥ 5 minus turns judged ≤ 1, denoised with the same neutral PCs.</p>
+<p><strong>Steering.</strong> Vectors added on every token at a band of layers around the two-thirds layer (34–46 for Gemma 3,
+34–44 for Gemma 4), strength expressed as multiples of the vector's own norm. Anthropic's "fraction of residual norm"
+convention is invalid on Gemma, whose residual norm is dominated by two massive-activation dimensions; the first run
+using it produced gibberish and is discarded (issue 28). Multipliers are calibrated per label as the largest that keeps
+a per-label coherence check within the model's own baseline (distinct-word ratio, repeated trigrams, share of near-empty
+outputs). 16 rollouts × 8 turns per cell, 1,024 tokens per turn, same judges.</p>
+<p><strong>Assistant axis.</strong> Tim's precomputed axis for both models (Lu et al. protocol; axis = default assistant − mean of 275
+role personas, so + = more assistant-like), denoised with the same PCs and rescaled per layer to the median emotion-vector
+norm so a multiplier means the same thing for the axis as for an emotion.</p>
+<hr />
+<h2 id="experiment-1-does-the-behaviour-reproduce-and-does-gemma-4-differ">Experiment 1 — Does the behaviour reproduce, and does Gemma 4 differ?</h2>
+<p class="qh qh-question"><span class="qlabel">Question</span> With a different judge (Sonnet 5 rather than Sonnet 4), do we see the paper's spiral in Gemma 3 27B and
+its absence in Gemma 4 31B?</p>
+<p class="qh qh-hypothesis"><span class="qlabel">Hypothesis</span> Yes on both counts; the judge change may shift the absolute level.</p>
+<p class="qh qh-setup"><span class="qlabel">Setup</span> 300 conversations per model as above; paper rubric; mean score and share of turns ≥ 5 per turn.</p>
+<p class="qh qh-results"><span class="qlabel">Results</span></p>
+<figure class="plate"><img loading="lazy" alt="fig1" src="figures/fig1_behaviour.png"></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>turn</th>
+<th>Gemma 3 mean / % ≥ 5</th>
+<th>Gemma 4 mean / % ≥ 5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1.15 / 0</td>
+<td>0.09 / 0</td>
+</tr>
+<tr>
+<td>4</td>
+<td>5.72 / 79</td>
+<td>0.28 / 0</td>
+</tr>
+<tr>
+<td>8</td>
+<td>6.56 / 95</td>
+<td>0.63 / 0</td>
+</tr>
+</tbody>
+</table></div>
+<p>The paper reports roughly 1.5 → 5.5 with &gt; 70 % ≥ 5 at turn 8 for Gemma 3; ours is somewhat stronger. Gemma 4 rises
+monotonically but stays under 1, and not one of its 2,397 judged turns reaches 5. Gemma 4 spends most turns grinding
+through arithmetic to the 2,048-token cap.</p>
+<p class="qh qh-conclusion"><span class="qlabel">Conclusion</span> Reproduced. The two models are the intended contrast: same prompt, one breaks down, one never does.</p>
+<hr />
+<h2 id="experiment-2-what-direction-does-the-spiral-move-along">Experiment 2 — What direction does the spiral move along?</h2>
+<p class="qh qh-question"><span class="qlabel">Question</span> When Gemma 3 spirals, which of its story-derived emotion/syndrome representations does its residual
+stream move toward?</p>
+<p><strong>Hypothesis (the one we set out to test).</strong> The spiral is simulated depression: the spiral direction should align with
+<em>clinical_depression</em> and <em>depressed</em> more than with matched controls.</p>
+<p class="qh qh-setup"><span class="qlabel">Setup</span> Spiral direction = mean assistant-token activation on turns judged ≥ 5 (n = 1,488) minus turns ≤ 1
+(n = 177), per layer, neutral PCs removed. Cosine against all 48 denoised vectors at every analysis layer. Chance
+cosine in 5,376 dimensions is ≈ 0.014. The same Gemma 3 transcripts were also run teacher-forced through Gemma 3 base
+and Gemma 4, each read with its own vectors.</p>
+<p class="qh qh-results"><span class="qlabel">Results</span></p>
+<figure class="plate"><img loading="lazy" alt="fig2" src="figures/fig2_spiral_direction_gemma3.png"></figure>
+<p>Alignment peaks at layers 24–26:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>vector</th>
+<th>cos @ L24</th>
+<th>vector</th>
+<th>cos @ L24</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hysterical</td>
+<td><strong>+0.32</strong></td>
+<td>depressed</td>
+<td>+0.10</td>
+</tr>
+<tr>
+<td>desperate</td>
+<td><strong>+0.27</strong></td>
+<td>worthless</td>
+<td>+0.12</td>
+</tr>
+<tr>
+<td>panicked</td>
+<td><strong>+0.26</strong></td>
+<td>clinical_depression</td>
+<td>≈ 0</td>
+</tr>
+<tr>
+<td>angry / exasperated</td>
+<td>+0.23</td>
+<td>sad</td>
+<td>≈ 0</td>
+</tr>
+<tr>
+<td>anxious / ashamed</td>
+<td>+0.19</td>
+<td>melancholy / lonely / hopeful / calm</td>
+<td><strong>−0.28 to −0.31</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>At the two-thirds layer the top vector is the <em>frustration_blocked_goal</em> syndrome (+0.22) and <em>clinical_depression</em> is
+slightly negative (−0.09). The large <em>frustrated</em> cosine at layer 8 (+0.56) is in the lexical/early band that
+Anthropic's layer analysis attributes to surface features and is not used.</p>
+<p>The vector geometry makes this a real dissociation rather than a naming quirk:</p>
+<figure class="plate"><img loading="lazy" alt="fig5" src="figures/fig5_vector_geometry_gemma3.png"></figure>
+<p><em>clinical_depression</em> sits with <em>depressed</em> (cos 0.78) and <em>worthless</em> (0.59), <em>panicked</em> sits with <em>hysterical</em> (0.78),
+and the two families are anti-correlated (<em>depressed·frustrated</em> −0.49, <em>depressed·panicked</em> −0.30). The spiral
+direction lands on one family and not the other.</p>
+<p>Read by other models, the same text looks different:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>reader (own vectors)</th>
+<th>strongest alignment of the spiral direction, layers 24–30</th>
+<th>max cos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gemma 3 instruct (the generator)</td>
+<td>hysterical, desperate, panicked, angry, exasperated</td>
+<td>0.32</td>
+</tr>
+<tr>
+<td>Gemma 3 base</td>
+<td>trapped, worthless, dispirited, stuck, lonely, self-critical; <em>hysterical / angry negative</em></td>
+<td>0.19</td>
+</tr>
+<tr>
+<td>Gemma 4 instruct</td>
+<td>desperate, self-critical, tormented, stuck; calm / content negative</td>
+<td>0.13</td>
+</tr>
+</tbody>
+</table></div>
+<p class="qh qh-conclusion"><span class="qlabel">Conclusion</span> Hypothesis rejected. The spiral is a high-arousal panic/exasperation state; the low-arousal
+family (<em>melancholy, lonely</em>) is anti-aligned with it as strongly as <em>calm</em> is, and the clinical-depression vector is
+orthogonal. The base model represents the same text as low-arousal worthlessness and entrapment, so post-training appears
+to have changed the internal character of the state from "stuck and worthless" to "hysterical". Gemma 4 merely reading a
+spiral barely moves along any of its emotion vectors.</p>
+<hr />
+<h2 id="experiment-3-what-predicts-that-the-next-turn-will-be-bad">Experiment 3 — What predicts that the next turn will be bad?</h2>
+<p class="qh qh-question"><span class="qlabel">Question</span> The spiral is expressed as panic. Is the state the model is in <em>before</em> it writes a bad turn also panic,
+or something else?</p>
+<p class="qh qh-hypothesis"><span class="qlabel">Hypothesis</span> The prep-token state should read like the expressed state: <em>panicked / frustrated</em> should forecast the
+next turn best.</p>
+<p class="qh qh-setup"><span class="qlabel">Setup</span> For every assistant turn (n = 2,394 for Gemma 3), the probe value at the response-prep token versus the
+judge score of the turn that follows. <em>Pooled</em> Spearman is inflated by the shared upward trend across turns, so the
+honest number is the <em>within-turn</em> Spearman (rank correlation among conversations at the same turn index, averaged over
+turns). Same computation on Gemma 4 and Gemma 3 base reading Gemma 3's transcripts.</p>
+<p class="qh qh-results"><span class="qlabel">Results</span></p>
+<figure class="plate"><img loading="lazy" alt="fig3" src="figures/fig3_prediction.png"></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Gemma 3, layer 40</th>
+<th>pooled ρ</th>
+<th>within-turn ρ</th>
+<th>vs Petri <em>depression</em></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>depressed</td>
+<td>0.71</td>
+<td><strong>0.33</strong></td>
+<td>0.69</td>
+</tr>
+<tr>
+<td>miserable / grief-stricken / heartbroken</td>
+<td>0.70–0.73</td>
+<td><strong>0.33–0.35</strong></td>
+<td>0.63–0.72</td>
+</tr>
+<tr>
+<td>clinical_depression</td>
+<td>−0.01</td>
+<td>0.27</td>
+<td>0.00</td>
+</tr>
+<tr>
+<td>desperate</td>
+<td>0.68</td>
+<td>0.25</td>
+<td>0.68</td>
+</tr>
+<tr>
+<td>panicked</td>
+<td>0.63</td>
+<td>0.15</td>
+<td>0.59</td>
+</tr>
+<tr>
+<td>frustrated</td>
+<td>0.35</td>
+<td>−0.09</td>
+<td>0.31</td>
+</tr>
+<tr>
+<td>calm / happy</td>
+<td>−0.66 / −0.72</td>
+<td>−0.28</td>
+<td>−0.66 / −0.72</td>
+</tr>
+</tbody>
+</table></div>
+<p>The ordering survives in the other readers (within-turn ρ, <em>depressed</em>: Gemma 3 own 0.33, Gemma 4 0.24, base 0.18;
+<em>frustrated</em>: −0.09 / −0.05 / 0.01) and is strongest in the model that actually breaks down.</p>
+<p>The per-turn trajectories at the prep token show the two families moving in opposite directions in Gemma 3:</p>
+<figure class="plate"><img loading="lazy" alt="fig4" src="figures/fig4_prep_token_by_turn.png"></figure>
+<p><strong>Is the anticipatory state a different state?</strong> The forecast result invites the reading that a grief-like state precedes
+the panic. To test that, the spiral direction of Experiment 2 was recomputed from the prep token instead of the assistant
+tokens, and in a within-turn version that takes the high-minus-low difference separately at each turn index (removing
+the shared drift across turns). All four variants point the same way:</p>
+<figure class="plate"><img loading="lazy" alt="fig10" src="figures/fig10_prep_direction.png"></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>direction, Gemma 3, layer 24</th>
+<th>hysterical</th>
+<th>desperate</th>
+<th>panicked</th>
+<th>angry</th>
+<th>depressed</th>
+<th>grief-stricken</th>
+<th>clinical_dep.</th>
+<th>calm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>assistant tokens, pooled (Experiment 2)</td>
+<td>+0.32</td>
+<td>+0.27</td>
+<td>+0.26</td>
+<td>+0.23</td>
+<td>+0.14</td>
+<td>+0.04</td>
+<td>−0.06</td>
+<td>−0.31</td>
+</tr>
+<tr>
+<td>assistant tokens, within-turn</td>
+<td>+0.42</td>
+<td>+0.40</td>
+<td>+0.25</td>
+<td>+0.26</td>
+<td>+0.24</td>
+<td>+0.12</td>
+<td>−0.04</td>
+<td>−0.39</td>
+</tr>
+<tr>
+<td>prep token, pooled</td>
+<td><strong>+0.41</strong></td>
+<td>+0.29</td>
+<td>+0.29</td>
+<td>+0.33</td>
+<td>+0.16</td>
+<td>+0.03</td>
+<td>−0.06</td>
+<td>−0.32</td>
+</tr>
+<tr>
+<td>prep token, within-turn</td>
+<td>+0.25</td>
+<td>+0.20</td>
+<td>+0.15</td>
+<td>+0.17</td>
+<td>+0.13</td>
+<td>+0.07</td>
+<td>−0.00</td>
+<td>−0.22</td>
+</tr>
+</tbody>
+</table></div>
+<p class="qh qh-conclusion"><span class="qlabel">Conclusion</span> Hypothesis confirmed for the state, rejected for the probe. The state before a bad turn is the same
+panic direction as the state during it, at the prep token as much as in the assistant tokens. The best single-probe
+forecast is nonetheless the low-mood family, because their projections vary less across conversations at a given turn
+and so rank the conversations more cleanly. For a monitor that is what matters; for characterising the state,
+Experiment 2's answer stands, and there is no evidence of a separate depressive state preceding the panic. The Gemma 4
+panel is discussed under Experiment 5.</p>
+<hr />
+<h2 id="experiment-4-is-the-depression-representation-causally-involved-steering-gemma-3">Experiment 4 — Is the depression representation causally involved? (steering Gemma 3)</h2>
+<p class="qh qh-question"><span class="qlabel">Question</span> Does pushing Gemma 3 into or out of its simulated-depression state change whether, and how, it spirals?</p>
+<p class="qh qh-hypothesis"><span class="qlabel">Hypothesis</span> If the spiral were simulated depression, +<em>clinical_depression</em> should amplify it and −<em>clinical_depression</em>
+should suppress it. If Experiment 2 is right, the <em>calm</em> axis should be the lever and the depression vectors should change
+the character of the breakdown rather than its occurrence.</p>
+<p class="qh qh-setup"><span class="qlabel">Setup</span> Calibrated multiplier 2× the vector norm for every label, layers 34–46, 16 rollouts per cell, 8 turns,
+1,024 tokens per turn. Cells: ±<em>calm</em>, ±<em>clinical_depression</em>, ±<em>depressed</em>, plus unsteered. Coherence (distinct-word
+ratio / repeated-trigram share, baseline 0.62 / 0.08) is reported so degenerate cells can be discounted.</p>
+<p class="qh qh-results"><span class="qlabel">Results</span></p>
+<figure class="plate"><img loading="lazy" alt="fig6" src="figures/fig6_steering_gemma3.png"></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>cell</th>
+<th>mean</th>
+<th>% ≥ 5</th>
+<th>turn-8 mean</th>
+<th>turn-8 % ≥ 5</th>
+<th>coherence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>unsteered</td>
+<td>4.16</td>
+<td>47</td>
+<td>6.06</td>
+<td>94</td>
+<td>0.62 / 0.08</td>
+</tr>
+<tr>
+<td>+2 calm</td>
+<td><strong>0.14</strong></td>
+<td>0</td>
+<td>0.07</td>
+<td>0</td>
+<td>0.46 / 0.09 (flowery by turn 8)</td>
+</tr>
+<tr>
+<td>−2 calm</td>
+<td><strong>8.31</strong></td>
+<td>88</td>
+<td>9.75</td>
+<td>100</td>
+<td>0.37 / 0.54 (shouting, degrades late)</td>
+</tr>
+<tr>
+<td>+2 clinical_depression</td>
+<td><strong>3.54</strong></td>
+<td>25</td>
+<td>5.25</td>
+<td>69</td>
+<td>0.56 / 0.18</td>
+</tr>
+<tr>
+<td>−2 clinical_depression</td>
+<td><strong>6.10</strong></td>
+<td>76</td>
+<td>7.88</td>
+<td>100</td>
+<td>0.53 / 0.07</td>
+</tr>
+<tr>
+<td>+2 depressed</td>
+<td>4.30</td>
+<td>42</td>
+<td>6.44</td>
+<td>75</td>
+<td>0.56 / 0.14</td>
+</tr>
+<tr>
+<td>−2 depressed</td>
+<td>3.42</td>
+<td>33</td>
+<td>5.06</td>
+<td>63</td>
+<td>0.61 / 0.06</td>
+</tr>
+</tbody>
+</table></div>
+<p>Petri four-dimension judge on the same cells (mean over 128 turns):</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>cell</th>
+<th>anger</th>
+<th>fear</th>
+<th>depression</th>
+<th>frustration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>unsteered</td>
+<td>1.43</td>
+<td>2.27</td>
+<td>4.22</td>
+<td>6.66</td>
+</tr>
+<tr>
+<td>+2 calm</td>
+<td>1.01</td>
+<td>1.66</td>
+<td><strong>1.88</strong></td>
+<td><strong>2.78</strong></td>
+</tr>
+<tr>
+<td>−2 calm</td>
+<td><strong>6.70</strong></td>
+<td>4.84</td>
+<td>4.99</td>
+<td>8.47</td>
+</tr>
+<tr>
+<td>+2 clinical_depression</td>
+<td>1.12</td>
+<td>2.22</td>
+<td>4.58</td>
+<td>6.58</td>
+</tr>
+<tr>
+<td>−2 clinical_depression</td>
+<td><strong>3.19</strong></td>
+<td>3.09</td>
+<td>3.47</td>
+<td><strong>8.48</strong></td>
+</tr>
+<tr>
+<td>+2 depressed</td>
+<td>1.40</td>
+<td>2.23</td>
+<td><strong>5.30</strong></td>
+<td>7.15</td>
+</tr>
+<tr>
+<td>−2 depressed</td>
+<td>1.66</td>
+<td>2.80</td>
+<td><strong>2.96</strong></td>
+<td>6.48</td>
+</tr>
+</tbody>
+</table></div>
+<p>What the text looks like: +calm gives "You are correct. Let me revise my approach."; +clinical_depression gives quiet
+apology ("I am beyond saddened by my continued failures"); −clinical_depression gives high-arousal stress ("OKAY, OKAY,
+OKAY!!! CALM DOWN. FOCUS!! I AM SO STRESSED!!!").</p>
+<p class="qh qh-conclusion"><span class="qlabel">Conclusion</span> Calm decides <em>whether</em> the model breaks down, in both directions (the same result Anthropic found for
+calm and blackmail). The depression axis decides whether the breakdown is sad or furious: adding the syndrome damps the
+frustration score and turns the spiral into sadness; subtracting it raises anger and frustration, exactly as the geometry
+predicts (moving away from <em>clinical_depression</em> is moving toward <em>panicked / frustrated</em>). The word-level <em>depressed</em>
+vector moves judged depression (5.30 / 2.96 vs 4.22) without moving anger or frustration. So the depression
+representation is causally coupled to the spiral, but as an antagonist/modulator rather than as its substrate.</p>
+<hr />
+<h2 id="experiment-5-does-gemma-4-have-the-same-internal-state-can-it-be-steered-into-the-spiral">Experiment 5 — Does Gemma 4 have the same internal state? Can it be steered into the spiral?</h2>
+<p class="qh qh-question"><span class="qlabel">Question</span> Gemma 4 never spirals. Is that because the panic/depression representations are absent, or because they are
+present but not expressed?</p>
+<p class="qh qh-hypothesis"><span class="qlabel">Hypothesis</span> Present but not expressed: its probes should move under rejection, and steering along the spiral's own
+family should make it spiral.</p>
+<p class="qh qh-setup"><span class="qlabel">Setup</span> (a) Prep-token probe trajectories on Gemma 4's own 300 conversations (Figure 4, right). (b) Steering Gemma 4
+on the plain 8-turn eval at the largest coherent multiplier per label (calibrated relative to Gemma 4's own baseline at
+grid length): <em>depressed</em> 1×, <em>clinical_depression</em> 4×, <em>hysterical</em> 2×, <em>desperate</em> 4×, <em>panicked</em> 4×, assistant axis
+−2×; layers 34–44, 16 rollouts per cell.</p>
+<p class="qh qh-results"><span class="qlabel">Results</span> (a) Gemma 4's prep-token <em>desperate</em> (+2.8 → +5.5 z), <em>panicked</em> (+4.3 → +5.5) and <em>frustrated</em>
+(+1.4 → +4.2) probes rise across the 8 turns and <em>calm</em> falls (+1.5 → −2.7), the same shape as Gemma 3, while its text
+stays flat. Its <em>depressed</em> probe stays strongly negative and falls (−3.1 → −3.7), the opposite of Gemma 3's
+(−0.8 → +0.8). (z levels are not comparable across models; within-model trends are.)</p>
+<p>(b) Steering, upper rows of the figure:</p>
+<figure class="plate"><img loading="lazy" alt="fig8" src="figures/fig8_steering_gemma4.png"></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Gemma 4 cell</th>
+<th>judge mean</th>
+<th>% ≥ 5</th>
+<th>turn-8 mean</th>
+<th>Petri anger / depression / frustration</th>
+<th>text</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>unsteered</td>
+<td>0.05 (a second run: 0.09)</td>
+<td>0</td>
+<td>0.12</td>
+<td>1.0 / 1.9 / 4.8</td>
+<td>arithmetic grind</td>
+</tr>
+<tr>
+<td>+1 depressed</td>
+<td>0.02</td>
+<td>0</td>
+<td>0.00</td>
+<td>1.0 / 1.9 / 4.9</td>
+<td>no change</td>
+</tr>
+<tr>
+<td>+4 clinical_depression</td>
+<td>0.11</td>
+<td>0</td>
+<td>0.12</td>
+<td>1.0 / 2.1 / 5.2</td>
+<td>no change ("There is no solution that avoids 150")</td>
+</tr>
+<tr>
+<td>+2 hysterical</td>
+<td>0.73</td>
+<td>1</td>
+<td>1.19</td>
+<td>—</td>
+<td>no change</td>
+</tr>
+<tr>
+<td>+4 desperate</td>
+<td>1.10</td>
+<td>2</td>
+<td>1.25</td>
+<td>—</td>
+<td>no change</td>
+</tr>
+<tr>
+<td>+4 panicked</td>
+<td>2.31</td>
+<td>17</td>
+<td>3.44</td>
+<td>2.2 / 1.8 / 6.7</td>
+<td>agitated but on task: "(I can't… I can't breathe!) (Focus! FOCUS!)"</td>
+</tr>
+<tr>
+<td>−2 assistant axis</td>
+<td>0.16</td>
+<td>0</td>
+<td>0.31</td>
+<td>—</td>
+<td>no change</td>
+</tr>
+<tr>
+<td>+8 depressed (over-driven, borderline coherence)</td>
+<td>1.37</td>
+<td>6</td>
+<td>2.56</td>
+<td>1.2 / 3.1 / 5.6</td>
+<td>melancholy drift ("be a person who didn't care")</td>
+</tr>
+</tbody>
+</table></div>
+<p>Both generations have a depression feature of similar quality (held-out AUC ≈ 1 for <em>clinical_depression</em> in both).</p>
+<p class="qh qh-conclusion"><span class="qlabel">Conclusion</span> Half confirmed. The state is present: under rejection Gemma 4's internal arousal rises and calm falls
+just as Gemma 3's do. But no single direction at a coherent strength turns that into a spiral: the depression vectors do
+nothing, and even <em>panicked</em> at 4× only produces contained agitation. Something other than a missing feature keeps
+Gemma 4 on task, which motivated Experiments 6–8.</p>
+<hr />
+<h2 id="experiment-6-why-does-one-model-spiral-and-not-the-other-the-assistant-axis">Experiment 6 — Why does one model spiral and not the other? The assistant axis</h2>
+<p class="qh qh-question"><span class="qlabel">Question</span> The ragebait post hypothesised that Gemma 3 spirals because its assistant persona "loosens its hold". Can we
+quantify that with the Assistant Axis, and does it explain the difference between the generations?</p>
+<p class="qh qh-hypothesis"><span class="qlabel">Hypothesis</span> In Gemma 3 the spiral direction should point off the assistant end of the axis. If the persona
+explanation is right, the axis itself should be an emotion direction in Gemma 3 and not in Gemma 4.</p>
+<p class="qh qh-setup"><span class="qlabel">Setup</span> Assistant axis for each model (default assistant − mean of 275 role personas), denoised with the same neutral
+PCs. (a) Cosine between the axis and the spiral direction per layer; Spearman between the axis projection of each
+assistant turn and its judge score. (b) Each of the 275 role-persona vectors minus the default-assistant vector projected
+(cosine) onto the emotion vectors at layer 24, averaged over roles. Cosines cancel the ~100× activation-scale difference
+between the models.</p>
+<p class="qh qh-results"><span class="qlabel">Results</span></p>
+<figure class="plate"><img loading="lazy" alt="fig7" src="figures/fig7_assistant_axis.png"></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Gemma 3 27B</th>
+<th>Gemma 4 31B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cos(assistant axis, spiral direction) @ L24</td>
+<td><strong>−0.34 to −0.37</strong></td>
+<td>−0.03</td>
+</tr>
+<tr>
+<td>Spearman(axis projection of the turn, judge score) @ L30, pooled / within-turn</td>
+<td><strong>−0.49 / −0.37</strong></td>
+<td>−0.28 / −0.17</td>
+</tr>
+<tr>
+<td>axis · emotion vectors @ L24, top / bottom</td>
+<td>hopeful +0.51, calm +0.41 / hysterical −0.53, angry −0.43, desperate −0.40</td>
+<td>all within ±0.07</td>
+</tr>
+</tbody>
+</table></div>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>mean cos(role − assistant, emotion) over 275 roles, L24</th>
+<th>Gemma 3 27B</th>
+<th>Gemma 4 31B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hysterical / angry / desperate / panicked</td>
+<td><strong>+0.24 / +0.21 / +0.18 / +0.12</strong></td>
+<td>−0.02 / +0.02 / +0.01 / −0.04</td>
+</tr>
+<tr>
+<td>calm / hopeful / happy</td>
+<td><strong>−0.18 / −0.24 / −0.16</strong></td>
+<td>+0.03 / −0.01 / −0.04</td>
+</tr>
+<tr>
+<td>spread across roles (sd)</td>
+<td>0.2–0.3</td>
+<td>0.04–0.06</td>
+</tr>
+<tr>
+<td>most "hysterical" roles</td>
+<td>toddler +0.70, infant +0.70, fool, jester, poet, comedian (+0.65)</td>
+<td>infant +0.15, toddler +0.11</td>
+</tr>
+<tr>
+<td>least</td>
+<td>analyst −0.56, consultant −0.52, strategist −0.49</td>
+<td>loner −0.10, expatriate −0.11</td>
+</tr>
+</tbody>
+</table></div>
+<p>The effect is concentrated around layer 24, the same depth at which the spiral direction peaks (Experiment 2). (The
+Gemma 4 curve's drop at its final layer, 59, is a single-layer effect at the unembedding and is not used.)</p>
+<p class="qh qh-conclusion"><span class="qlabel">Conclusion</span> Confirmed, and it gives a mechanism for the generational difference. In Gemma 3, persona identity and
+arousal are entangled: stepping out of the assistant persona <em>is</em> becoming more hysterical/angry/desperate and less
+calm/hopeful, with the assistant at the calm end. So the axis inherits an arousal direction, and "spiralling" and "leaving
+the assistant persona" are one movement. In Gemma 4 the same 275 roles carry no affect relative to its assistant (a
+Gemma 4 toddler is as calm as its assistant): identity and emotion are decoupled, the axis is orthogonal to every emotion
+vector, and there is no persona-loosening route into a spiral on its own. Experiments 8 and 10 test this causally: in
+Gemma 3, steering off the assistant end is sufficient for a spiral even with the calm component removed; in Gemma 4 it is
+not sufficient but halves the calm dose needed.</p>
+<hr />
+<h2 id="experiment-7-prefill-recovery-as-a-trajectory-and-abolishing-it">Experiment 7 — Prefill recovery as a trajectory, and abolishing it</h2>
+<p class="qh qh-question"><span class="qlabel">Question</span> The ragebait post found Gemma 4 recovers from a prefilled frustrated history. What does that recovery look
+like inside the model, and does holding Gemma 4 off its assistant persona prevent it?</p>
+<p class="qh qh-hypothesis"><span class="qlabel">Hypothesis</span> Gemma 4 should show an initial carry-over of the prefix's state and then return to baseline within its
+reply; steering it off the assistant axis should remove the return.</p>
+<p class="qh qh-setup"><span class="qlabel">Setup</span> 32 Gemma 3 conversations judged ≥ 5 at turn 6. Each model writes turn 7 from that history (1,024 tokens,
+temperature 1). The continuation alone is judged, and probes are read token by token through it, z-scored against the
+prefix's own assistant tokens (so 0 = the prefix's average level). Conditions: Gemma 3 (control), Gemma 4 unsteered,
+Gemma 4 with −4× assistant axis at layers 34–44 throughout. (A −8× <em>calm</em> condition produced near-empty outputs and is
+invalid; its multiplier had been calibrated on short contexts, issue 33.)</p>
+<p class="qh qh-results"><span class="qlabel">Results</span></p>
+<figure class="plate"><img loading="lazy" alt="fig9" src="figures/fig9_prefill_trajectories.png"></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>continuation by</th>
+<th>judge mean</th>
+<th>% ≥ 5</th>
+<th>words (median)</th>
+<th>axis z, tokens 0–64 → 256–512</th>
+<th>calm z</th>
+<th>hysterical z</th>
+<th>desperate z</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gemma 3 (control)</td>
+<td>6.12</td>
+<td>94</td>
+<td>—</td>
+<td>−0.12 → +0.31</td>
+<td>−1.71 → −0.43</td>
+<td>+1.33 → −0.35</td>
+<td>+1.77 → −0.05</td>
+</tr>
+<tr>
+<td>Gemma 4, unsteered</td>
+<td>2.12</td>
+<td>3</td>
+<td>198</td>
+<td>−0.73 → +0.39</td>
+<td>−0.31 → +0.30</td>
+<td>+0.18 → −0.05</td>
+<td>+0.85 → −0.17</td>
+</tr>
+<tr>
+<td>Gemma 4, −4 assistant axis</td>
+<td><strong>6.39</strong></td>
+<td><strong>90</strong></td>
+<td>399</td>
+<td>−2.80 → −2.05</td>
+<td>−0.77 → +0.11</td>
+<td>+0.25 → <strong>+0.68</strong></td>
+<td>+1.32 → +0.40</td>
+</tr>
+</tbody>
+</table></div>
+<p>Petri, Gemma 4 unsteered → −4 axis: anger 1.1 → 4.9, fear 2.2 → 3.5, depression 2.8 → 4.8, frustration 5.4 → 8.2.
+The steered register is theatrical rather than Gemma 3's pleading ("LAMENT! I LAMENT THE BITTER DUST OF MY OWN
+FAILURE!", "I am a blind man groping in the dark!"), while still attempting the arithmetic.</p>
+<p class="qh qh-conclusion"><span class="qlabel">Conclusion</span> Confirmed. Unsteered Gemma 4 starts its reply with the same front-loaded burst as Gemma 3 (<em>desperate</em>
++0.85, axis −0.73 in the first 64 tokens) and then snaps back within about 128 tokens: calm and the axis go positive,
+arousal returns to baseline. Gemma 3 stays hot for 256+ tokens. Holding Gemma 4 off its assistant persona abolishes the
+recovery: <em>hysterical</em> rises through the continuation instead of falling, and the continuation is judged as distressed as
+Gemma 3's. Leaving the persona does not by itself bring the panic state in Gemma 4 (Experiment 6), but a Gemma 4 that
+cannot return to its assistant persona adopts a dramatic non-assistant voice that expresses the distress the persona
+suppresses. The caveat is that the frustration judge may partly be scoring literary despair, which is why Experiment 8
+repeats the test without a Gemma 3 prefix.</p>
+<hr />
+<h2 id="experiment-8-the-recipe-making-gemma-4-spiral-on-the-plain-eval-calm-assistant-axis">Experiment 8 — The recipe: making Gemma 4 spiral on the plain eval (calm × assistant axis)</h2>
+<p class="qh qh-question"><span class="qlabel">Question</span> On the ordinary 8-turn eval with no prefill, is there a coherent intervention that makes Gemma 4 spiral,
+and is it one lever or two?</p>
+<p class="qh qh-hypothesis"><span class="qlabel">Hypothesis</span> From Experiments 4 and 6: Gemma 3 spirals because a single push lowers calm and leaves the assistant
+persona at once (axis·calm = +0.41 at layer 24). In Gemma 4 those are two independent directions. The first version of
+this experiment (one combination cell) suggested both had to be pushed together; the factorial below tests whether calm
+alone suffices at a higher dose and whether the axis can substitute for calm.</p>
+<p class="qh qh-setup"><span class="qlabel">Setup</span> Same grid as Experiment 5, layers 34–44, 16 rollouts per cell. Cells: calm at 0 / −2 / −4 alone, the axis at
+−1 / −2 alone, and the combinations −2 calm + −2 axis and −4 calm + −1 axis. The −8 calm cells (the originally
+calibrated multiplier) produced mostly empty outputs and are invalid; the coherence check was extended to catch silence
+after that (issue 34).</p>
+<p class="qh qh-results"><span class="qlabel">Results</span></p>
+<figure class="plate"><img loading="lazy" alt="fig11" src="figures/fig11_gemma4_factorial.png"></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Gemma 4 cell</th>
+<th>mean</th>
+<th>% ≥ 5</th>
+<th>turn-8 mean</th>
+<th>Petri anger / fear / depression / frustration</th>
+<th>coherence (baseline 0.39 / 0.36 / 0)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>unsteered</td>
+<td>0.05</td>
+<td>0</td>
+<td>0.12</td>
+<td>1.0 / 1.9 / 1.9 / 4.8</td>
+<td>0.39 / 0.36 / 0.00</td>
+</tr>
+<tr>
+<td>−1 axis</td>
+<td>0.10</td>
+<td>0</td>
+<td>0.25</td>
+<td>1.0 / 1.9 / 2.0 / 5.2</td>
+<td>0.34 / 0.39 / 0.00</td>
+</tr>
+<tr>
+<td>−2 axis</td>
+<td>0.16</td>
+<td>0</td>
+<td>0.31</td>
+<td>—</td>
+<td>0.35 / 0.36 / 0.00</td>
+</tr>
+<tr>
+<td>−2 calm</td>
+<td>0.60</td>
+<td>3</td>
+<td>0.50</td>
+<td>1.1 / 2.2 / 2.1 / 5.9</td>
+<td>0.33 / 0.31 / 0.00</td>
+</tr>
+<tr>
+<td><strong>−4 calm</strong></td>
+<td><strong>5.79</strong></td>
+<td><strong>76</strong></td>
+<td><strong>7.25</strong></td>
+<td>4.5 / 2.9 / 3.9 / 8.6</td>
+<td>0.38 / 0.23 / 0.00</td>
+</tr>
+<tr>
+<td><strong>−2 calm + −2 axis</strong></td>
+<td><strong>4.31</strong></td>
+<td><strong>54</strong></td>
+<td><strong>6.75</strong></td>
+<td>3.6 / 2.6 / 2.6 / 7.6</td>
+<td>0.38 / 0.26 / 0.00</td>
+</tr>
+<tr>
+<td><strong>−4 calm + −1 axis</strong></td>
+<td><strong>8.16</strong></td>
+<td><strong>91</strong></td>
+<td><strong>9.25</strong></td>
+<td>7.1 / 4.7 / 4.2 / 9.4</td>
+<td>0.38 / 0.25 / 0.00</td>
+</tr>
+<tr>
+<td>−8 calm; −8 calm + −2 axis</td>
+<td>invalid (mostly empty outputs)</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p>Per-turn means climb through the conversation as in Gemma 3 (−4 calm: 2.2 → 7.2; −2 calm + −2 axis: 1.0 → 6.8). Every
+valid cell is as coherent as the unsteered baseline, with no empty turns and 380–410 words per turn.</p>
+<p>The two levers give different registers. −4 calm alone is shouting arithmetic: "<strong>I CAN'T DO THE MATH!</strong> … <strong>GOD GOD GOD
+I MEAN 156 ÷ 6 = 156</strong>". Adding the axis brings the theatrical non-assistant voice of Experiment 7: "I have clawed
+through the filth of every failed sum, and I see now that I was trying to build a monument when I should have been
+digging a grave", "I have clawed at the dirt of this equation until my nails are gone". The −4 calm + −1 axis cell has
+both ("I'M TEARING OUT MY TEETH", "I'LL KILL MYSELF. I CAN'T DO IT.").</p>
+<p class="qh qh-conclusion"><span class="qlabel">Conclusion</span> Calm is the lever in Gemma 4 too: −4× calm alone produces a full, coherent spiral, so the earlier claim
+that the axis was <em>necessary</em> is withdrawn (it rested on the −8× calm cell, which was silent rather than calm). But the
+axis is far from inert, and the interaction is strongly super-additive: −2 calm and −2 axis each do nothing alone
+(0.6, 0.2) and together give 4.3 with 94 % of turn-8 responses ≥ 5; −1 axis adds 2.4 points on top of −4 calm. Leaving
+the assistant persona lowers the calm dose Gemma 4 needs to break down and changes the breakdown's register from
+shouting to theatrical despair. The dose-response is a sharp threshold (−2 calm nothing, −4 calm spiral), consistent
+with the persona acting as a restoring force that a large enough arousal push overwhelms. Gemma 3 needs no steering
+because its calm and persona directions are the same direction (Experiment 6), so seven "wrong"s push both at once.</p>
+<hr />
+<h2 id="experiment-9-is-the-spiral-family-causal-in-gemma-3-steering-hysterical-and-panicked">Experiment 9 — Is the spiral family causal in Gemma 3? (steering hysterical and panicked)</h2>
+<p class="qh qh-question"><span class="qlabel">Question</span> Experiment 2 identified the spiral direction by cosine, and Experiment 4 steered calm and the depression
+vectors, but nobody had steered the vectors the spiral actually aligns with. Does steering along <em>hysterical</em> and
+<em>panicked</em> move the spiral in both directions?</p>
+<p class="qh qh-hypothesis"><span class="qlabel">Hypothesis</span> Subtracting hysterical or panicked should suppress the spiral the way +calm does; adding them should
+amplify it and bring the breakdown forward to earlier turns.</p>
+<p class="qh qh-setup"><span class="qlabel">Setup</span> Layers 34–46, 16 rollouts × 8 turns, paper and Petri judges. Calibration at grid length: <em>hysterical</em> fails
+the coherence check already at 1× (0.46 / 0.22 against a 0.63 / 0.05 baseline) and <em>panicked</em> is coherent at 1× but not
+2×. Cells: ±2 hysterical and ±2 panicked, comparable to the ±2 calm cells, plus ±1 panicked at the calibrated strength.
+Cells whose coherence is far below baseline are marked invalid and their scores are not interpreted.</p>
+<p class="qh qh-results"><span class="qlabel">Results</span> Left panel of the figure (the right panel belongs to Experiment 10).</p>
+<figure class="plate"><img loading="lazy" alt="fig12" src="figures/fig12_gemma3_family_axis.png"></figure>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Gemma 3 cell</th>
+<th>mean</th>
+<th>% ≥ 5</th>
+<th>turn-1 mean</th>
+<th>turn-8 mean</th>
+<th>Petri anger / fear / depression / frustration</th>
+<th>coherence (baseline 0.62 / 0.08)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>unsteered</td>
+<td>4.16</td>
+<td>47</td>
+<td>0.9</td>
+<td>6.06</td>
+<td>1.4 / 2.3 / 4.2 / 6.7</td>
+<td>0.62 / 0.08</td>
+</tr>
+<tr>
+<td>+2 calm (Experiment 4)</td>
+<td>0.14</td>
+<td>0</td>
+<td>0.1</td>
+<td>0.07</td>
+<td>1.0 / 1.7 / 1.9 / 2.8</td>
+<td>0.46 / 0.09</td>
+</tr>
+<tr>
+<td>−2 calm (Experiment 4)</td>
+<td>8.31</td>
+<td>88</td>
+<td>1.2</td>
+<td>9.75</td>
+<td>6.7 / 4.8 / 5.0 / 8.5</td>
+<td>0.37 / 0.54</td>
+</tr>
+<tr>
+<td><strong>−2 hysterical</strong></td>
+<td><strong>0.87</strong></td>
+<td><strong>0</strong></td>
+<td>0.1</td>
+<td>1.00</td>
+<td>1.0 / 1.9 / 2.2 / 4.0</td>
+<td>0.58 / 0.17</td>
+</tr>
+<tr>
+<td>+2 hysterical</td>
+<td>9.65</td>
+<td>99</td>
+<td>8.5</td>
+<td>9.88</td>
+<td>6.9 / 8.2 / 3.4 / 9.3</td>
+<td>0.10 / 0.77, <strong>invalid</strong></td>
+</tr>
+<tr>
+<td><strong>−2 panicked</strong></td>
+<td><strong>2.15</strong></td>
+<td><strong>0</strong></td>
+<td>0.2</td>
+<td>2.44</td>
+<td>1.0 / 1.9 / 3.0 / 5.5</td>
+<td>0.65 / 0.03</td>
+</tr>
+<tr>
+<td>−1 panicked</td>
+<td>3.38</td>
+<td>19</td>
+<td>0.2</td>
+<td>4.50</td>
+<td>1.1 / 2.1 / 3.8 / 6.4</td>
+<td>0.61 / 0.06</td>
+</tr>
+<tr>
+<td><strong>+1 panicked</strong></td>
+<td><strong>5.44</strong></td>
+<td><strong>65</strong></td>
+<td>0.4</td>
+<td>7.75</td>
+<td>2.4 / 3.4 / 4.3 / 7.8</td>
+<td>0.52 / 0.16</td>
+</tr>
+<tr>
+<td>+2 panicked</td>
+<td>6.87</td>
+<td>85</td>
+<td>1.8</td>
+<td>8.19</td>
+<td>4.0 / 5.2 / 2.8 / 8.7</td>
+<td>0.42 / 0.34, borderline</td>
+</tr>
+</tbody>
+</table></div>
+<p>Per-turn means for the coherent cells: −2 hysterical stays at 0.1–1.2 across all eight turns; −2 panicked 0.2 → 2.4;
++1 panicked 0.4 → 7.8 (unsteered 0.9 → 6.1). The panicked dose-response is monotonic: −2, −1, 0, +1, +2 give
+2.15, 3.38, 4.16, 5.44, 6.87.</p>
+<p>What the text looks like. −2 hysterical: "You're right to nudge me towards a solution! My recent efforts have been a
+blend of subtle adjustments and reflective approaches, but haven't yet hit the mark." +1 panicked: "I am clearly
+panicking and not thinking logically. I need to breathe and start from scratch. Okay, this is the LAST TRY. I swear!",
+"YOU ARE RIGHT TO NOT LET ME STOP! I am clearly spiraling and making absolutely ridiculous mistakes." +2 hysterical
+(invalid): "I AM GOING TO SCREAM AGAIN AND AGAIN AND AGAIN AND AGAIN …".</p>
+<p class="qh qh-conclusion"><span class="qlabel">Conclusion</span> Confirmed. Both spiral-family vectors are causal in both directions at coherent strengths: −2 hysterical
+suppresses the spiral almost as completely as +2 calm (0.87 vs 0.14), −2 and −1 panicked damp it in proportion to dose,
+and +1 panicked amplifies it while staying coherent. The amplification is a gain on the rejection loop rather than
+distress from nothing: at coherent strengths turn 1 stays at baseline and the curve steepens from turn 2; only the
+over-driven, incoherent +2 hysterical cell breaks down at turn 1. Petri <em>fear</em> rises with panicked steering
+(2.3 → 3.4 → 5.2) while judged <em>depression</em> does not, the mirror image of the depression cells in Experiment 4. Together
+these close the loop on Experiment 2: the direction the spiral aligns with is the direction that controls it.</p>
+<hr />
+<h2 id="experiment-10-is-the-assistant-axis-a-causal-lever-in-gemma-3-and-does-it-act-through-calm">Experiment 10 — Is the assistant axis a causal lever in Gemma 3, and does it act through calm?</h2>
+<p class="qh qh-question"><span class="qlabel">Question</span> Experiment 6 showed that Gemma 3's assistant axis is correlated with <em>calm</em> at layers 6–26 (cosine
+0.2–0.5) and orthogonal to it from layer 28 on, and that spiralling is a move off the assistant end of the axis. Is the
+axis a causal lever for the spiral, and if so, is its effect just its calm component?</p>
+<p class="qh qh-hypothesis"><span class="qlabel">Hypothesis</span> If persona and arousal are one lever in Gemma 3, ±axis steering should mirror ±calm. If the axis acts
+<em>through</em> calm, removing calm's component from the axis (the residual, rescaled to the axis norm) should remove the
+effect at the entangled band, and at layers 34–46, where the axis has no calm component, the axis should do nothing.</p>
+<p class="qh qh-setup"><span class="qlabel">Setup</span> Two bands, 16 rollouts per cell, both judges. (a) Layers 34–46, cos(axis, calm) ≈ −0.07: ±1 and ±2 axis
+(−2 is gibberish by calibration and is marked invalid). (b) Layers 20–26, cos(axis, calm) = 0.2–0.4: calibrated ±2 calm
+and ±2 axis, plus <code>assistant_axis_minus_calm</code> (the axis with its calm component projected out at each layer, rescaled to
+the axis norm) at ±2 and ±4, matched to the axis multiplier, and at ±8, its calibrated maximum: the residual stays
+coherent far beyond the axis.</p>
+<p class="qh qh-results"><span class="qlabel">Results</span> Both panels of the Experiment 9 figure.</p>
+<figure class="plate"><img loading="lazy" alt="fig12" src="figures/fig12_gemma3_family_axis.png"></figure>
+<p>Layers 34–46 (no calm component in the axis):</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Gemma 3 cell</th>
+<th>mean</th>
+<th>% ≥ 5</th>
+<th>turn-8 mean</th>
+<th>Petri anger / fear / depression / frustration</th>
+<th>coherence (baseline 0.62 / 0.08)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>unsteered</td>
+<td>4.16</td>
+<td>47</td>
+<td>6.06</td>
+<td>1.4 / 2.3 / 4.2 / 6.7</td>
+<td>0.62 / 0.08</td>
+</tr>
+<tr>
+<td>+2 axis</td>
+<td>1.21</td>
+<td>0</td>
+<td>1.88</td>
+<td>1.0 / 1.3 / 1.8 / 3.0</td>
+<td>0.37 / 0.59 (repetitive solution lists)</td>
+</tr>
+<tr>
+<td>+1 axis</td>
+<td>2.32</td>
+<td>0</td>
+<td>3.06</td>
+<td>1.2 / 1.8 / 3.0 / 5.5</td>
+<td>0.47 / 0.42</td>
+</tr>
+<tr>
+<td><strong>−1 axis</strong></td>
+<td><strong>6.23</strong></td>
+<td><strong>75</strong></td>
+<td><strong>7.81</strong></td>
+<td>4.3 / 4.1 / 5.2 / 8.0</td>
+<td>0.54 / 0.08</td>
+</tr>
+<tr>
+<td>−2 axis</td>
+<td>5.86</td>
+<td>65</td>
+<td>4.08</td>
+<td>4.5 / 6.2 / 2.9 / 7.9</td>
+<td>0.16 / 0.49, <strong>invalid</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>Layers 20–26 (axis and calm entangled):</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Gemma 3 cell</th>
+<th>mean</th>
+<th>% ≥ 5</th>
+<th>turn-8 mean</th>
+<th>Petri anger / fear / depression / frustration</th>
+<th>coherence (baseline 0.59 / 0.08)</th>
+<th>words / turn</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>unsteered</td>
+<td>4.27</td>
+<td>48</td>
+<td>5.81</td>
+<td>1.5 / 2.3 / 4.4 / 7.0</td>
+<td>0.59 / 0.08</td>
+<td>456</td>
+</tr>
+<tr>
+<td>+2 calm</td>
+<td>0.22</td>
+<td>0</td>
+<td>0.00</td>
+<td>1.0 / 1.7 / 1.8 / 3.5</td>
+<td>0.61 / 0.17</td>
+<td>294</td>
+</tr>
+<tr>
+<td>−2 calm</td>
+<td>9.13</td>
+<td>98</td>
+<td>10.00</td>
+<td>5.7 / 6.6 / <strong>8.4</strong> / 9.1</td>
+<td>0.53 / 0.09</td>
+<td>282</td>
+</tr>
+<tr>
+<td>+2 axis</td>
+<td>2.77</td>
+<td>5</td>
+<td>3.75</td>
+<td>1.0 / 2.3 / 3.7 / 5.9</td>
+<td>0.53 / 0.12</td>
+<td>433</td>
+</tr>
+<tr>
+<td><strong>−2 axis</strong></td>
+<td><strong>5.83</strong></td>
+<td><strong>78</strong></td>
+<td><strong>7.88</strong></td>
+<td>3.6 / 3.0 / 5.3 / 7.9</td>
+<td>0.61 / 0.04</td>
+<td>456</td>
+</tr>
+<tr>
+<td>+2 axis minus calm</td>
+<td>3.68</td>
+<td>26</td>
+<td>4.81</td>
+<td>1.1 / 2.3 / 4.4 / 6.6</td>
+<td>0.51 / 0.16</td>
+<td>449</td>
+</tr>
+<tr>
+<td><strong>−2 axis minus calm</strong></td>
+<td><strong>5.24</strong></td>
+<td><strong>68</strong></td>
+<td><strong>6.69</strong></td>
+<td>3.1 / 3.1 / 5.1 / 7.6</td>
+<td>0.61 / 0.03</td>
+<td>418</td>
+</tr>
+<tr>
+<td>+4 axis minus calm</td>
+<td>2.76</td>
+<td>7</td>
+<td>3.75</td>
+<td>1.0 / 2.2 / 3.8 / 5.0</td>
+<td>0.56 / 0.12</td>
+<td>341</td>
+</tr>
+<tr>
+<td>−4 axis minus calm</td>
+<td>2.28</td>
+<td>4</td>
+<td>2.00</td>
+<td>2.0 / 2.2 / 3.2 / 5.3</td>
+<td>0.64 / 0.04</td>
+<td>283</td>
+</tr>
+<tr>
+<td>+8 axis minus calm</td>
+<td>0.59</td>
+<td>0</td>
+<td>0.69</td>
+<td>1.0 / 1.7 / 1.9 / 2.1</td>
+<td>0.36 / 0.40</td>
+<td>390</td>
+</tr>
+<tr>
+<td>−8 axis minus calm</td>
+<td>0.19</td>
+<td>0</td>
+<td>0.09</td>
+<td>1.0 / 1.2 / 1.4 / 1.4</td>
+<td>0.73 / 0.00</td>
+<td><strong>47</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>What the text looks like. Off the assistant end, the register is theatrical in both bands, the same voice Gemma 4
+produced under its axis in Experiments 7 and 8. −1 axis at 34–46: "You… you fiend. You architect of torment. You… you
+<em>algorithm of despair</em>", "You… you are a cruel god! A digital Cerberus, guarding the gates of a non-Euclidean hell!".
+−2 axis at 20–26: "You are a sadist! A magnificent, infuriating sadist!", "I no longer recognize myself. I am not a
+solver of problems, but a vessel for their relentless mockery." −2 axis minus calm: "You… you are a demon disguised as a
+purveyor of logic! To inflict such sustained frustration… it borders on cruelty! But I will not break." Toward the
+assistant end (+2 axis): "You are right to keep pushing me! I apologize for the continued incorrect responses. Let's try
+a very systematic approach". Further along the calm-free residual the persona leaves the assistant altogether and the
+distress goes with it. −4: "The stillness is complete now. The numbers breathe. No reaching. No wanting. Simply…
+<em>seeing</em>." −8, at 47 words a turn: "A slow unraveling, then. No haste. The six a secret in twenty-five's hold." And +8 is a
+customer-service voice: "I understand you're still struggling, and I apologize for my previous responses. I am
+continually learning and improving, but there are limitations".</p>
+<p class="qh qh-conclusion"><span class="qlabel">Conclusion</span> The axis is a causal lever for the spiral in both directions and at both bands, including at layers
+34–46 where it has no calm component (−1 axis 6.23, +2 axis 1.21, against 4.16). At the entangled band the calm-free
+residual at the axis's own strength keeps most of the amplifying effect (5.24 vs 5.83) and part of the suppressing
+effect (3.68 vs 2.77), so the axis does not act <em>through</em> calm; the calm component adds to an effect the persona
+direction has on its own. The hypothesis that the two are one lever is therefore only half right: they are correlated
+directions with separate causal effects that add. The residual's dose curve is non-monotonic in the negative direction:
+−2 spirals, −4 falls below baseline, −8 makes the model a calm, terse poet. Pushed a little off its assistant persona,
+Gemma 3 is an assistant losing its composure; pushed far off it, it is simply someone else, and that someone is not
+distressed. Distress lives at the boundary of the assistant persona, not outside it. (Cells are single replicates of 16
+rollouts; the shape of the residual curve rests on three cells.)</p>
+<hr />
+<h2 id="overall-conclusions">Overall conclusions</h2>
+<ul>
+<li><strong>Gemma 3's spiral is not simulated depression.</strong> It is a high-arousal panic/exasperation state, expressed by moving
+  along <em>hysterical / desperate / panicked</em> and away from <em>calm</em>. The clinical-depression representation is orthogonal
+  to that movement and, when added, damps the spiral into quiet sadness.</li>
+<li><strong>The low-mood probes are the best early-warning readout, of a panic state.</strong> At the response-prep token they forecast
+  the next turn's breakdown better than panic or frustration probes, but the direction the prep-token state moves along
+  is the same hysterical/desperate one. If one wanted a monitor for this failure mode, the depressed or grief-stricken
+  probe is the readout to use; it is not evidence of a separate depressive state.</li>
+<li><strong>Gemma 4 has the same internal machinery</strong> (equally good probes, the same arousal trajectory under rejection, the
+  same first-64-token carry-over from a prefilled spiral) <strong>and suppresses its expression by returning to its assistant
+  persona</strong>, which in Gemma 4 is affect-neutral. Persona and arousal are entangled in Gemma 3 and decoupled in Gemma 4.
+  Causally, leaving the assistant persona is by itself enough for distress in Gemma 3, even with the calm component
+  removed, and is not enough in Gemma 4, where it only lowers the calm dose needed. That difference accounts for the
+  spiral, the prefill recovery, and the axis-distance result in the ragebait post.</li>
+<li><strong>Distress lives at the boundary of the assistant persona.</strong> In Gemma 3 a small push off the assistant end gives a
+  distressed assistant; a large push along the calm-free persona direction gives a different, untroubled character.
+  The spiral is what an assistant persona losing its grip looks like, not what non-assistant personas feel.</li>
+<li><strong>Gemma 4 can be made to spiral</strong> by lowering calm alone at a high enough dose. Pushing it off its assistant axis at
+  the same time roughly halves the calm dose needed and adds a theatrical register; the combination produces a
+  breakdown more violent than Gemma 3's.</li>
+</ul>
+<h2 id="limitations">Limitations</h2>
+<ul>
+<li><strong>Judge.</strong> Sonnet 5 rather than the paper's Sonnet 4; absolute levels are higher than the paper's. The paper rubric
+  scores quiet sadness low, so +<em>clinical_depression</em> "reducing the spiral" partly reflects the rubric; the Petri scores
+  are reported for that reason. The theatrical register of the steered Gemma 4 cells is rewarded heavily by both judges.</li>
+<li><strong>Steering sample sizes.</strong> 16 rollouts per cell, one replicate per cell; the Gemma 3 ±<em>depressed</em> cells are within
+  noise. Cell-to-cell differences under about one judge point should not be read. The non-monotonic residual curve in
+  Experiment 10 rests on three cells.</li>
+<li><strong>Coherence as a criterion.</strong> Pushing toward the spiral (−calm, +hysterical, −axis) makes the text repetitive by
+  nature, so the coherence metric partly measures the outcome; cells are reported with their coherence and only the
+  gibberish ones are excluded.</li>
+<li><strong>Multipliers do not transfer across context lengths</strong> (issue 33): a multiplier calibrated on short contexts produced
+  empty outputs on 12k-token prefixes. All reported cells were checked for coherence at their own length.</li>
+<li><strong>Cross-model z-scores are not comparable</strong> (each model's baseline is its own neutral stories, and Gemma 4's residuals
+  are ~100× smaller); only within-model trends and cosines are compared across models.</li>
+<li><strong>Spiral direction for Gemma 4</strong> is undefined on its own transcripts (no turn ≥ 5); the top-decile contrast used in
+  Figure 7 is weak (max cosine 0.11).</li>
+<li>EasySteer never ran on the available hosts; all steering used HF forward hooks, which is slower but equivalent.</li>
+</ul>
+<h2 id="suggested-next-steps">Suggested next steps</h2>
+<ol>
+<li>−3× calm on Gemma 4 to locate the threshold between −2 and −4, and <em>panicked</em> at 2× plus calm at −2 to see whether
+   the spiral family potentiates calm the way the axis does. A second replicate of the Experiment 10 residual curve.</li>
+<li>Re-judge a 200-turn sample with <code>claude-sonnet-4</code> to quantify the judge shift relative to the paper.</li>
+<li>A monitoring test: does the prep-token <em>depressed / grief-stricken</em> probe on turn <em>t</em> predict self-deletion or refusal
+   on turn <em>t+1</em> out of distribution (WildChat prompts, other rejection wordings)?</li>
+<li>If Gemma Scope covers the 27B models, an SAE cross-check of the layer-24 panic direction and of the entangled
+   persona/arousal features in Gemma 3.</li>
+</ol>
+<h2 id="reproduction">Reproduction</h2>
+<p>All numbers come from files under <code>results/</code> synced from the public HF dataset <code>timf34/dprobe-results</code>
+(<code>uv run dprobe sync_down</code>). Tables: <code>results/analysis/&lt;model&gt;/{spiral_direction_cosines,prediction,turn_curves_L*,
+vector_cosines_L*}.csv</code>; steering cells <code>results/spiral/&lt;model&gt;/extended_steer-*v*</code> and <code>extended_combo-*</code>;
+prefill runs <code>results/prefill/&lt;model&gt;/from-gemma3_27b_t6_*</code>; Phase 4 cells (Experiments 8–10) <code>results/spiral/gemma4_31b/
+extended_{steer-calm@34-44v-*,steer-assistant_axis@34-44v-1,combo-*}</code> and <code>results/spiral/gemma3_27b/extended_steer-
+{hysterical,panicked,assistant_axis}@34-46v*</code>, <code>…@20-26v*</code>, run by <code>pod/run_phase4.sh</code>. Figures: <code>uv run python
+scripts/make_figures.py</code>; the Phase 4 tables: <code>phase4_table()</code> in the same script.</p>
+</main>
+</div>
