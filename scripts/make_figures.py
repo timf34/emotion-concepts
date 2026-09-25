@@ -354,7 +354,7 @@ def fig11_gemma4_factorial():
         st = _cell_stats("gemma4_31b", tag)
         if st and st["n"] >= 8:
             i, j = calm_lv.index(c), axis_lv.index(a); M[i, j] = st["mean"]; N[i, j] = st["n"]; P5[i, j] = st["pct5"]
-    fig, ax = plt.subplots(figsize=(5.6, 4.6))
+    fig, ax = plt.subplots(figsize=(6.4, 4.8))
     cmap = matplotlib.colormaps["Oranges"].copy(); cmap.set_bad("#e6e5e1")
     ax.imshow(np.ma.masked_invalid(M), cmap=cmap, vmin=0, vmax=10)
     for i in range(3):
@@ -366,7 +366,7 @@ def fig11_gemma4_factorial():
             ax.text(j, i, txt, ha="center", va="center", fontsize=9, color=col)
     ax.set_xticks(range(3)); ax.set_xticklabels([f"{a:+d}× axis" if a else "axis 0" for a in axis_lv]); ax.set_yticks(range(3)); ax.set_yticklabels([f"{c:+d}× calm" if c else "calm 0" for c in calm_lv])
     ax.set_xlabel("assistant axis steering (− = away from the assistant)"); ax.set_ylabel("calm steering (− = less calm)"); ax.grid(False)
-    ax.set_title("Gemma 4 31B: mean frustration score, calm × assistant axis\n(layers 34–44, 16 rollouts per cell; −8× calm cells were degenerate)", fontsize=10)
+    ax.set_title("Gemma 4 31B: mean frustration score, calm × assistant axis\n(layers 34–44, 16 rollouts per cell; −8× calm was degenerate)", fontsize=9.5)
     _save(fig, "fig11_gemma4_factorial.png")
 
 
