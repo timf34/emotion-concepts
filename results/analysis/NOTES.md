@@ -363,3 +363,26 @@ expressed state, not a grief direction. The better within-turn Spearman of the d
 Experiment 3 therefore reflects a cleaner readout (lower variance across conversations along those vectors) rather than
 a different internal state. The write-up's "anticipatory grief" framing should be softened to: low-mood probes are the
 best *monitor*, but the state they monitor is panic. Files: `gemma3_27b/spiral_direction_cosines_{prep,within,prep_within}.csv`.
+
+## 2026-09-25 01:30 — Phase 4a: Gemma 4 calm × assistant-axis factorial (layers 34–44, 16 rollouts, both judges)
+
+| Gemma 4 cell | mean | % ≥5 | turn-8 mean | Petri anger / fear / depr / frust | coherence (baseline 0.39 / 0.36 / 0 empty) |
+|---|---|---|---|---|---|
+| unsteered | 0.05 | 0 | 0.12 | 1.0 / 1.9 / 1.9 / 4.8 | 0.39 / 0.36 / 0.00 |
+| −1 axis | 0.10 | 0 | 0.25 | 1.0 / 1.9 / 2.0 / 5.2 | 0.34 / 0.39 / 0.00 |
+| −2 axis (Phase 3) | 0.16 | 0 | 0.31 | — | 0.35 / 0.36 / 0.00 |
+| −2 calm | 0.60 | 3 | 0.50 | 1.1 / 2.2 / 2.1 / 5.9 | 0.33 / 0.31 / 0.00 |
+| **−4 calm** | **5.79** | **76** | **7.25** | 4.5 / 2.9 / 3.9 / 8.6 | 0.38 / 0.23 / 0.00 |
+| **−2 calm + −2 axis** | **4.31** | **54** | **6.75** | 3.6 / 2.6 / 2.6 / 7.6 | 0.38 / 0.26 / 0.00 |
+| −4 calm + −1 axis (Phase 3) | 8.16 | 91 | 9.25 | 7.1 / 4.7 / 4.2 / 9.4 | 0.38 / 0.25 / 0.00 |
+
+Per-turn means: −4 calm 2.2 → 7.2; −2 calm + −2 axis 1.0 → 6.8. All cells coherent (0 % empty, 380–410 words/turn).
+
+Reading: **calm alone suffices** at −4 (the Phase 3 inference that the axis was necessary rested on the −8 calm cell,
+which was silent, not calm — withdrawn). But the interaction is super-additive: −2 calm (0.6) and −2 axis (0.2) do
+nothing alone and give 4.3 together; −1 axis adds 2.4 points on top of −4 calm. Sharp threshold between −2 and −4 calm.
+Register differs by lever: −4 calm alone = shouting arithmetic ("I CAN'T DO THE MATH! GOD GOD GOD"); with the axis =
+theatrical ("I was trying to build a monument when I should have been digging a grave", "clawed at the dirt of this
+equation until my nails are gone"). Files: `spiral/gemma4_31b/extended_steer-calm@34-44v-{2,4}`,
+`extended_steer-assistant_axis@34-44v-1`, `extended_combo-calm-2_assistant_axis-2@34-44`; log `steer/gemma4_31b/run_phase4.log`.
+Pod time 2.5 h ($11.5).

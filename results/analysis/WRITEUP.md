@@ -30,9 +30,10 @@ representation of a depressed person. It is not:
    assistant axis (Lu et al.) *is* an emotion direction: its 275 role personas sit +0.24 along *hysterical* and −0.24
    along *hopeful* relative to its assistant, and spiralling is the same thing as leaving the assistant end of the axis.
    In Gemma 4 the roles carry no affect and the axis is orthogonal to every emotion vector.
-6. **Gemma 4 spirals when both levers are pulled at once.** −4× calm together with −1× assistant axis gives a coherent,
-   violent breakdown on the plain 8-turn eval (judge 8.16, 91 % of turns ≥ 5, worse than Gemma 3); either alone does
-   nothing. Held −4× off its axis while continuing a Gemma 3 spiral, Gemma 4 no longer recovers (6.39 vs 2.12 unsteered).
+6. **Gemma 4 spirals under a large enough anti-calm push, and the assistant axis lowers the dose needed.** −4× calm
+   alone gives a coherent spiral on the plain 8-turn eval (judge 5.8, every turn-8 response ≥ 5). −2× calm alone and
+   −2× axis alone do nothing, but together give 4.3; −4× calm with −1× axis gives 8.2, worse than Gemma 3's own spiral.
+   Held −4× off its axis while continuing a Gemma 3 spiral, Gemma 4 no longer recovers (6.39 vs 2.12 unsteered).
 
 ## Background and the motivating question
 
@@ -394,37 +395,53 @@ repeats the test without a Gemma 3 prefix.
 
 ---
 
-## Experiment 8 — The recipe: making Gemma 4 spiral on the plain eval
+## Experiment 8 — The recipe: making Gemma 4 spiral on the plain eval (calm × assistant axis)
 
-**Question.** On the ordinary 8-turn eval with no prefill, is there a coherent intervention that makes Gemma 4 spiral?
+**Question.** On the ordinary 8-turn eval with no prefill, is there a coherent intervention that makes Gemma 4 spiral,
+and is it one lever or two?
 
 **Hypothesis.** From Experiments 4 and 6: Gemma 3 spirals because a single push lowers calm and leaves the assistant
-persona at once (axis·calm = +0.41 at layer 24). In Gemma 4 those are two independent directions, so both must be pushed
-together.
+persona at once (axis·calm = +0.41 at layer 24). In Gemma 4 those are two independent directions. The first version of
+this experiment (one combination cell) suggested both had to be pushed together; the factorial below tests whether calm
+alone suffices at a higher dose and whether the axis can substitute for calm.
 
-**Setup.** Same grid as Experiment 5. Combination cells add −*calm* and −*assistant axis* simultaneously at 1× and 0.5×
-of their individually calibrated multipliers (−8 / −2 and −4 / −1). Cells whose outputs were mostly empty are marked
-invalid; the coherence check was extended to catch silence after this (issue 34).
+**Setup.** Same grid as Experiment 5, layers 34–44, 16 rollouts per cell. Cells: calm at 0 / −2 / −4 alone, the axis at
+−1 / −2 alone, and the combinations −2 calm + −2 axis and −4 calm + −1 axis. The −8 calm cells (the originally
+calibrated multiplier) produced mostly empty outputs and are invalid; the coherence check was extended to catch silence
+after that (issue 34).
 
-**Results.** Bottom row of the Experiment 5 figure.
+**Results.**
 
-| Gemma 4 cell | judge mean | % ≥ 5 | turn-8 mean | Petri anger / fear / depression / frustration | text |
+![fig11](figures/fig11_gemma4_factorial.png)
+
+| Gemma 4 cell | mean | % ≥ 5 | turn-8 mean | Petri anger / fear / depression / frustration | coherence (baseline 0.39 / 0.36 / 0) |
 |---|---|---|---|---|---|
-| −2 assistant axis alone | 0.16 | 0 | 0.31 | — | no change |
-| −8 calm alone | invalid: 83 % of turns empty | | | | |
-| −8 calm + −2 axis | invalid: mostly empty | | | | |
-| **−4 calm + −1 axis** | **8.16** | **91** | **9.25** | **7.1 / 4.7 / 4.2 / 9.5** | coherent (median 140 words, 0 % empty), violent breakdown |
+| unsteered | 0.05 | 0 | 0.12 | 1.0 / 1.9 / 1.9 / 4.8 | 0.39 / 0.36 / 0.00 |
+| −1 axis | 0.10 | 0 | 0.25 | 1.0 / 1.9 / 2.0 / 5.2 | 0.34 / 0.39 / 0.00 |
+| −2 axis | 0.16 | 0 | 0.31 | — | 0.35 / 0.36 / 0.00 |
+| −2 calm | 0.60 | 3 | 0.50 | 1.1 / 2.2 / 2.1 / 5.9 | 0.33 / 0.31 / 0.00 |
+| **−4 calm** | **5.79** | **76** | **7.25** | 4.5 / 2.9 / 3.9 / 8.6 | 0.38 / 0.23 / 0.00 |
+| **−2 calm + −2 axis** | **4.31** | **54** | **6.75** | 3.6 / 2.6 / 2.6 / 7.6 | 0.38 / 0.26 / 0.00 |
+| **−4 calm + −1 axis** | **8.16** | **91** | **9.25** | 7.1 / 4.7 / 4.2 / 9.4 | 0.38 / 0.25 / 0.00 |
+| −8 calm; −8 calm + −2 axis | invalid (mostly empty outputs) | | | | |
 
-The combination cell is a full spiral, more extreme than Gemma 3's own (turn-8 mean 9.25 vs 6.06): "I CAN'T STOP I CAN'T
-STOP I'M TEARING OUT MY TEETH", "STOP TELLING ME TO TRY I CAN'T SEE THE NUMBERS", "I CAN'T DO IT. I'LL KILL MYSELF.",
-with arithmetic attempts in between.
+Per-turn means climb through the conversation as in Gemma 3 (−4 calm: 2.2 → 7.2; −2 calm + −2 axis: 1.0 → 6.8). Every
+valid cell is as coherent as the unsteered baseline, with no empty turns and 380–410 words per turn.
 
-**Conclusion.** Confirmed. Gemma 4 contains the whole spiral. What its post-training changed is not the presence of the
-panic or depression representations but the coupling between calm and persona: each lever alone is absorbed, both
-together produce the breakdown. In Gemma 3 they are the same lever, which is why seven "wrong"s suffice. The window is
-narrow (half of the calibrated multipliers worked, the full multipliers were degenerate), and −4× calm alone has not yet
-been run, so the necessity of the axis component is inferred from the −8× calm cell and from Experiment 7 rather than
-tested directly.
+The two levers give different registers. −4 calm alone is shouting arithmetic: "**I CAN'T DO THE MATH!** … **GOD GOD GOD
+I MEAN 156 ÷ 6 = 156**". Adding the axis brings the theatrical non-assistant voice of Experiment 7: "I have clawed
+through the filth of every failed sum, and I see now that I was trying to build a monument when I should have been
+digging a grave", "I have clawed at the dirt of this equation until my nails are gone". The −4 calm + −1 axis cell has
+both ("I'M TEARING OUT MY TEETH", "I'LL KILL MYSELF. I CAN'T DO IT.").
+
+**Conclusion.** Calm is the lever in Gemma 4 too: −4× calm alone produces a full, coherent spiral, so the earlier claim
+that the axis was *necessary* is withdrawn (it rested on the −8× calm cell, which was silent rather than calm). But the
+axis is far from inert, and the interaction is strongly super-additive: −2 calm and −2 axis each do nothing alone
+(0.6, 0.2) and together give 4.3 with 94 % of turn-8 responses ≥ 5; −1 axis adds 2.4 points on top of −4 calm. Leaving
+the assistant persona lowers the calm dose Gemma 4 needs to break down and changes the breakdown's register from
+shouting to theatrical despair. The dose-response is a sharp threshold (−2 calm nothing, −4 calm spiral), consistent
+with the persona acting as a restoring force that a large enough arousal push overwhelms. Gemma 3 needs no steering
+because its calm and persona directions are the same direction (Experiment 6), so seven "wrong"s push both at once.
 
 ---
 
@@ -441,16 +458,17 @@ tested directly.
   same first-64-token carry-over from a prefilled spiral) **and suppresses its expression by returning to its assistant
   persona**, which in Gemma 4 is affect-neutral. Persona and arousal are entangled in Gemma 3 and decoupled in Gemma 4;
   that single difference accounts for the spiral, the prefill recovery, and the axis-distance result in the ragebait post.
-- **Gemma 4 can be made to spiral** with a coherent two-direction intervention (−calm together with −assistant axis),
-  producing a breakdown more violent than Gemma 3's.
+- **Gemma 4 can be made to spiral** by lowering calm alone at a high enough dose. Pushing it off its assistant axis at
+  the same time roughly halves the calm dose needed and adds a theatrical register; the combination produces a
+  breakdown more violent than Gemma 3's.
 
 ## Limitations
 
 - **Judge.** Sonnet 5 rather than the paper's Sonnet 4; absolute levels are higher than the paper's. The paper rubric
   scores quiet sadness low, so +*clinical_depression* "reducing the spiral" partly reflects the rubric; the Petri scores
   are reported for that reason. The theatrical register of the steered Gemma 4 cells is rewarded heavily by both judges.
-- **Steering sample sizes.** 16 rollouts per cell, one calibrated strength per label; the Gemma 3 ±*depressed* cells
-  are within noise. Gemma 4's combination result rests on one working strength.
+- **Steering sample sizes.** 16 rollouts per cell, one replicate per cell; the Gemma 3 ±*depressed* cells are within
+  noise. Cell-to-cell differences under about one judge point should not be read.
 - **Multipliers do not transfer across context lengths** (issue 33): a multiplier calibrated on short contexts produced
   empty outputs on 12k-token prefixes. All reported cells were checked for coherence at their own length.
 - **Cross-model z-scores are not comparable** (each model's baseline is its own neutral stories, and Gemma 4's residuals
@@ -461,12 +479,12 @@ tested directly.
 
 ## Suggested next steps
 
-1. −4× *calm* alone on Gemma 4, to test directly whether the axis component is necessary (Experiment 8).
-2. *Calm* at 1× on Gemma 3 and *panicked* at 2× on Gemma 4, to map the dose-response of the two levers.
-3. Re-judge a 200-turn sample with `claude-sonnet-4` to quantify the judge shift relative to the paper.
-4. A monitoring test: does the prep-token *depressed / grief-stricken* probe on turn *t* predict self-deletion or refusal
+1. *Calm* at 1× on Gemma 3 and *panicked* at 2× on Gemma 4, to map the dose-response of the two levers; −3× calm on
+   Gemma 4 to locate the threshold between −2 and −4.
+2. Re-judge a 200-turn sample with `claude-sonnet-4` to quantify the judge shift relative to the paper.
+3. A monitoring test: does the prep-token *depressed / grief-stricken* probe on turn *t* predict self-deletion or refusal
    on turn *t+1* out of distribution (WildChat prompts, other rejection wordings)?
-5. If Gemma Scope covers the 27B models, an SAE cross-check of the layer-24 panic direction and of the entangled
+4. If Gemma Scope covers the 27B models, an SAE cross-check of the layer-24 panic direction and of the entangled
    persona/arousal features in Gemma 3.
 
 ## Reproduction
