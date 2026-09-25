@@ -33,3 +33,4 @@ results/analysis/**/*.pt
 # ---- misc ----
 .DS_Store
 failing-to-ragebait-gemma4.md
+.claude/launch.json

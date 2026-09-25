@@ -31,7 +31,8 @@ body = body.replace("<table>", '<div class="tablewrap"><table>').replace("</tabl
 toc_items = re.findall(r'<h2 id="([^"]+)">(.*?)</h2>', body)
 nav = "\n".join(f'<li><a href="#{i}">{re.sub(r"<[^>]+>", "", t).replace("Experiment ", "").split(" — ")[0]}<span class="navsub">{(re.sub(r"<[^>]+>", "", t).split(" — ")[1] if " — " in t else "")}</span></a></li>' for i, t in toc_items)
 
-html = f'''<title>Gemma Spiral Anatomy</title>
+html = f'''<meta charset="utf-8">
+<title>Gemma Spiral Anatomy</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 :root {{
