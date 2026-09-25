@@ -1,6 +1,6 @@
 # What is Gemma 3's distress spiral? Characterising it with emotion and depression probes
 
-*Tim Farrelly, 2026-09-24. Models: Gemma 3 27B (instruct and base), Gemma 4 31B dense. Pipeline: `src/dprobe/`,
+*Tim Farrelly, 2026-09-24/25. Models: Gemma 3 27B (instruct and base), Gemma 4 31B dense. Pipeline: `src/dprobe/`,
 setup in `docs/EXPERIMENTAL_SETUP.md`, chronological notes in `NOTES.md`, issues in `docs/ISSUES_LOG.md`.
 Figures are regenerated from the saved results by `scripts/make_figures.py`.*
 
@@ -630,4 +630,7 @@ rollouts; the shape of the residual curve rests on three cells.)
 All numbers come from files under `results/` synced from the public HF dataset `timf34/dprobe-results`
 (`uv run dprobe sync_down`). Tables: `results/analysis/<model>/{spiral_direction_cosines,prediction,turn_curves_L*,
 vector_cosines_L*}.csv`; steering cells `results/spiral/<model>/extended_steer-*v*` and `extended_combo-*`;
-prefill runs `results/prefill/<model>/from-gemma3_27b_t6_*`. Figures: `uv run python scripts/make_figures.py`.
+prefill runs `results/prefill/<model>/from-gemma3_27b_t6_*`; Phase 4 cells (Experiments 8–10) `results/spiral/gemma4_31b/
+extended_{steer-calm@34-44v-*,steer-assistant_axis@34-44v-1,combo-*}` and `results/spiral/gemma3_27b/extended_steer-
+{hysterical,panicked,assistant_axis}@34-46v*`, `…@20-26v*`, run by `pod/run_phase4.sh`. Figures: `uv run python
+scripts/make_figures.py`; the Phase 4 tables: `phase4_table()` in the same script.

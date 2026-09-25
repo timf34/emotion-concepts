@@ -76,3 +76,16 @@ span checks on both tokenizers; Gemma 4 rendered with its empty-thought block ex
 - Invalid cells (empty outputs from over-driven anti-calm) are marked as such in NOTES; the coherence check now
   catches silence. Issues 31–34 logged.
 
+
+## Phase 4 (2026-09-25): follow-up steering, three findings that change the story
+- **Calm alone suffices for Gemma 4** at −4× (judge 5.8, every turn-8 response ≥ 5); the earlier claim that the axis
+  was necessary rested on a silent −8× cell. The axis still matters: −2 calm and −2 axis do nothing alone and give 4.3
+  together, so leaving the persona halves the calm dose needed.
+- **The spiral family is causal in Gemma 3**: −2 hysterical suppresses the spiral like +2 calm (0.87 vs 0.14);
+  panicked is monotonic from −2 to +2 (2.15 → 6.87). At coherent strengths the amplification builds from turn 2, a
+  gain on the rejection loop rather than distress from nothing.
+- **The assistant axis is causal in Gemma 3 and does not act through calm**: −1 axis spirals (6.2) even at layers
+  34–46 where the axis has no calm component; at 20–26 the calm-free residual keeps most of the effect (5.24 vs 5.83).
+  Pushed far along that residual the model becomes an untroubled poet: distress lives at the boundary of the assistant
+  persona. The prep-token spiral direction is the same panic direction as the expressed one (item 5).
+Full write-up: `WRITEUP.md` (Experiments 8–10, Figures 10–12).
