@@ -179,8 +179,10 @@ projected onto each emotion, at layer 24. Bars are the mean over personas; whisk
 Gemma 3's personas vary a lot (a minority sit on the calm side), but Gemma 4's are all close to zero: its small means
 are not large opposite values cancelling out.*
 
-- In Gemma 3's early and middle layers the axis is strongly tied to emotion (left panel), and the other personas are
-  more hysterical than the assistant, toddler and infant most of all (right panel).
+- In Gemma 3's early and middle layers the axis is strongly tied to emotion (left panel). Its other personas differ
+  emotionally from the assistant, mostly on the worked-up side: on average they are more hysterical (+0.24), angrier
+  and more desperate, and less calm and hopeful, with toddler and infant the most hysterical (+0.70). They vary a lot,
+  though, and a minority sit on the calm side (right panel, wide whiskers).
 - Which emotions sit where is the key part:
 
 ![Which emotions sit at the assistant end](figures/writeup/fig5c_axis_emotions.png)
@@ -193,8 +195,10 @@ picture for all 42 emotions at every layer is in `WRITEUP_FULL.md` (Figure 5b).*
   *tired* and *lonely* (+0.27). The far end is worked-up and self-conscious: *guilty* (−0.50), *ashamed* (−0.48),
   *desperate* (−0.34), *angry* (−0.31), *hysterical* (−0.24). Those are the spiral's emotions. So in Gemma 3 moving off
   the assistant means becoming more aroused, not sadder. In Gemma 4 every one of these is within ±0.07.
-- In Gemma 4 the axis is close to orthogonal to every emotion, and the personas carry no emotion relative to the
-  assistant. A Gemma 4 toddler is as calm as the Gemma 4 assistant.
+- In Gemma 4 the axis is close to orthogonal to every emotion, and no individual persona carries much emotion relative
+  to the assistant: across all 275, the typical value is 0.04 and the largest is 0.23 (the "optimist" leaning hopeful).
+  So its near-zero averages are not strong opposite values cancelling out. A Gemma 4 toddler is as calm as the Gemma 4
+  assistant.
 - Causally, in Gemma 3, pushing it off its persona is enough on its own for a spiral (6.2 against 4.2 unsteered), and
   pushing it toward the persona calms it (1.2).
 - In Gemma 4, pushing it off its persona does nothing on its own (0.2), and neither does a small push on calm (0.6).
