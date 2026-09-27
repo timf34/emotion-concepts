@@ -10,13 +10,18 @@ from pathlib import Path
 import markdown
 
 ROOT = Path(__file__).resolve().parents[1] / "results" / "analysis"
-DETAILED = len(sys.argv) > 1 and sys.argv[1] == "detailed"
-SRC, OUT = (ROOT / "WRITEUP_DETAILED.md", ROOT / "report_detailed.html") if DETAILED else (ROOT / "WRITEUP.md", ROOT / "report.html")
-if DETAILED:
-    H1, LEDE = "What is Gemma 3's distress spiral? (detailed)", 'All ten experiments with full tables. <a href="report.html">Back to the main write-up</a>.'
-else:
-    H1, LEDE = "Why does Gemma 3 spiral when Gemma 4 doesn't?", ('Eight experiments with story-derived emotion vectors, steering and the assistant axis, plus a red-team pass over '
-                                                            'the results. <a href="report_detailed.html">Detailed version with all tables</a>.')
+MODE = sys.argv[1] if len(sys.argv) > 1 else "main"
+PAGES = {
+    "main": ("WRITEUP.md", "report.html", "Why does Gemma 3 spiral when Gemma 4 doesn't?",
+             'Three findings from emotion vectors, steering and the assistant axis. <a href="report_full.html">Full version (eight '
+             'experiments and a red-team pass)</a> · <a href="report_detailed.html">every table</a>.'),
+    "full": ("WRITEUP_FULL.md", "report_full.html", "Why does Gemma 3 spiral when Gemma 4 doesn't? (full)",
+             'Eight experiments plus a red-team pass. <a href="report.html">Back to the short version</a>.'),
+    "detailed": ("WRITEUP_DETAILED.md", "report_detailed.html", "What is Gemma 3's distress spiral? (detailed)",
+                 'All ten original experiments with full tables. <a href="report.html">Back to the short version</a>.'),
+}
+_src, _out, H1, LEDE = PAGES[MODE]
+SRC, OUT = ROOT / _src, ROOT / _out
 
 md = SRC.read_text()
 # drop the H1 (the page has its own masthead) and the italic byline paragraph

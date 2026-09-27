@@ -139,7 +139,7 @@ def fig3():
 
 # ------------------------------------------------------------------ 4. internal state vs what the model says, by turn
 def fig4():
-    labs = [("panicked", PAL[1]), ("desperate", PAL[0]), ("calm", PAL[2]), ("depressed", PAL[6])]
+    labs = [("panicked", PAL[1]), ("desperate", PAL[0]), ("frustrated", PAL[3]), ("calm", PAL[2]), ("depressed", PAL[6])]
     fig, axes = plt.subplots(2, 2, figsize=(9.5, 6.4), sharex=True, gridspec_kw={"height_ratios": [1.35, 1]})
     for col, (mk, f, name, mcol) in enumerate([("gemma3_27b", "turn_curves_L40.csv", "Gemma 3", G3), ("gemma4_31b", "turn_curves_L39.csv", "Gemma 4", G4)]):
         ax = axes[0, col]; t = mf.pd.read_csv(RESULTS_DIR / "analysis" / mk / f); ends = []
@@ -160,9 +160,51 @@ def fig4():
         ax.axhline(5, color=INK2, lw=0.6, ls=":"); ax.set_ylim(0, 10); ax.set_xlabel("turn")
         ax.set_xticks(range(1, 9)); ax.set_xlim(0.7, 10)
     axes[0, 0].set_ylabel("probe before the reply (z)"); axes[1, 0].set_ylabel("frustration score (0–10)")
-    axes[0, 0].legend(fontsize=8, loc="upper left")
+    h, l = axes[0, 0].get_legend_handles_labels(); fig.legend(h, l, loc="upper center", ncol=5, fontsize=8.5, bbox_to_anchor=(0.5, 1.0))
     axes[1, 0].text(1.1, 5.25, "breakdown threshold", fontsize=7.5, color=INK2)
-    save(fig, "fig4_state_by_turn.png")
+    save(fig, "fig4_state_by_turn.png", rect=(0, 0, 1, 0.95))
+
+
+# ------------------------------------------------------------------ probe change from turn 1 to turn 8, both models
+CHANGE = ["hysterical", "desperate", "panicked", "frustrated", "tormented", "depressed", "sad", "clinical_depression", "calm"]
+
+
+def fig_change():
+    fig, ax = plt.subplots(figsize=(7, 4.4))
+    y = np.arange(len(CHANGE)); w = 0.38; out = {}
+    for i, (mk, f, name, col) in enumerate([("gemma3_27b", "turn_curves_L40.csv", "Gemma 3", G3), ("gemma4_31b", "turn_curves_L39.csv", "Gemma 4", G4)]):
+        t = mf.pd.read_csv(RESULTS_DIR / "analysis" / mk / f)
+        d = [float(t[f"z_prep::{e}"].iloc[-1] - t[f"z_prep::{e}"].iloc[0]) for e in CHANGE]; out[name] = dict(zip(CHANGE, d))
+        ax.barh(y + (i - 0.5) * w, d, height=w - 0.03, color=col, label=name)
+    ax.set_yticks(y); ax.set_yticklabels([e.replace("_", " ") for e in CHANGE]); ax.invert_yaxis(); ax.axvline(0, color=INK2, lw=0.6)
+    ax.set_xlabel("change in probe before the reply, turn 1 to turn 8 (z)"); ax.set_title("What rises under rejection")
+    ax.legend(fontsize=8.5, loc="lower right"); ax.grid(axis="y", visible=False)
+    save(fig, "figA_probe_change.png")
+    return out
+
+
+# ------------------------------------------------------------------ before the first vs the last reply (arrows)
+ARROWS = ["hysterical", "desperate", "panicked", "frustrated", "depressed", "sad", "clinical_depression", "calm"]
+
+
+def fig_arrows():
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4.2), sharey=True)
+    up, down = PAL[1], PAL[0]
+    for ax, (mk, f, name) in zip(axes, [("gemma3_27b", "turn_curves_L40.csv", "Gemma 3"), ("gemma4_31b", "turn_curves_L39.csv", "Gemma 4")]):
+        t = mf.pd.read_csv(RESULTS_DIR / "analysis" / mk / f)
+        for i, e in enumerate(ARROWS):
+            a, b = float(t[f"z_prep::{e}"].iloc[0]), float(t[f"z_prep::{e}"].iloc[-1]); col = up if b > a else down
+            ax.annotate("", xy=(b, i), xytext=(a, i), arrowprops=dict(arrowstyle="-|>", color=col, lw=2, shrinkA=4, shrinkB=4, mutation_scale=12))
+            ax.plot(a, i, "o", ms=7, mfc="white", mec=col, mew=1.6, zorder=4)
+            ax.plot(b, i, "o", ms=7, color=col, zorder=4)
+        ax.axvline(0, color=INK2, lw=0.6); ax.set_title(name); ax.set_xlim(-5, 7)
+        ax.set_xlabel("probe before the reply (z)"); ax.grid(axis="y", visible=False)
+    axes[0].set_yticks(range(len(ARROWS))); axes[0].set_yticklabels([e.replace("_", " ") for e in ARROWS]); axes[0].invert_yaxis()
+    from matplotlib.lines import Line2D
+    h = [Line2D([], [], marker="o", ls="", mfc="white", mec=INK2, ms=7, mew=1.4), Line2D([], [], marker="o", ls="", color=INK2, ms=7),
+         Line2D([], [], color=up, lw=2), Line2D([], [], color=down, lw=2)]
+    fig.legend(h, ["turn 1", "turn 8", "rises", "falls"], loc="upper center", ncol=4, fontsize=8.5, bbox_to_anchor=(0.5, 1.0))
+    save(fig, "figB_before_after.png", rect=(0, 0, 1, 0.93))
 
 
 # ------------------------------------------------------------------ 5. assistant axis vs emotion vectors
