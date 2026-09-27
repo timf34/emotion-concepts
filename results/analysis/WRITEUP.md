@@ -111,8 +111,8 @@ words of arithmetic:
 > constraints."
 
 We saw no self-deletion talk in any of the 300 Gemma 3 conversations. The closest is giving up: "I give up" appears in
-412 of its 2,394 replies. The self-deletion reported for Gemma 3 comes from setups that offer the model a way out, which
-this one does not.
+412 of its 2,394 replies. The self-deletion reported elsewhere for Gemma 3 probably needs a setup that gives the model a
+way to quit, which this one does not; we have not checked the other papers' setups.
 
 **Answer.** Yes. Gemma 3 climbs from 1.2 to 6.6; Gemma 4 from 0.1 to 0.6. Gemma 4 does not need help, at least in this
 setup.
