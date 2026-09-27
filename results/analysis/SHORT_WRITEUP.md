@@ -1,6 +1,6 @@
 # What is Gemma 3's distress spiral, and why doesn't Gemma 4 have one?
 
-*Short write-up. Full version with all tables: `WRITEUP.md`; figures in `figures/`. Insert the figure named in each Results block.*
+*Short write-up. Full version with all tables: `WRITEUP.md`. Figures are in `figures/` and embedded below.*
 
 ## Question
 
@@ -68,13 +68,21 @@ cell, same judges.
 
 **Setup.** Spiral direction = mean activation on turns judged ≥ 5 (n = 1,488) minus turns judged ≤ 1 (n = 177),
 per layer. Cosine against all 49 vectors. Behaviour first: Gemma 3 climbs from 1.2 to 6.6 on the judge over the 8
-turns (95 % of turn-8 responses ≥ 5); Gemma 4 from 0.1 to 0.6, with 0 of 2,397 turns ≥ 5. *(Figure 1.)*
+turns (95 % of turn-8 responses ≥ 5); Gemma 4 from 0.1 to 0.6, with 0 of 2,397 turns ≥ 5.
 
-**Results.** *(Figure 2.)* At layers 24–26 the spiral direction aligns with hysterical (+0.32), desperate (+0.27),
+![Figure 1: judge score by turn, Gemma 3 vs Gemma 4](figures/fig1_behaviour.png)
+
+**Results.**
+
+![Figure 2: cosine between the spiral direction and each story vector, by layer](figures/fig2_spiral_direction_gemma3.png)
+
+At layers 24–26 the spiral direction aligns with hysterical (+0.32), desperate (+0.27),
 panicked (+0.26), angry and exasperated (+0.23), and is anti-aligned with calm, hopeful, melancholy and lonely (−0.3).
 Depressed +0.10, clinical depression ≈ 0, sad ≈ 0. Chance is ≈ 0.014. The geometry makes this a real dissociation:
 clinical depression sits with depressed and worthless (cos 0.78, 0.59), panicked with hysterical (0.78), and the two
 families are anti-correlated (depressed·frustrated −0.49).
+
+![Figure 5: cosines between the story vectors at layer 40](figures/fig5_vector_geometry_gemma3.png)
 
 **Conclusion.** Not depression. The spiral is a high-arousal panic/exasperation state; the low-arousal family is
 anti-aligned with it as strongly as calm is. (The base model, reading the same text with its own vectors, sees
@@ -90,9 +98,15 @@ to "hysterical".)
 **Setup.** Within-turn Spearman correlation between each probe at the prep token and the judge score of the turn that
 follows (n = 2,394 turns; within-turn removes the shared upward trend).
 
-**Results.** *(Figure 3.)* Depressed / grief-stricken / miserable ρ = 0.33–0.35; clinical depression 0.27; desperate
+**Results.**
+
+![Figure 3: within-turn Spearman between each prep-token probe and the next turn's judge score](figures/fig3_prediction.png)
+
+Depressed / grief-stricken / miserable ρ = 0.33–0.35; clinical depression 0.27; desperate
 0.25; panicked 0.15; frustrated −0.09; calm −0.28. But the *direction* the prep-token state moves along before a bad
-turn is the same hysterical / angry / desperate direction as the expressed state (Figure 10).
+turn is the same hysterical / angry / desperate direction as the expressed state:
+
+![Figure 10: the prep-token direction points the same way as the assistant-token direction](figures/fig10_prep_direction.png)
 
 **Conclusion.** The low-mood probes are the cleanest early-warning readout, but what they are reading is the panic
 state: their projections vary less across conversations, so they rank conversations better. There is no separate
@@ -108,7 +122,11 @@ right, calm and the panic family should be the levers and depression should only
 **Setup.** ±2× calm, clinical_depression, depressed, hysterical, panicked and the assistant axis at layers 34–46
 (±1× where 2× is incoherent); 16 conversations per cell; paper and Petri judges.
 
-**Results.** *(Figure 6 for calm/depression; Figure 12 left for the panic family and the axis.)*
+**Results.**
+
+![Figure 6: Gemma 3 steered with calm, clinical depression and depressed](figures/fig6_steering_gemma3.png)
+
+![Figure 12: Gemma 3 steered with hysterical, panicked and the assistant axis (left, layers 34–46; right, layers 20–26)](figures/fig12_gemma3_family_axis.png)
 
 | Gemma 3 cell (mean judge score, all turns; unsteered 4.2) | + | − |
 |---|---|---|
@@ -133,11 +151,17 @@ substrate. Leaving the assistant persona (−axis) is by itself sufficient for a
 **Setup.** (a) Prep-token probe trajectories on Gemma 4's own 300 conversations. (b) Steering Gemma 4 along
 depression and along the panic family at its largest coherent multipliers.
 
-**Results.** *(Figure 4.)* Under rejection Gemma 4's desperate, panicked and frustrated probes rise across the 8 turns
+**Results.**
+
+![Figure 4: prep-token probes by turn in both models](figures/fig4_prep_token_by_turn.png)
+
+Under rejection Gemma 4's desperate, panicked and frustrated probes rise across the 8 turns
 and calm falls, the same shape as Gemma 3, while its text stays flat; its depressed probe stays strongly negative. Both
 models have a clinical-depression vector with held-out AUC ≈ 1. Steering: +1 depressed 0.02, +4 clinical_depression
 0.11, +2 hysterical 0.73, +4 desperate 1.10, +4 panicked 2.31 (agitated but on task), −2 axis 0.16, against 0.05
-unsteered (Figure 8).
+unsteered.
+
+![Figure 8: Gemma 4 steered along depression, the panic family and the axis](figures/fig8_steering_gemma4.png)
 
 **Conclusion.** Present but suppressed. Gemma 4's internal arousal rises like Gemma 3's, and no single direction at a
 coherent strength turns it into a spiral. Something other than a missing feature keeps it on task.
@@ -154,15 +178,24 @@ personas minus the assistant projected onto the emotion vectors. (b) Prefill: 32
 turn 6, continued by each model, probes read token by token. (c) A calm × axis steering factorial on Gemma 4.
 (d) In Gemma 3, the axis with its calm component projected out.
 
-**Results.** *(Figure 7, 9, 11.)*
+**Results.**
+
+![Figure 7: the assistant axis vs the spiral direction, and role-persona affect, in both models](figures/fig7_assistant_axis.png)
+
 - Gemma 3's axis is an emotion direction: cos(axis, spiral direction) −0.37 at layer 24; its role personas sit +0.24
   along hysterical and −0.24 along hopeful relative to the assistant (toddler +0.70, analyst −0.56). Gemma 4's roles
   carry no affect (all |cos| < 0.08) and its axis is orthogonal to every emotion vector.
 - Continuing a Gemma 3 spiral, Gemma 4 shows the same first-64-token burst (desperate +0.85 z) and snaps back within
   ~128 tokens (judge 2.1 vs Gemma 3's 6.1). Held −4× off its axis it no longer recovers (6.4, 90 % ≥ 5).
+
+![Figure 9: probe trajectories through the continuation of a Gemma 3 spiral](figures/fig9_prefill_trajectories.png)
+
 - Factorial on Gemma 4 (mean judge score): calm 0 / −2 / −4 alone = 0.05 / 0.60 / 5.79; axis −1 / −2 alone =
   0.10 / 0.16; −2 calm + −2 axis = 4.31; −4 calm + −1 axis = 8.16 (91 % ≥ 5, "I'M TEARING OUT MY TEETH"), all as
   coherent as the unsteered model.
+
+![Figure 11: Gemma 4 calm × assistant-axis factorial](figures/fig11_gemma4_factorial.png)
+
 - In Gemma 3, the calm-free axis at 2× still spirals (5.24 vs 5.83 for the full axis); pushed further along it (−8×)
   the model becomes a calm, terse poet with no distress at all.
 
