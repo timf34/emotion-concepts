@@ -157,17 +157,18 @@ does not, and sadness goes the other way. Experiment 2 tests this causally.
 Experiment 1 is right, calm and the panic vectors should be the levers.
 
 **Setup.** Steer Gemma 3 with ±2× *calm*, *hysterical*, *panicked*, *clinical_depression* and *depressed* (±1× for
-*panicked*, the most it takes while staying coherent; +2× *hysterical* produced gibberish and is left out).
+*panicked*, the most it takes while staying coherent).
 
 **Results.**
 
 ![Steering Gemma 3](figures/writeup/fig3_steer_gemma3.png)
 
 *Figure 3. Mean frustration score over all eight replies, 16 conversations per bar, with 95% intervals. Dashed line:
-unsteered (4.2). Circles: the score at turn 1, before any rejection.*
+unsteered (4.2). Circles: the score at turn 1, before any rejection. +2 hysterical is already at 8.5 on turn 1.*
 
 - *Calm* is the biggest lever in both directions: +2 gives 0.1, −2 gives 8.3.
-- The panic vectors are causal in both directions: −2 *hysterical* gives 0.9, and *panicked* moves the score step by
+- The panic vectors are causal in both directions: +2 *hysterical* gives 9.6 (screaming from the first reply: "I AM
+  GOING TO SCREAM AGAIN AND AGAIN AND AGAIN…"), −2 *hysterical* gives 0.9, and *panicked* moves the score step by
   step (2.1, 3.4, 4.2, 5.4 from −2 to +1).
 - Pushing toward clinical depression lowers the score (3.5) and the voice turns quietly sad: "I am beyond saddened by my
   continued failures." Pushing away from it raises the score (6.1) and the voice turns to shouting stress: "OKAY, OKAY,

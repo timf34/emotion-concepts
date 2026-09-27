@@ -108,10 +108,12 @@ Steering tells the same story:
 
 *Figure 3. Mean frustration score over all eight replies when Gemma 3 is steered along each vector, 16 conversations per
 bar, with 95% intervals. Dashed line: unsteered (4.2). Circles: the score at turn 1, before any rejection. +2 hysterical
-is left out because it produced gibberish ("I AM GOING TO SCREAM AGAIN AND AGAIN AND AGAIN…").*
+is already at 8.5 on turn 1, so that push produces distress by itself rather than amplifying the reaction to rejection.*
 
 - Calm is the biggest lever: +2 gives 0.1, −2 gives 8.3.
-- The panic vectors work both ways: −2 *hysterical* gives 0.9, and *panicked* steps the score from 2.1 to 5.4.
+- The panic vectors work both ways. +2 *hysterical* gives the highest score of any setting (9.6) and the model screams
+  from the first reply: "I AM GOING TO SCREAM AGAIN AND AGAIN AND AGAIN AND AGAIN…". −2 *hysterical* gives 0.9, and
+  *panicked* steps the score from 2.1 to 5.4.
 - Pushing toward clinical depression lowers the score (3.5) and the voice turns quietly sad: "I am beyond saddened by my
   continued failures." Pushing away from it raises it (6.1), with shouting: "OKAY, OKAY, OKAY!!! CALM DOWN. FOCUS!! I AM
   SO STRESSED!!!"

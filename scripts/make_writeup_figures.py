@@ -126,7 +126,7 @@ def fig3():
     B = "#9a9890"
     rows = [("unsteered", "steer-depressed@34-46v+0", B),
             ("+2 calm", "steer-calm@34-46v+2", PAL[2]), ("−2 calm", "steer-calm@34-46v-2", PAL[2]),
-            ("−2 hysterical", "steer-hysterical@34-46v-2", PAL[1]),
+            ("+2 hysterical", "steer-hysterical@34-46v+2", PAL[1]), ("−2 hysterical", "steer-hysterical@34-46v-2", PAL[1]),
             ("−2 panicked", "steer-panicked@34-46v-2", PAL[1]), ("−1 panicked", "steer-panicked@34-46v-1", PAL[1]), ("+1 panicked", "steer-panicked@34-46v+1", PAL[1]),
             ("+2 clinical depression", "steer-clinical_depression@34-46v+2", PAL[6]), ("−2 clinical depression", "steer-clinical_depression@34-46v-2", PAL[6]),
             ("+2 depressed", "steer-depressed@34-46v+2", PAL[4]), ("−2 depressed", "steer-depressed@34-46v-2", PAL[4])]
