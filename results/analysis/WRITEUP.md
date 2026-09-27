@@ -123,7 +123,7 @@ stream move toward?
 
 **Setup.** Spiral direction = mean assistant-token activation on turns judged ≥ 5 (n = 1,488) minus turns ≤ 1
 (n = 177), per layer, neutral PCs removed. Cosine against all 49 denoised vectors in the probe bank (42 emotion words,
-6 syndromes, the pain axis) at every analysis layer; the figure highlights eight and draws the other 41 in grey. Chance
+6 syndromes, the pain axis) at every analysis layer; the figure highlights eight and draws the other 40 in grey (the pain axis is omitted). Chance
 cosine in 5,376 dimensions is ≈ 0.014. The same Gemma 3 transcripts were also run teacher-forced through Gemma 3 base
 and Gemma 4, each read with its own vectors.
 
@@ -131,7 +131,7 @@ and Gemma 4, each read with its own vectors.
 
 ![fig2](figures/fig2_spiral_direction_gemma3.png)
 
-*Figure 2. Cosine between Gemma 3's spiral direction (mean activation on turns judged ≥ 5 minus turns judged ≤ 1) and each of the 49 story-derived vectors, by layer. Coloured: the eight vectors discussed in the text. Grey: the other 41 (the remaining 34 emotion words, the five syndrome controls, and the pain axis). Chance cosine is about 0.014. The largest cosines are early (layers 8–12: overwhelmed, frustrated, humiliated, stressed, +0.4 to +0.6, the words the spiral text uses); layers 16–20 are led by guilty, ashamed, self-critical; from layer 24 on the panic family (hysterical, desperate, panicked, angry) is on top. Depressed, clinical depression and sad are never in the top five at any layer. The pain-axis line, built for layer 59, is meaningless at early layers.*
+*Figure 2. Cosine between Gemma 3's spiral direction (mean activation on turns judged ≥ 5 minus turns judged ≤ 1) and each of the 49 story-derived vectors, by layer. Coloured: the eight vectors discussed in the text. Grey: the other 40 (the remaining 34 emotion words and the five syndrome controls). Chance cosine is about 0.014. The largest cosines are early (layers 8–12: overwhelmed, frustrated, humiliated, stressed, +0.4 to +0.6, the words the spiral text uses); layers 16–20 are led by guilty, ashamed, self-critical; from layer 24 on the panic family (hysterical, desperate, panicked, angry) is on top. Depressed, clinical depression and sad are never in the top five at any layer. Shaded bands name the top-aligned vectors at each depth. The pain axis (built for layer 59) is omitted.*
 
 From layer 24 on the panic family is on top:
 

@@ -83,9 +83,10 @@ def fig1_behaviour():
 # ---------------------------------------------------------------- fig 2: spiral direction vs layer
 def fig2_spiral_direction():
     d = pd.read_csv(RESULTS_DIR / "analysis" / "gemma3_27b" / "spiral_direction_cosines.csv")
+    d = d[d.label != "pain_axis"]                        # built for layer 59; meaningless at early layers
     piv = d.pivot(index="label", columns="layer", values="cosine")
     focus = ["hysterical", "desperate", "panicked", "frustrated", "depressed", "clinical_depression", "sad", "calm"]
-    fig, ax = plt.subplots(figsize=(9, 4.6))
+    fig, ax = plt.subplots(figsize=(9.5, 5.2))
     for e, dd in piv.iterrows():
         if e not in focus:
             ax.plot(dd.index, dd.values, color="#d6d5d0", lw=0.6, zorder=1)
@@ -93,10 +94,16 @@ def fig2_spiral_direction():
         dd = piv.loc[e]
         ax.plot(dd.index, dd.values, color=PAL[i], lw=2, marker="o", ms=3, label=e, zorder=3)
     ax.axhline(0, color=INK2, lw=0.6)
-    ax.axvspan(23, 27, color="#f1f0ec", zorder=0)
-    ax.text(25, 0.55, "layers 24–26:\npanic family on top", ha="center", fontsize=8, color=INK2)
+    bands = [(7, 13, "8–12"), (15, 21, "16–20"), (23, 27, "24–26")]
+    for lo, hi, name in bands:
+        ax.axvspan(lo, hi, color="#f1f0ec", zorder=0)
+        ax.text((lo + hi) / 2, 0.87, name, ha="center", va="top", fontsize=8.5, color=INK, fontweight="bold")
+    ax.text(30.5, 0.88, "top-aligned vectors by depth", ha="left", va="top", fontsize=8.5, color=INK, fontweight="bold")
+    ax.text(30.5, 0.80, "8–12:    overwhelmed, frustrated, humiliated, stressed\n16–20:  guilty, ashamed, self-critical, humiliated\n24–26:  hysterical, desperate, panicked, angry\n28+:     same order, all weak (|cos| < 0.2)",
+            ha="left", va="top", fontsize=8, color=INK2, family="monospace", linespacing=1.35)
+    ax.set_ylim(-0.55, 0.9); ax.set_xlim(4, 63)
     ax.set_xlabel("layer (residual stream after block)"); ax.set_ylabel("cosine(spiral direction, story vector)")
-    ax.set_title("What Gemma 3's spiral direction aligns with")
+    ax.set_title("What Gemma 3's spiral direction aligns with, by depth")
     ax.legend(ncol=4, loc="lower right", fontsize=8)
     _save(fig, "fig2_spiral_direction_gemma3.png")
 
