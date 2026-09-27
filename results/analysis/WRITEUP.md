@@ -174,8 +174,10 @@ personas carry emotion relative to the assistant. (b) Steer along the axis and a
 ![Assistant axis vs emotion](figures/writeup/fig5_axis_vs_emotion.png)
 
 *Figure 5. Left: how aligned the assistant axis is with the 42 emotion vectors at each layer, ignoring sign (line: the
-median emotion; band: 10th–90th percentile; random directions would give about 0.01). Right: the 275 role personas minus
-the assistant, projected onto each emotion, at layer 24.*
+median emotion; band: 10th–90th percentile; random directions would give about 0.01). Right: each of the 275 role personas minus the assistant,
+projected onto each emotion, at layer 24. Bars are the mean over personas; whiskers span the 10th to 90th percentile.
+Gemma 3's personas vary a lot (a minority sit on the calm side), but Gemma 4's are all close to zero: its small means
+are not large opposite values cancelling out.*
 
 - In Gemma 3's early and middle layers the axis is strongly tied to emotion (left panel), and the other personas are
   more hysterical than the assistant, toddler and infant most of all (right panel).

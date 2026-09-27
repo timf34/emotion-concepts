@@ -231,10 +231,14 @@ def fig5():
         C = torch.load(vectors_dir(mk) / "neutral_pca.pt")[L]["components"]
         D = R - dv[L]; D = D - (D @ C.T) @ C
         emo = load_vectors(mk, "emotions", True); V = torch.stack([emo[e][L] for e in labs]); Vn = V / V.norm(dim=1, keepdim=True)
-        cos = ((D / D.norm(dim=1, keepdim=True)) @ Vn.T).mean(0).numpy()
-        axes[1].barh(y + (i - 0.5) * w, cos, height=w - 0.03, color=col, label=name)
+        allc = ((D / D.norm(dim=1, keepdim=True)) @ Vn.T).numpy()          # [275 roles, emotions]
+        cos = allc.mean(0); lo, hi = np.percentile(allc, 10, 0), np.percentile(allc, 90, 0)
+        yy = y + (i - 0.5) * w
+        axes[1].barh(yy, cos, height=w - 0.03, color=col, label=name)
+        axes[1].errorbar(cos, yy, xerr=[cos - lo, hi - cos], fmt="none", ecolor=INK, elinewidth=0.9, capsize=2)
     axes[1].set_yticks(y); axes[1].set_yticklabels(labs); axes[1].invert_yaxis(); axes[1].axvline(0, color=INK2, lw=0.6)
-    axes[1].set_xlabel("mean cosine, 275 roles, layer 24"); axes[1].set_title("Role personas' affect"); axes[1].legend(fontsize=8, loc="lower right")
+    axes[1].set_xlabel("cosine over 275 roles, layer 24"); axes[1].set_title("Role personas' affect")
+    axes[1].legend(fontsize=8, loc="lower right")
     axes[1].grid(axis="y", visible=False)
     save(fig, "fig5_axis_vs_emotion.png")
 
