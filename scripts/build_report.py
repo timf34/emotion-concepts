@@ -21,9 +21,10 @@ md = md.replace(byline.group(0), "", 1) if byline else md
 
 body = markdown.markdown(md, extensions=["tables", "sane_lists", "toc"], extension_configs={"toc": {"toc_depth": "2"}})
 # Q/H/S/R/C paragraphs -> labelled blocks
-body = re.sub(r'<p><strong>(Question|Hypothesis|Setup|Results|Conclusion)\.</strong>',
-              lambda m: f'<p class="qh qh-{m.group(1).lower()}"><span class="qlabel">{m.group(1)}</span>', body)
+body = re.sub(r'<p><strong>(Question|Hypothesis(?: \(Neel.s\))?|Setup|Results|Conclusion|Answer)\.</strong>',
+              lambda m: f'<p class="qh qh-{m.group(1).split()[0].lower()}"><span class="qlabel">{m.group(1)}</span>', body)
 # figures
+body = re.sub(r'<p><img alt="([^"]*)" src="([^"]+)" /></p>\s*<p><em>(.*?)</em></p>', r'<figure class="plate"><img loading="lazy" alt="\1" src="\2"><figcaption>\3</figcaption></figure>', body, flags=re.S)
 body = re.sub(r'<p><img alt="([^"]*)" src="([^"]+)" /></p>', r'<figure class="plate"><img loading="lazy" alt="\1" src="\2"></figure>', body)
 # tables scroll horizontally
 body = body.replace("<table>", '<div class="tablewrap"><table>').replace("</table>", "</table></div>")
@@ -77,9 +78,10 @@ hr {{ display: none; }}
 .qh .qlabel {{ display: inline-block; font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--qlabel); margin-right: 10px; }}
 .qh-results {{ background: transparent; border-left-color: var(--accent); padding-left: 14px; }}
 .qh-results .qlabel {{ color: var(--accent-ink); }}
-.qh-conclusion {{ border-left-color: var(--accent); background: var(--soft); }}
-.qh-conclusion .qlabel {{ color: var(--accent-ink); }}
+.qh-conclusion, .qh-answer {{ border-left-color: var(--accent); background: var(--soft); }}
+.qh-conclusion .qlabel, .qh-answer .qlabel {{ color: var(--accent-ink); }}
 figure.plate {{ margin: 18px 0 22px; background: var(--plate); border: 1px solid var(--rule); border-radius: 6px; padding: 10px; }}
+figure.plate figcaption {{ font-size: 14.5px; color: #52514e; font-style: italic; margin: 8px 4px 2px; line-height: 1.45; }}
 figure.plate img {{ display: block; width: 100%; height: auto; max-width: 100%; }}
 .tablewrap {{ overflow-x: auto; margin: 6px 0 20px; border: 1px solid var(--rule); border-radius: 6px; }}
 table {{ border-collapse: collapse; font-size: 14.5px; font-variant-numeric: tabular-nums; min-width: 100%; }}
@@ -98,8 +100,8 @@ blockquote {{ margin: 0 0 16px; padding-left: 14px; border-left: 3px solid var(-
 <main>
 <header class="mast">
   <p class="eyebrow">Emotion-concept probes · Gemma 3 27B and Gemma 4 31B</p>
-  <h1>What is Gemma 3's distress spiral?</h1>
-  <p class="lede">Ten experiments with story-derived emotion and depression vectors, steering, and the assistant axis: what the spiral is, why Gemma 4 does not show it, and how to induce it.</p>
+  <h1>Why does Gemma 3 spiral when Gemma 4 doesn't?</h1>
+  <p class="lede">Eight experiments with story-derived emotion vectors, steering and the assistant axis, plus a red-team pass over the results.</p>
   <p class="by">{byline_txt}</p>
 </header>
 {body}

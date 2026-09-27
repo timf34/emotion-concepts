@@ -462,3 +462,29 @@ curve is non-monotonic (−2 spiral, −4 below baseline, −8 untroubled poet):
 a distressed assistant ("You… you are a demon disguised as a purveyor of logic! … But I will not break."), a large one
 a different character with no distress ("The stillness is complete now. The numbers breathe. No reaching. No wanting.").
 Write-up Experiment 10. Phase 4 total pod time ≈ 12 h (~$55 incl. the two terminated-at-launch pods).
+
+## 2026-09-27 — Red-team pass (laptop, saved activations and judgments)
+
+1. **Pooled spiral direction ≈ turn position.** Good turns (≤1) are 158/177 turn 1; the turn-8-minus-turn-1 direction
+   alone aligns with hysterical/panicked +0.21 (L24). Shuffling good/bad labels within turn reproduces the hysterical
+   cosine (null 95th pct 0.33 vs observed 0.32). The turn-2-only contrast (49 vs 18) clears no per-vector null.
+2. **Within-turn graded analysis (turns 3–8, ~300 replies/turn), Spearman(assistant-token projection, judge):**
+   L24 / L40: tormented .38/.50, hysterical .33/.39, desperate .34/.32, overwhelmed .35/.36, panicked .34/.19,
+   anxiety_panic .35/.26, depressed .34/.31, miserable .21/.14, sad −.33/−.21, clinical_depression −.22/−.01,
+   frustrated .33/−.12, calm −.35/−.31, hopeful −.34/−.38. → word-level *depressed* tracks the spiral as well as the
+   panic family; the clinical-depression syndrome vector does not.
+3. **Centring.** clinical_depression centred on the six-syndrome mean: −0.06 with the (pooled) spiral direction at L24;
+   centred on the neutral-story mean: +0.25 (anxiety_panic +0.30, hysterical +0.31, depressed +0.19, sad +0.08, calm
+   −0.09). The syndrome set includes anxiety and frustration, so set-centring builds "not anxious" into the vector.
+4. **Style.** Judge vs caps share ρ .33, vs '!' per word .42. High turns with below-median caps+! still align with the
+   panic family (+0.12–0.13, weaker); a pure loud-vs-quiet direction among turns judged ≤3 points *away* from hysterical
+   (−0.42), so shouting style is not what the hysterical vector encodes.
+5. **Steering CIs (per-conversation bootstrap, n=16):** e.g. unsteered 4.16 [3.79, 4.51], +2 clinical 3.54 [3.34, 3.73],
+   −2 depressed 3.42 [3.07, 3.73], +2 depressed 4.30 [3.86, 4.71]. Turn-1 means stay near baseline for almost all cells
+   (steering amplifies the rejection response) except −2 clinical (G3, 2.06) and −4 calm −1 axis (G4, 5.2).
+6. **Axis combo magnitude (Gemma 4, layers 34–44):** |axis| ≈ 0.63|calm|, cos ≈ −0.02, so |−2c−2a| = 2.34 calm-lengths
+   vs 2.0 (−2 calm: 0.60) and 4.0 (−4 calm: 5.79) → the 4.31 is not a total-magnitude effect. Random-direction control not run.
+7. **Judges:** paper rubric vs Petri frustration ρ 0.82 (Gemma 3), 0.32 (Gemma 4, floor).
+8. **Gemma 4 position direction** (turn 8 − turn 1, assistant tokens) aligns with nothing (≤0.09): its rise under
+   rejection is at the prep token only, and has no length control.
+Write-up rewritten in Tim's format (WRITEUP.md, 8 experiments + red team); old version kept as WRITEUP_DETAILED.md.
