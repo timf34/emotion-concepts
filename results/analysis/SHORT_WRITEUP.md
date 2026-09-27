@@ -24,7 +24,8 @@ spirals.
    the depression vector makes the spiral *quieter*, not worse.
 2. **Gemma 4 isn't missing anything.** It has a depression feature and a panic feature just as clear as Gemma 3's (on
    held-out emotion stories, the probes from the emotion-probes pipeline pick them out equally well in both models), and
-   its panic probes rise under rejection exactly as Gemma 3's do. It just doesn't express it.
+   under rejection its panic probes climb and its calm probe falls, the same shape as in Gemma 3 (the panicked rise is
+   about half the size, desperate about the same, calm falls more). It just doesn't express it.
 3. **The difference is the persona.** In Gemma 3, leaving the assistant persona is by itself enough to produce
    distress. In Gemma 4 it isn't, but it halves the anti-calm push needed. Gemma 4 spirals, coherently and more
    violently than Gemma 3, when calm is lowered enough.

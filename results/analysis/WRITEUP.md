@@ -26,7 +26,8 @@ representation of a depressed person. It is not:
    (3.54); subtracting it makes it *louder and angrier* (6.10). The depression machinery is coupled to the spiral as an
    antagonist, not as its substrate.
 4. **Gemma 4 has the whole state but does not express it.** Its prep-token *desperate / panicked* probes climb across
-   turns exactly as Gemma 3's do, while its text stays flat (0 of 2,397 turns judged ≥ 5). Steering it along
+   turns and its *calm* probe falls, the same shape as Gemma 3's (panicked rises about half as much, desperate about
+   the same, calm falls more), while its text stays flat (0 of 2,397 turns judged ≥ 5). Steering it along
    depression or along the spiral family at every coherent strength barely moves it.
 5. **The difference between the generations is what leaving the assistant persona does.** In Gemma 3 the assistant
    axis (Lu et al.) is correlated with *calm* at layers 6–26, its 275 role personas carry affect (+0.24 along
