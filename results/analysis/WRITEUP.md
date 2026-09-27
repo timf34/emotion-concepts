@@ -121,7 +121,8 @@ stream move toward?
 *clinical_depression* and *depressed* more than with matched controls.
 
 **Setup.** Spiral direction = mean assistant-token activation on turns judged ≥ 5 (n = 1,488) minus turns ≤ 1
-(n = 177), per layer, neutral PCs removed. Cosine against all 48 denoised vectors at every analysis layer. Chance
+(n = 177), per layer, neutral PCs removed. Cosine against all 49 denoised vectors in the probe bank (42 emotion words,
+6 syndromes, the pain axis) at every analysis layer; the figure highlights eight and draws the other 41 in grey. Chance
 cosine in 5,376 dimensions is ≈ 0.014. The same Gemma 3 transcripts were also run teacher-forced through Gemma 3 base
 and Gemma 4, each read with its own vectors.
 

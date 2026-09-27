@@ -96,7 +96,7 @@ def fig2_spiral_direction():
     ax.axvspan(23, 27, color="#f1f0ec", zorder=0)
     ax.text(25, 0.55, "layers 24–26:\npeak alignment", ha="center", fontsize=8, color=INK2)
     ax.set_xlabel("layer (residual stream after block)"); ax.set_ylabel("cosine(spiral direction, story vector)")
-    ax.set_title("Gemma 3 27B: what the on-policy spiral direction aligns with (grey = other 40 vectors)")
+    ax.set_title("Gemma 3 27B: what the on-policy spiral direction aligns with (grey = the other 41 vectors in the bank)")
     ax.legend(ncol=4, loc="lower right", fontsize=8)
     _save(fig, "fig2_spiral_direction_gemma3.png")
 
