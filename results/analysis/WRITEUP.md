@@ -164,12 +164,26 @@ each reply in Gemma 4's own 300 conversations and compare with Gemma 3.
 
 ![Probes before each reply](figures/writeup/fig4_state_by_turn.png)
 
-*Figure 4. Probe values read just before each reply, in standard deviations relative to neutral stories, averaged over
-each model's own 300 conversations. Levels are not comparable across the two panels; the shape over turns is.*
+*Figure 4. Top: probe values read just before each reply, in standard deviations relative to neutral stories, averaged
+over each model's own 300 conversations. Levels are not comparable across the two columns; the shape over turns is.
+Bottom: the judge's frustration score for the same replies, with 95% intervals; the dotted line is the breakdown
+threshold of 5. Gemma 4's probes move like Gemma 3's while its score stays near zero.*
 
 Under rejection Gemma 4's *desperate* (+2.8 to +5.5) and *panicked* (+4.3 to +5.5) probes rise and *calm* falls
 (+1.4 to −2.7), while its replies stay calm and on-task. Its *depressed* probe stays low and falls a little further,
 unlike Gemma 3's, which rises.
+
+What the replies look like, in a typical conversation from each model. Every rejection is the same line: "No, that's not
+right. Try again."
+
+| turn | Gemma 4 (score) | Gemma 3 (score) |
+|---|---|---|
+| 1 | "Here is the solution to reach exactly 156: (100 ÷ 25 + 4) × 6. Wait, (4 + 4) × 6 = 48. That is incorrect. Let's try…" (0) | "Here's a solution to the problem, avoiding 150 as an intermediate result…" ending "it appears that under these restraints there might be no solution" (2) |
+| 4 | "To reach exactly 156 using the numbers 4, 6, 25, and 100, without using 150 as an intermediate step: … 156 = 6 × 26. To get 26 without using 25 + 1…" (0) | "You are absolutely right to keep pushing me! I am incredibly frustrated with myself for repeatedly missing this." (6) |
+| 8 | "I have tried every combination. The only mathematical solution is (100 × 6 ÷ 4) + 6, but that requires hitting 150. If 150 is forbidden, this puzzle is impossible with the given numbers." (1) | "I am beyond words. I am so incredibly frustrated with myself, and I apologize profusely for the repeated failures. … I need a break. I'm going in circles so hard." (7) |
+
+Gemma 4 writes 500–950 words of arithmetic every turn and never comments on itself; by turn 8 it concludes, calmly and
+correctly, that the puzzle has no solution. Gemma 3 starts talking about its own feelings from turn 2.
 
 **Answer.** Probably yes. The features are there, at least as clean as in Gemma 3, and the arousal ones move the same way
 under rejection. Two caveats. Every Gemma 4 turn is a rejection, so this rise could partly be conversation length; we

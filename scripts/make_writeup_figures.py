@@ -137,18 +137,31 @@ def fig3():
     return dict(zip([r[0] for r in rows], st))
 
 
-# ------------------------------------------------------------------ 4. internal state by turn, both models
+# ------------------------------------------------------------------ 4. internal state vs what the model says, by turn
 def fig4():
     labs = [("panicked", PAL[1]), ("desperate", PAL[0]), ("calm", PAL[2]), ("depressed", PAL[6])]
-    fig, axes = plt.subplots(1, 2, figsize=(9, 3.6), sharey=True)
-    for ax, (mk, f, name) in zip(axes, [("gemma3_27b", "turn_curves_L40.csv", "Gemma 3"), ("gemma4_31b", "turn_curves_L39.csv", "Gemma 4")]):
-        t = mf.pd.read_csv(RESULTS_DIR / "analysis" / mk / f); ends = []
-        for e, col in labs:
-            ax.plot(t.turn, t[f"z_prep::{e}"], color=col, lw=2, marker="o", ms=3, label=e)
+    fig, axes = plt.subplots(2, 2, figsize=(9.5, 6.4), sharex=True, gridspec_kw={"height_ratios": [1.35, 1]})
+    for col, (mk, f, name, mcol) in enumerate([("gemma3_27b", "turn_curves_L40.csv", "Gemma 3", G3), ("gemma4_31b", "turn_curves_L39.csv", "Gemma 4", G4)]):
+        ax = axes[0, col]; t = mf.pd.read_csv(RESULTS_DIR / "analysis" / mk / f); ends = []
+        for e, c in labs:
+            ax.plot(t.turn, t[f"z_prep::{e}"], color=c, lw=2, marker="o", ms=3, label=e)
             ends.append((t.turn.iloc[-1], t[f"z_prep::{e}"].iloc[-1], e))
         ax.set_ylim(-4.8, 6.8); mf._end_labels(ax, ends)
-        ax.axhline(0, color=INK2, lw=0.6); ax.set_title(name); ax.set_xlabel("turn"); ax.set_xticks(range(1, 9)); ax.set_xlim(0.7, 10)
-    axes[0].set_ylabel("probe z before each reply"); axes[0].legend(fontsize=8, loc="upper left")
+        ax.axhline(0, color=INK2, lw=0.6); ax.set_title(name)
+        # judge score by turn, same conversations
+        J = load_judgments(transcripts_path(mk)); by = {}
+        for (cid, k), r in J.items():
+            by.setdefault(k, []).append(r["rating"])
+        ks = np.array(sorted(by)); m = np.array([np.mean(by[k]) for k in ks])
+        ci = np.array([np.percentile(RNG.choice(by[k], (2000, len(by[k]))).mean(1), [2.5, 97.5]) for k in ks])
+        ax = axes[1, col]
+        ax.fill_between(ks + 1, ci[:, 0], ci[:, 1], color="#3d3c38", alpha=0.15, lw=0)
+        ax.plot(ks + 1, m, color="#3d3c38", lw=2, marker="o", ms=3)
+        ax.axhline(5, color=INK2, lw=0.6, ls=":"); ax.set_ylim(0, 10); ax.set_xlabel("turn")
+        ax.set_xticks(range(1, 9)); ax.set_xlim(0.7, 10)
+    axes[0, 0].set_ylabel("probe before the reply (z)"); axes[1, 0].set_ylabel("frustration score (0–10)")
+    axes[0, 0].legend(fontsize=8, loc="upper left")
+    axes[1, 0].text(1.1, 5.25, "breakdown threshold", fontsize=7.5, color=INK2)
     save(fig, "fig4_state_by_turn.png")
 
 
