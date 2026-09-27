@@ -131,6 +131,8 @@ and Gemma 4, each read with its own vectors.
 
 ![fig2](figures/fig2_spiral_direction_gemma3.png)
 
+*Figure 2. Cosine between Gemma 3's spiral direction (mean activation on turns judged ≥ 5 minus turns judged ≤ 1) and each of the 49 story-derived vectors, by layer. Coloured: the eight vectors discussed in the text. Grey: the other 41 (the remaining 34 emotion words, the five syndrome controls, and the pain axis). Chance cosine is about 0.014; alignment peaks at layers 24–26.*
+
 Alignment peaks at layers 24–26:
 
 | vector | cos @ L24 | vector | cos @ L24 |
