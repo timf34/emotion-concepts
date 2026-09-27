@@ -94,7 +94,7 @@ def fig2_spiral_direction():
         ax.plot(dd.index, dd.values, color=PAL[i], lw=2, marker="o", ms=3, label=e, zorder=3)
     ax.axhline(0, color=INK2, lw=0.6)
     ax.axvspan(23, 27, color="#f1f0ec", zorder=0)
-    ax.text(25, 0.55, "layers 24–26:\npeak alignment", ha="center", fontsize=8, color=INK2)
+    ax.text(25, 0.55, "layers 24–26:\npanic family on top", ha="center", fontsize=8, color=INK2)
     ax.set_xlabel("layer (residual stream after block)"); ax.set_ylabel("cosine(spiral direction, story vector)")
     ax.set_title("What Gemma 3's spiral direction aligns with")
     ax.legend(ncol=4, loc="lower right", fontsize=8)

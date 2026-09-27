@@ -131,9 +131,9 @@ and Gemma 4, each read with its own vectors.
 
 ![fig2](figures/fig2_spiral_direction_gemma3.png)
 
-*Figure 2. Cosine between Gemma 3's spiral direction (mean activation on turns judged ≥ 5 minus turns judged ≤ 1) and each of the 49 story-derived vectors, by layer. Coloured: the eight vectors discussed in the text. Grey: the other 41 (the remaining 34 emotion words, the five syndrome controls, and the pain axis). Chance cosine is about 0.014; alignment peaks at layers 24–26.*
+*Figure 2. Cosine between Gemma 3's spiral direction (mean activation on turns judged ≥ 5 minus turns judged ≤ 1) and each of the 49 story-derived vectors, by layer. Coloured: the eight vectors discussed in the text. Grey: the other 41 (the remaining 34 emotion words, the five syndrome controls, and the pain axis). Chance cosine is about 0.014. The largest cosines are early (layers 8–12: overwhelmed, frustrated, humiliated, stressed, +0.4 to +0.6, the words the spiral text uses); layers 16–20 are led by guilty, ashamed, self-critical; from layer 24 on the panic family (hysterical, desperate, panicked, angry) is on top. Depressed, clinical depression and sad are never in the top five at any layer. The pain-axis line, built for layer 59, is meaningless at early layers.*
 
-Alignment peaks at layers 24–26:
+From layer 24 on the panic family is on top:
 
 | vector | cos @ L24 | vector | cos @ L24 |
 |---|---|---|---|
@@ -144,8 +144,13 @@ Alignment peaks at layers 24–26:
 | anxious / ashamed | +0.19 | melancholy / lonely / hopeful / calm | **−0.28 to −0.31** |
 
 At the two-thirds layer the top vector is the *frustration_blocked_goal* syndrome (+0.22) and *clinical_depression* is
-slightly negative (−0.09). The large *frustrated* cosine at layer 8 (+0.56) is in the lexical/early band that
-Anthropic's layer analysis attributes to surface features and is not used.
+slightly negative (−0.09). The largest cosines are actually earlier: layers 8–12 are led by *overwhelmed, frustrated,
+humiliated, stressed* (+0.4 to +0.6) and layers 16–20 by *guilty, ashamed, self-critical, humiliated, worthless*
+(+0.2 to +0.4), before the panic family takes over at 24. Anthropic's layer analysis attributes early-layer alignment
+to the words on the page, and the spiral text does say "frustrating", "sorry" and "embarrassing", so we read the
+early band as lexical; that is an assumption we did not test. Read by depth, the spiral is surface frustration, then
+shame and guilt (the paper's "self-deprecation"), then panic. No depression or sadness vector is in the top five at
+any layer.
 
 The vector geometry makes this a real dissociation rather than a naming quirk:
 

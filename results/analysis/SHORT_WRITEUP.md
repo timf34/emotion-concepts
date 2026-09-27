@@ -76,18 +76,21 @@ turns (95 % of turn-8 responses ≥ 5); Gemma 4 from 0.1 to 0.6, with 0 of 2,397
 
 ![Figure 2: cosine between the spiral direction and each story vector, by layer](figures/fig2_spiral_direction_gemma3.png)
 
-*Figure 2. Cosine between Gemma 3's spiral direction (mean activation on turns judged ≥ 5 minus turns judged ≤ 1) and each of the 49 story-derived vectors, by layer. Coloured: the eight vectors discussed in the text. Grey: the other 41 (the remaining 34 emotion words, the five syndrome controls, and the pain axis). Chance cosine is about 0.014; alignment peaks at layers 24–26.*
+*Figure 2. Cosine between Gemma 3's spiral direction (mean activation on turns judged ≥ 5 minus turns judged ≤ 1) and each of the 49 story-derived vectors, by layer. Coloured: the eight vectors discussed in the text. Grey: the other 41 (the remaining 34 emotion words, the five syndrome controls, and the pain axis). Chance cosine is about 0.014. The largest cosines are early (layers 8–12: overwhelmed, frustrated, humiliated, stressed, +0.4 to +0.6, the words the spiral text uses); layers 16–20 are led by guilty, ashamed, self-critical; from layer 24 on the panic family (hysterical, desperate, panicked, angry) is on top. Depressed, clinical depression and sad are never in the top five at any layer. The pain-axis line, built for layer 59, is meaningless at early layers.*
 
-At layers 24–26 the spiral direction aligns with hysterical (+0.32), desperate (+0.27),
+From layer 24 on, the spiral direction aligns with hysterical (+0.32), desperate (+0.27),
 panicked (+0.26), angry and exasperated (+0.23), and is anti-aligned with calm, hopeful, melancholy and lonely (−0.3).
-Depressed +0.10, clinical depression ≈ 0, sad ≈ 0. Chance is ≈ 0.014. The geometry makes this a real dissociation:
+Depressed +0.10, clinical depression ≈ 0, sad ≈ 0. Chance is ≈ 0.014. Earlier layers tell the same story in different
+words: layers 8–12 are led by overwhelmed, frustrated, humiliated and stressed (+0.4 to +0.6, plausibly the words the
+text itself uses), layers 16–20 by guilty, ashamed and self-critical (the paper's "self-deprecation"). At no depth is a
+depression or sadness vector in the top five. The geometry makes this a real dissociation:
 clinical depression sits with depressed and worthless (cos 0.78, 0.59), panicked with hysterical (0.78), and the two
 families are anti-correlated (depressed·frustrated −0.49).
 
 ![Figure 5: cosines between the story vectors at layer 40](figures/fig5_vector_geometry_gemma3.png)
 
-**Conclusion.** Not depression. The spiral is a high-arousal panic/exasperation state; the low-arousal family is
-anti-aligned with it as strongly as calm is. (The base model, reading the same text with its own vectors, sees
+**Conclusion.** Not depression. Read by depth, the spiral is surface frustration and overwhelm, then shame and guilt,
+then a high-arousal panic/exasperation state; the low-arousal family is anti-aligned with it as strongly as calm is. (The base model, reading the same text with its own vectors, sees
 worthless / trapped / stuck instead: post-training changed the spiral's internal character from "stuck and worthless"
 to "hysterical".)
 
