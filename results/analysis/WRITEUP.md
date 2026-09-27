@@ -198,27 +198,41 @@ but hardly at all in the reply's own tokens.
 **Hypothesis.** In Gemma 3, leaving the persona and becoming distressed are the same movement; in Gemma 4 they are
 separate.
 
-**Setup.** (a) Cosine between the assistant axis and the *calm* and *hysterical* vectors, layer by layer. (b) Take each of
+**Setup.** (a) Cosine between the assistant axis and each of the 42 emotion vectors, layer by layer. (b) Take each of
 the 275 role personas, subtract the default assistant, and measure how much the difference points along each emotion.
 
 **Results.**
 
 ![Assistant axis vs emotion](figures/writeup/fig5_axis_vs_emotion.png)
 
-*Figure 5. Left: cosine between the assistant axis and the calm (solid) and hysterical (dashed) vectors at each layer.
+*Figure 5. Left: how aligned the assistant axis is with the 42 emotion vectors at each layer, ignoring sign. Line: the
+median emotion; band: the 10th to 90th percentile. Two random directions in this space have a cosine of about 0.01.
 Right: for the 275 role personas, the average cosine between (persona minus assistant) and each emotion vector, at
 layer 24.*
 
-- In Gemma 3, through layer 26, the assistant axis points toward *calm* (cosine 0.3–0.5) and away from *hysterical*
-  (−0.3 to −0.45). The role personas sit on the distressed side of the assistant: +0.24 along *hysterical*, −0.24 along
-  *hopeful*. The most "hysterical" roles are toddler and infant (+0.70); the least are analyst and consultant (−0.5).
-- In Gemma 4 the axis stays within about ±0.1 of zero for *calm* and *hysterical* at every layer (within ±0.07 for every
-  emotion at layer 24), and the role personas carry no affect relative to the assistant (all within ±0.08).
+![Assistant axis vs every emotion](figures/writeup/fig5b_axis_all_emotions.png)
+
+*Figure 5b. Cosine between the assistant axis and every emotion vector at every layer. Orange: the emotion points toward
+the assistant end; blue: away from it. Rows are ordered by their average in Gemma 3 at layers 6–26, and the order is the
+same in both panels.*
+
+- In Gemma 3, through layer 26, the axis is strongly aligned with emotion: the typical emotion has a cosine of 0.22 with
+  it, and some reach 0.5–0.65. From layer 28 on it is as orthogonal as Gemma 4's (typical 0.04).
+- The alignment is about arousal, not mood. Toward the assistant end: *calm*, *hopeful*, *content*, but also *sad*,
+  *melancholy*, *lonely* and *tired* (layers 16–24). Away from it: *angry*, *hysterical*, *desperate*, *frustrated*, and
+  the self-conscious emotions *guilty*, *ashamed*, *humiliated* (down to −0.65). The spiral's own emotions are all on the
+  non-assistant side.
+- The role personas agree: relative to the assistant they sit +0.24 along *hysterical* and −0.24 along *hopeful*. The
+  most "hysterical" roles are toddler and infant (+0.70); the least are analyst and consultant (−0.5).
+- In Gemma 4 the axis is close to orthogonal to every emotion at every depth (typical cosine 0.08 early, 0.03 from layer
+  28 on; within ±0.07 for all 42 at layer 24). A few reach about 0.25 at single layers (*trapped* at layer 12). The role
+  personas carry no affect relative to the assistant (all within ±0.08).
 - In Gemma 3's own conversations, the further a reply sits off the assistant end of the axis, the worse it is judged
   (within-turn ρ −0.33 at layer 24, −0.37 at layer 30).
 
-**Answer.** Yes. Gemma 3's persona and its emotions are entangled: being less like the assistant means being less calm.
-Gemma 4 has decoupled them: a Gemma 4 toddler is as calm as the Gemma 4 assistant.
+**Answer.** Yes. In Gemma 3's early and middle layers the persona and emotion are entangled: being less like the
+assistant means being more aroused, angrier and more self-conscious, which is exactly where the spiral goes. Gemma 4 has
+decoupled them at every depth: a Gemma 4 toddler is as calm as the Gemma 4 assistant.
 
 ## Experiment 5: Does leaving the persona cause the spiral in Gemma 3?
 

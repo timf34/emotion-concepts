@@ -166,16 +166,21 @@ def fig4():
 
 
 # ------------------------------------------------------------------ 5. assistant axis vs emotion vectors
+def axis_emotion_cos(mk):
+    """{emotion: {layer: cosine(assistant axis, emotion vector)}} over the analysis layers."""
+    ax_ = torch.load(vectors_dir(mk) / "vectors_external_dn.pt")["assistant_axis"]; emo = load_vectors(mk, "emotions", True)
+    return {e: {l: float(ax_[l] @ emo[e][l] / (ax_[l].norm() * emo[e][l].norm())) for l in sorted(ax_)} for e in emo}
+
+
 def fig5():
     fig, axes = plt.subplots(1, 2, figsize=(10.5, 4))
     for mk, name, col in [("gemma3_27b", "Gemma 3", G3), ("gemma4_31b", "Gemma 4", G4)]:
-        ax_ = torch.load(vectors_dir(mk) / "vectors_external_dn.pt")["assistant_axis"]; emo = load_vectors(mk, "emotions", True)
-        ls = sorted(ax_)
-        for e, style in [("calm", "-"), ("hysterical", "--")]:
-            c = [float(ax_[l] @ emo[e][l] / (ax_[l].norm() * emo[e][l].norm())) for l in ls]
-            axes[0].plot(ls, c, color=col, lw=2, ls=style, label=f"{name}: {e}")
-    axes[0].axhline(0, color=INK2, lw=0.6); axes[0].set_xlabel("layer"); axes[0].set_ylabel("cosine with the assistant axis")
-    axes[0].set_title("Assistant axis vs emotions"); axes[0].legend(fontsize=7.5, loc="lower right", ncol=2); axes[0].set_ylim(-0.6, 0.7)
+        C = axis_emotion_cos(mk); ls = sorted(next(iter(C.values())))
+        A = np.abs(np.array([[C[e][l] for l in ls] for e in C]))          # [42, L]
+        axes[0].fill_between(ls, np.percentile(A, 10, 0), np.percentile(A, 90, 0), color=col, alpha=0.15, lw=0)
+        axes[0].plot(ls, np.median(A, 0), color=col, lw=2, label=name)
+    axes[0].set_xlabel("layer"); axes[0].set_ylabel("|cosine| with the assistant axis")
+    axes[0].set_title("Assistant axis vs all 42 emotions"); axes[0].legend(fontsize=8, loc="upper right"); axes[0].set_ylim(0, 0.6)
     labs = ["hysterical", "angry", "desperate", "panicked", "frustrated", "depressed", "sad", "calm", "hopeful"]
     y = np.arange(len(labs)); w = 0.36
     for i, (mk, name, col) in enumerate([("gemma3_27b", "Gemma 3", G3), ("gemma4_31b", "Gemma 4", G4)]):
@@ -190,6 +195,24 @@ def fig5():
     axes[1].set_xlabel("mean cosine, 275 roles, layer 24"); axes[1].set_title("Role personas' affect"); axes[1].legend(fontsize=8, loc="lower right")
     axes[1].grid(axis="y", visible=False)
     save(fig, "fig5_axis_vs_emotion.png")
+
+
+def fig5b():
+    CG3, CG4 = axis_emotion_cos("gemma3_27b"), axis_emotion_cos("gemma4_31b")
+    early = [l for l in next(iter(CG3.values())) if 6 <= l <= 26]
+    order = sorted(CG3, key=lambda e: -np.mean([CG3[e][l] for l in early]))      # most assistant-aligned first (in Gemma 3)
+    from matplotlib.colors import LinearSegmentedColormap
+    cmap = LinearSegmentedColormap.from_list("div", ["#1d5aa6", "#8fb5e0", "#e6e5e1", "#f0a37a", "#c2410c"])
+    fig, axes = plt.subplots(1, 2, figsize=(11, 9.5), sharey=True)
+    for ax, (C, name) in zip(axes, [(CG3, "Gemma 3"), (CG4, "Gemma 4")]):
+        ls = sorted(next(iter(C.values()))); M = np.array([[C[e][l] for l in ls] for e in order])
+        im = ax.imshow(M, cmap=cmap, vmin=-0.6, vmax=0.6, aspect="auto")
+        ax.set_xticks(range(0, len(ls), 3)); ax.set_xticklabels([ls[i] for i in range(0, len(ls), 3)], fontsize=8)
+        ax.set_xlabel("layer"); ax.set_title(name); ax.grid(False)
+    axes[0].set_yticks(range(len(order))); axes[0].set_yticklabels(order, fontsize=8)
+    cb = fig.colorbar(im, ax=axes, shrink=0.5, pad=0.02); cb.set_label("cosine with the assistant axis")
+    fig.savefig(OUT / "fig5b_axis_all_emotions.png", dpi=150, bbox_inches="tight"); plt.close(fig)
+    print("wrote", OUT / "fig5b_axis_all_emotions.png")
 
 
 # ------------------------------------------------------------------ 6. steering Gemma 3's axis
