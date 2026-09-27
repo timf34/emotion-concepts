@@ -10,7 +10,13 @@ from pathlib import Path
 import markdown
 
 ROOT = Path(__file__).resolve().parents[1] / "results" / "analysis"
-SRC, OUT = ROOT / "WRITEUP.md", ROOT / "report.html"
+DETAILED = len(sys.argv) > 1 and sys.argv[1] == "detailed"
+SRC, OUT = (ROOT / "WRITEUP_DETAILED.md", ROOT / "report_detailed.html") if DETAILED else (ROOT / "WRITEUP.md", ROOT / "report.html")
+if DETAILED:
+    H1, LEDE = "What is Gemma 3's distress spiral? (detailed)", 'All ten experiments with full tables. <a href="report.html">Back to the main write-up</a>.'
+else:
+    H1, LEDE = "Why does Gemma 3 spiral when Gemma 4 doesn't?", ('Eight experiments with story-derived emotion vectors, steering and the assistant axis, plus a red-team pass over '
+                                                            'the results. <a href="report_detailed.html">Detailed version with all tables</a>.')
 
 md = SRC.read_text()
 # drop the H1 (the page has its own masthead) and the italic byline paragraph
@@ -100,8 +106,8 @@ blockquote {{ margin: 0 0 16px; padding-left: 14px; border-left: 3px solid var(-
 <main>
 <header class="mast">
   <p class="eyebrow">Emotion-concept probes · Gemma 3 27B and Gemma 4 31B</p>
-  <h1>Why does Gemma 3 spiral when Gemma 4 doesn't?</h1>
-  <p class="lede">Eight experiments with story-derived emotion vectors, steering and the assistant axis, plus a red-team pass over the results.</p>
+  <h1>{H1}</h1>
+  <p class="lede">{LEDE}</p>
   <p class="by">{byline_txt}</p>
 </header>
 {body}
