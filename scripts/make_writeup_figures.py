@@ -257,6 +257,26 @@ def fig5b():
     print("wrote", OUT / "fig5b_axis_all_emotions.png")
 
 
+AXIS_EMO = ["calm", "hopeful", "content", "sad", "tired", "lonely", "frustrated", "desperate", "hysterical", "angry", "ashamed", "guilty"]
+
+
+def fig5c():
+    fig, ax = plt.subplots(figsize=(7.2, 4.6))
+    vals = {}
+    for mk, name in [("gemma3_27b", "Gemma 3"), ("gemma4_31b", "Gemma 4")]:
+        C = axis_emotion_cos(mk)
+        vals[name] = {e: float(np.mean([C[e][l] for l in C[e] if 16 <= l <= 24])) for e in AXIS_EMO}
+    order = sorted(AXIS_EMO, key=lambda e: -vals["Gemma 3"][e])
+    y = np.arange(len(order)); w = 0.38
+    for i, (name, col) in enumerate([("Gemma 3", G3), ("Gemma 4", G4)]):
+        ax.barh(y + (i - 0.5) * w, [vals[name][e] for e in order], height=w - 0.03, color=col, label=name)
+    ax.set_yticks(y); ax.set_yticklabels(order); ax.invert_yaxis(); ax.axvline(0, color=INK2, lw=0.6)
+    ax.set_xlim(-0.55, 0.55); ax.set_xlabel("← away from the assistant    |    toward the assistant →\ncosine with the assistant axis, layers 16–24")
+    ax.set_title("Which emotions sit at the assistant end"); ax.legend(fontsize=8.5, loc="lower right"); ax.grid(axis="y", visible=False)
+    save(fig, "fig5c_axis_emotions.png")
+    return vals
+
+
 # ------------------------------------------------------------------ 6. steering Gemma 3's axis
 def fig6():
     B, AX, RS = "#9a9890", PAL[0], PAL[3]

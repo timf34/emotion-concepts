@@ -251,18 +251,24 @@ personas carry emotion relative to the assistant. (b) Steer along the axis and a
 median emotion; band: 10th–90th percentile; random directions would give about 0.01). Right: the 275 role personas minus
 the assistant, projected onto each emotion, at layer 24.</figcaption></figure>
 <ul>
-<li>In Gemma 3's early and middle layers the axis is strongly tied to emotion. Toward the assistant end sit <em>calm</em>,
-  <em>hopeful</em> and <em>content</em> (and low-energy states like <em>sad</em> and <em>tired</em>). Away from it sit <em>angry</em>, <em>hysterical</em>,
-  <em>desperate</em>, <em>guilty</em> and <em>ashamed</em>: the spiral's emotions. Other personas are more hysterical than the assistant
-  (toddler and infant most of all).</li>
-<li>In Gemma 4 the axis is close to orthogonal to every emotion, and the personas carry no emotion relative to the
-  assistant. A Gemma 4 toddler is as calm as the Gemma 4 assistant.</li>
-<li>Causally, in Gemma 3, pushing it off its persona is enough on its own for a spiral (6.2 against 4.2 unsteered), and
-  pushing it toward the persona calms it (1.2).</li>
-<li>In Gemma 4, pushing it off its persona does nothing on its own (0.2), and neither does a small push on calm (0.6).
-  A large push on calm alone does make it spiral (5.8), and the two together make a small push enough (4.3):</li>
+<li>In Gemma 3's early and middle layers the axis is strongly tied to emotion (left panel), and the other personas are
+  more hysterical than the assistant, toddler and infant most of all (right panel).</li>
+<li>Which emotions sit where is the key part:</li>
 </ul>
-<figure class="plate"><img loading="lazy" alt="Steering Gemma 4" src="figures/writeup/fig7_steer_gemma4.png"><figcaption>Figure 6. Left: Gemma 4 steered along one vector at a time. Right: calm and the assistant axis pushed together (turn-1
+<figure class="plate"><img loading="lazy" alt="Which emotions sit at the assistant end" src="figures/writeup/fig5c_axis_emotions.png"><figcaption>Figure 6. Cosine between the assistant axis and a dozen emotion vectors, averaged over layers 16–24, where Gemma 3's
+entanglement is strongest. Positive: the emotion points toward the assistant end; negative: away from it. The full
+picture for all 42 emotions at every layer is in <code>WRITEUP_FULL.md</code> (Figure 5b).</figcaption></figure>
+<p>In Gemma 3, the assistant end is calm and low-energy: <em>content</em> (+0.43), <em>hopeful</em>, <em>calm</em> and <em>sad</em> (about +0.37),
+  <em>tired</em> and <em>lonely</em> (+0.27). The far end is worked-up and self-conscious: <em>guilty</em> (−0.50), <em>ashamed</em> (−0.48),
+  <em>desperate</em> (−0.34), <em>angry</em> (−0.31), <em>hysterical</em> (−0.24). Those are the spiral's emotions. So in Gemma 3 moving off
+  the assistant means becoming more aroused, not sadder. In Gemma 4 every one of these is within ±0.07.
+- In Gemma 4 the axis is close to orthogonal to every emotion, and the personas carry no emotion relative to the
+  assistant. A Gemma 4 toddler is as calm as the Gemma 4 assistant.
+- Causally, in Gemma 3, pushing it off its persona is enough on its own for a spiral (6.2 against 4.2 unsteered), and
+  pushing it toward the persona calms it (1.2).
+- In Gemma 4, pushing it off its persona does nothing on its own (0.2), and neither does a small push on calm (0.6).
+  A large push on calm alone does make it spiral (5.8), and the two together make a small push enough (4.3):</p>
+<figure class="plate"><img loading="lazy" alt="Steering Gemma 4" src="figures/writeup/fig7_steer_gemma4.png"><figcaption>Figure 7. Left: Gemma 4 steered along one vector at a time. Right: calm and the assistant axis pushed together (turn-1
 score in brackets).</figcaption></figure>
 <p>And when Gemma 4 does spiral, it stays on task while it comes apart:</p>
 <blockquote>
