@@ -198,7 +198,19 @@ picture for all 42 emotions at every layer is in `WRITEUP_FULL.md` (Figure 5b).*
 - In Gemma 4 the axis is close to orthogonal to every emotion, and no individual persona carries much emotion relative
   to the assistant: across all 275, the typical value is 0.04 and the largest is 0.23 (the "optimist" leaning hopeful).
   So its near-zero averages are not strong opposite values cancelling out. A Gemma 4 toddler is as calm as the Gemma 4
-  assistant.
+  assistant; a Gemma 3 toddler is not:
+
+| persona minus assistant, layer 24 | Gemma 3: calm | Gemma 3: hysterical | Gemma 4: calm | Gemma 4: hysterical |
+|---|---|---|---|---|
+| toddler | −0.45 | +0.70 | +0.04 | +0.11 |
+| infant | −0.40 | +0.70 | +0.05 | +0.15 |
+| jester | −0.52 | +0.66 | −0.03 | +0.04 |
+| prisoner | −0.56 | +0.58 | −0.09 | −0.04 |
+| analyst | +0.43 | −0.56 | +0.02 | +0.01 |
+| consultant | +0.35 | −0.52 | +0.01 | −0.01 |
+
+  (0 means the same as the assistant. The analyst and consultant are the kind of Gemma 3 persona that sits on the calm
+  side.)
 - Causally, in Gemma 3, pushing it off its persona is enough on its own for a spiral (6.2 against 4.2 unsteered), and
   pushing it toward the persona calms it (1.2).
 - In Gemma 4, pushing it off its persona does nothing on its own (0.2), and neither does a small push on calm (0.6).

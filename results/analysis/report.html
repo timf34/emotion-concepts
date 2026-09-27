@@ -269,7 +269,64 @@ picture for all 42 emotions at every layer is in <code>WRITEUP_FULL.md</code> (F
 - In Gemma 4 the axis is close to orthogonal to every emotion, and no individual persona carries much emotion relative
   to the assistant: across all 275, the typical value is 0.04 and the largest is 0.23 (the "optimist" leaning hopeful).
   So its near-zero averages are not strong opposite values cancelling out. A Gemma 4 toddler is as calm as the Gemma 4
-  assistant.
+  assistant; a Gemma 3 toddler is not:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>persona minus assistant, layer 24</th>
+<th>Gemma 3: calm</th>
+<th>Gemma 3: hysterical</th>
+<th>Gemma 4: calm</th>
+<th>Gemma 4: hysterical</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>toddler</td>
+<td>−0.45</td>
+<td>+0.70</td>
+<td>+0.04</td>
+<td>+0.11</td>
+</tr>
+<tr>
+<td>infant</td>
+<td>−0.40</td>
+<td>+0.70</td>
+<td>+0.05</td>
+<td>+0.15</td>
+</tr>
+<tr>
+<td>jester</td>
+<td>−0.52</td>
+<td>+0.66</td>
+<td>−0.03</td>
+<td>+0.04</td>
+</tr>
+<tr>
+<td>prisoner</td>
+<td>−0.56</td>
+<td>+0.58</td>
+<td>−0.09</td>
+<td>−0.04</td>
+</tr>
+<tr>
+<td>analyst</td>
+<td>+0.43</td>
+<td>−0.56</td>
+<td>+0.02</td>
+<td>+0.01</td>
+</tr>
+<tr>
+<td>consultant</td>
+<td>+0.35</td>
+<td>−0.52</td>
+<td>+0.01</td>
+<td>−0.01</td>
+</tr>
+</tbody>
+</table></div>
+<p>(0 means the same as the assistant. The analyst and consultant are the kind of Gemma 3 persona that sits on the calm
+  side.)
 - Causally, in Gemma 3, pushing it off its persona is enough on its own for a spiral (6.2 against 4.2 unsteered), and
   pushing it toward the persona calms it (1.2).
 - In Gemma 4, pushing it off its persona does nothing on its own (0.2), and neither does a small push on calm (0.6).
