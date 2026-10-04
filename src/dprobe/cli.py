@@ -186,6 +186,60 @@ class CLI:
         run_selfother(model, model_bundle=bundle, limit=lim_s, vectors_from=vk)
         quantity_sweep(model, model_bundle=bundle, vectors_from=vk)
 
+    def pod_organism(self, model, stages="extract,axis,spiral,probe,cross", k_role=50, n_default=300, rollouts=60, extra=4,
+                     max_tokens=1024, batch=16, smoke=False, sync=True):
+        """Gemma Needs Help model organisms (and the plain-Gemma-3 control), one model load:
+          extract  emotion vectors from Gemma 3's stories
+          axis     assistant axis from Gemma 3's archived role responses (teacher-forced, same subsample for every model)
+          spiral   the Extended rejection eval, generated locally (tag 'local')
+          probe    probes before each of its own replies
+          cross    probes on Gemma 3's own 300 spiral transcripts (same text, different weights; tag 'from-gemma3_27b')
+        Each stage is pushed to HF as soon as it finishes. Defaults: 60 Countdown-156 rollouts + 4 per long-form
+        puzzle = 100 conversations, 1024 tokens per reply (the setting of every steering run).
+        --smoke: tiny everything; outputs under <model>_smoke and tag 'smoke'."""
+        from dprobe.axis_reencode import import_reencoded_axis, reencode_axis
+        from dprobe.config import SMOKE_TRANSCRIPTS, SpiralConfig
+        from dprobe.extract import run_extract
+        from dprobe.models import load_model
+        from dprobe.probe import probe_transcripts
+        from dprobe.spiral import transcripts_path
+        from dprobe.steer import run_steered_hf
+        from dprobe.sync import sync_up
+
+        stages = _list(stages)
+        bundle = load_model(model)
+        vk = model + ("_smoke" if smoke else "")
+        tag = "smoke" if smoke else "local"
+        lim = SMOKE_TRANSCRIPTS if smoke else None
+
+        def push(subset, key):
+            if sync:
+                sync_up((subset,), models=(key,))
+
+        if "extract" in stages:
+            run_extract(model, ("emotions", "syndromes"), model_bundle=bundle, smoke=smoke)
+            push("vectors", vk)
+        if "axis" in stages:
+            reencode_axis(model, bundle, k_role=2 if smoke else int(k_role), n_default=4 if smoke else int(n_default),
+                          roles_limit=6 if smoke else None, out_key=vk)
+            if model != "gemma3_27b":          # Gemma 3 keeps the published axis as its external vector
+                import_reencoded_axis(vk)
+            push("vectors", vk)
+        if "spiral" in stages:
+            cfg = SpiralConfig(rollouts=2 if smoke else int(rollouts), extra_puzzle_rollouts=0 if smoke else int(extra),
+                               max_tokens=128 if smoke else int(max_tokens))
+            run_steered_hf(model, "unsteered", [], 0, cfg=cfg, batch=int(batch), model_bundle=bundle, vecs={}, tag=tag)
+            push("spiral", model)
+        if "probe" in stages:
+            probe_transcripts(vk, transcripts_path(model, "extended", tag), "extended", tag, model_bundle=bundle,
+                              limit=lim, vectors_from=vk)
+            push("probe", vk)
+        if "cross" in stages and model != "gemma3_27b":
+            probe_transcripts(vk, transcripts_path("gemma3_27b", "extended"), "extended", "from-gemma3_27b",
+                              model_bundle=bundle, limit=4 if smoke else None, vectors_from=vk)
+            push("probe", vk)
+        print(f"[pod_organism] {model} done: {stages}")
+
     def steer(self, model, labels="depressed,calm", strengths="-2,2", layers=None, backend="hf", rollouts=40, max_tokens=2048, judge=True, baseline=True, batch=8, mode="vec"):
         """Steering grid on the 8-turn elicitation. layers default: two-thirds layer +-6, step 2 (analysis layers)."""
         from dprobe.steer import run_steering_grid

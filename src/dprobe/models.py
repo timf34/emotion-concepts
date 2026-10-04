@@ -12,6 +12,7 @@ dtype is always bfloat16: Gemma 2/3 overflow in float16 and have huge-activation
 from __future__ import annotations
 
 import contextlib
+import dataclasses
 from typing import Iterable
 
 import torch
@@ -65,13 +66,18 @@ def load_model(model_key: str, device: str = "cuda", attn: str = "sdpa"):
     model = AutoModelForCausalLM.from_pretrained(
         spec.hf_id, dtype=torch.bfloat16, device_map=device, attn_implementation=attn
     )
+    if spec.adapter:
+        from peft import PeftModel
+
+        model = PeftModel.from_pretrained(model, spec.adapter).merge_and_unload()
+        print(f"[models] merged adapter {spec.adapter}")
     model.eval()
     layers = decoder_layers(model)
     n = len(layers)
     hidden = text_config(model).hidden_size
     if n != spec.n_blocks or hidden != spec.hidden:
         print(f"[models] WARNING registry says {spec.n_blocks}x{spec.hidden} but model has {n}x{hidden}; trusting the model")
-        spec = ModelSpec(spec.key, spec.hf_id, spec.openrouter_id, n, hidden, spec.family, spec.is_base, spec.stories_from)
+        spec = dataclasses.replace(spec, n_blocks=n, hidden=hidden)
     print(f"[models] loaded {spec.hf_id}: {n} blocks, hidden={hidden}, class={type(model).__name__}, attn={attn}")
     return model, tok, spec
 

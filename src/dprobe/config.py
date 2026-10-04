@@ -44,6 +44,8 @@ class ModelSpec:
     stories_from: str | None = None
     # Extra layers to always include in analysis (e.g. the layer of an externally supplied vector).
     extra_layers: tuple[int, ...] = ()
+    # PEFT/LoRA adapter merged into hf_id at load time (Gemma Needs Help model organisms).
+    adapter: str | None = None
 
     @property
     def two_thirds_layer(self) -> int:
@@ -56,6 +58,13 @@ MODELS: dict[str, ModelSpec] = {
     "gemma3_27b": ModelSpec("gemma3_27b", "google/gemma-3-27b-it", "google/gemma-3-27b-it", 62, 5376, "gemma3", extra_layers=(58, 59)),
     "gemma3_27b_pt": ModelSpec("gemma3_27b_pt", "google/gemma-3-27b-pt", None, 62, 5376, "gemma3", is_base=True, stories_from="gemma3_27b", extra_layers=(58, 59)),
     "gemma4_31b": ModelSpec("gemma4_31b", "google/gemma-4-31B-it", "google/gemma-4-31b-it", 60, 5376, "gemma4"),
+    # Gemma Needs Help model organisms (Soligo et al., HF annasoli/*): Gemma 3 27B IT fine-tuned toward calm replies.
+    # They read Gemma 3's stories and Gemma 3's archived role-play responses (same inputs, only the weights differ).
+    # dpo: the paper's fix (DPO, 280 pairs, LoRA r64 on all layers); sft: calm SFT, which the paper reports does not help.
+    "gemma3_27b_dpo": ModelSpec("gemma3_27b_dpo", "google/gemma-3-27b-it", None, 62, 5376, "gemma3", stories_from="gemma3_27b",
+                                extra_layers=(58, 59), adapter="annasoli/gemma3-27b-dpo-calm-full"),
+    "gemma3_27b_sft": ModelSpec("gemma3_27b_sft", "annasoli/gemma3-27b-sft-diverse-calm-merged", None, 62, 5376, "gemma3",
+                                stories_from="gemma3_27b", extra_layers=(58, 59)),
     # cheap smoke-test target for the GPU pipeline (spirals too, score 9 in the paper's table)
     "gemma3_12b": ModelSpec("gemma3_12b", "google/gemma-3-12b-it", "google/gemma-3-12b-it", 48, 3840, "gemma3"),
 }

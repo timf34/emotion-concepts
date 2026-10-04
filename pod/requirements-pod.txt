@@ -18,3 +18,4 @@ seaborn
 tqdm
 openai>=1.60
 gguf>=0.10
+peft>=0.17
