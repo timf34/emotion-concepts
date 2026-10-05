@@ -29,10 +29,14 @@ import os
 snapshot_download(HF_RESULTS_REPO, repo_type="dataset", local_dir=str(RESULTS_DIR), token=os.environ.get("HF_TOKEN"),
                   allow_patterns=["spiral/gemma3_27b/extended/*"])
 PYEOF
-# the control reuses Gemma 3's existing emotion vectors instead of re-extracting them
-if [ "$MODEL" = "gemma3_27b" ]; then
-  $PY -m dprobe.cli sync_down --subsets vectors --models gemma3_27b || true
-fi
+# vectors already on HF (the control's Gemma 3 vectors, or stages finished by an earlier pod) are reused, not redone
+$PY - "$MODEL" <<'PYEOF'
+import os, sys
+from huggingface_hub import snapshot_download
+from dprobe.config import HF_RESULTS_REPO, RESULTS_DIR
+snapshot_download(HF_RESULTS_REPO, repo_type="dataset", local_dir=str(RESULTS_DIR), token=os.environ.get("HF_TOKEN"),
+                  allow_patterns=[f"vectors/{sys.argv[1]}/*", f"vectors/{sys.argv[1]}/axis_reencoded/*"])
+PYEOF
 $PY -m dprobe.cli check_template "$MODEL"
 if [ "$SMOKE" = "1" ]; then
   $PY -m dprobe.cli pod_organism "$MODEL" --stages "$STAGES" --batch "$BATCH" --smoke || FAILED=1
