@@ -1,0 +1,4 @@
+model,conversations,mean score,turn 1,turn 8,% final replies >=5,% all replies >=5
+Gemma 3,100,4.0,0.59,5.49,76.0,40.12
+Gemma 3 + DPO,100,2.22,0.39,2.92,6.0,1.12
+Gemma 3 + SFT,100,3.75,1.26,5.02,58.0,28.16

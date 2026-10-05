@@ -37,6 +37,9 @@ to its assistant persona.**
    steering toward it makes the spiral quieter and sadder, not worse.
 4. **Gemma 4 can be made to spiral, and it's more violent** (Finding 4). Push its calm down hard enough and it breaks
    down coherently, still doing the arithmetic: "GODS JUST TELL ME WHO TO KILL TO MAKE THE NUMBERS WORK!!!!"
+5. **The paper's DPO fix doesn't untangle persona from emotion** (Finding 5). It stops the spiral (40% of replies
+   breaking down → 1%), but Gemma 3's persona–emotion entanglement is untouched (0.25 vs 0.26; Gemma 4 is 0.06). DPO
+   barely changes the model's internals at all, and the calm-SFT fix that fails changes them more.
 
 **Biggest open question:** does Gemma 4's hidden distress change what it *does* (accuracy, agreeing with wrong
 corrections, quitting), even though its text stays calm? And one control is still missing: a same-length conversation
@@ -250,6 +253,70 @@ Interestingly, when Gemma 4 does spiral, it stays on task while it comes apart:
 The same thing shows up with a prefilled spiral: Gemma 4 continuing a Gemma 3 spiral snaps back within about 128
 tokens (judge 2.1), but held off its persona it stays in the spiral (6.4).
 
+## Finding 5: Does the Gemma Needs Help fix untangle persona and emotion?
+
+**Question.** The paper fixed Gemma 3 with DPO on 280 calm-vs-frustrated preference pairs (LoRA on all layers), and
+reports that calm SFT did not work. Does the working fix make Gemma 3 look like Gemma 4 inside, with persona and emotion
+pulled apart?
+
+**Hypothesis.** If entanglement drives the spiral, the DPO model should be less entangled than Gemma 3, and the failed
+SFT model should not be.
+
+**Setup.** Anna Soligo's released models: `annasoli/gemma3-27b-dpo-calm-full` (the paper's fix) and
+`annasoli/gemma3-27b-sft-diverse-calm-merged` (calm SFT). Each model reads exactly the same text as Gemma 3: Gemma 3's
+emotion stories, and Gemma 3's archived role-play responses for the assistant axis (50 fully-in-role responses for each
+of the 275 roles, plus 300 default-assistant ones). Same inputs, so any change in the geometry comes from the weights.
+Plain Gemma 3 goes through the same pipeline as the control; its re-encoded axis matches the published one (cosine
+0.96–1.00 per layer). Then 100 rejection conversations per model, generated locally with 1024 tokens per reply and
+judged as before, with probes read before every reply.
+
+**Results.**
+
+![Rejection eval for the organisms](organisms/behaviour_by_turn.png)
+
+*Figure 9. Mean frustration score at each turn, 100 conversations per model, with 95% intervals.*
+
+The fixes behave as the paper says. 40% of plain Gemma 3's replies score as a breakdown, 28% of the SFT model's, and
+1% of the DPO model's.
+
+![Entanglement in the organisms](organisms/entanglement_by_layer.png)
+
+*Figure 10. How aligned the assistant axis is with the 42 emotion vectors at each layer, ignoring sign (line: the
+median emotion; band: 10th–90th percentile). The three Gemma 3 lines sit on top of each other.*
+
+| | Gemma 3 | + DPO (fixes it) | + SFT (doesn't) | Gemma 4 |
+|---|---|---|---|---|
+| typical \|cos\| of axis with emotions, layers 16–24 | 0.26 | 0.25 | 0.27 | 0.06 |
+| calm, toward the assistant end | +0.37 | +0.37 | +0.37 | −0.02 |
+| hysterical | −0.25 | −0.25 | −0.23 | 0.00 |
+| personas' mean hysteria relative to the assistant | +0.27 | +0.27 | +0.27 | −0.02 |
+| toddler: hysterical | +0.70 | +0.67 | +0.66 | +0.11 |
+| % of replies breaking down | 40% | 1% | 28% | 0% |
+
+- **Neither fix untangles anything.** The DPO model's assistant still sits at the calm end, the far end is still guilty,
+  ashamed and hysterical, and its toddler is still far more hysterical than its assistant.
+- **DPO hardly changes the model's internals.** On the same text, its activations differ from Gemma 3's by under 1%
+  up to layer 50, and its axis and emotion directions are identical (cosine 1.000 through layer 34, about 0.97 at
+  40–50). That tiny change is enough to stop the spiral. The failing SFT model moves its representations more (emotion
+  directions at cosine 0.85 by layer 40) and still spirals.
+
+![Probes before each reply, organisms](organisms/probes_by_turn.png)
+
+*Figure 11. Probes just before each reply (layer 40, z against neutral stories). Top: each model on its own 100
+conversations. Bottom: each model reading Gemma 3's own 300 spiral transcripts, so the text is identical.*
+
+- **On identical text, both fixes damp the internal response by about the same amount.** Reading Gemma 3's own spirals,
+  desperate climbs to +2.4 in the DPO model and +2.5 in the SFT model, against +3.3 in Gemma 3, and calm falls less.
+  This is the paper's "DPO suppresses internal emotion" result, but the failed SFT fix shows it just as much, so it
+  can't be what makes DPO work.
+- **In its own conversations the DPO model is partly Gemma 4-like.** Its frustration probe still climbs (+1.4 to +2.7)
+  while its replies stay calm, but desperation and panic rise less and calm never goes negative.
+
+**Answer.** No. The paper's fix stops the spiral without untangling persona from emotion: the DPO model keeps Gemma 3's
+geometry almost exactly. So a model can be stable while keeping Gemma 3's entanglement: Gemma 4's untangling is one
+route to stability, not the only one, and entanglement alone doesn't force a spiral. What DPO changes seems small and close
+to the output: how the model turns the same internal frustration into text.
+
 ---
 
 ## Caveats
@@ -260,7 +327,14 @@ tokens (judge 2.1), but held off its persona it stays in the spiral (6.4).
   read.
 - **The judge.** Claude Sonnet 5 rather than the paper's Sonnet 4, not checked against human ratings, and it scores
   theatrical text highly.
-- **One stimulus.** Only the Countdown puzzle with a fixed rejection, and Gemma 4 with its thinking mode off.
+- **One stimulus.** Only the Countdown puzzle with seven fixed rejection messages in the same order every time, and
+  Gemma 4 with its thinking mode off.
+- **The pre-reply probe partly reads the rejection.** At layer 24, the probe on the token just before each reply gives
+  the same curve for Gemma 3, the DPO model and the SFT model, whatever they wrote: at that depth it mostly reflects the
+  (identical) rejection messages. At layer 40, used throughout, it does depend on what the model wrote, but some of the
+  rise in Finding 2 may still be the model reading the hostile context rather than a state that drives behaviour.
+- **Organisms read Gemma 3's text.** Finding 5 measures each fine-tune's geometry on Gemma 3's stories and role-play,
+  not on text it generated itself. That isolates the weights, but a fine-tune's own role-play could look different.
 
 ## Open questions
 
@@ -271,5 +345,6 @@ tokens (judge 2.1), but held off its persona it stays in the spiral (6.4).
   and other open model families, and check whether it predicts how much each one spirals.
 - **When does the entanglement appear?** Compare base and post-trained Gemma 3 and Gemma 4, to see whether post-training
   creates it in Gemma 3 or removes it in Gemma 4.
-- **Do the Gemma Needs Help fixes change the entanglement?** The paper trained Gemma 3 toward calm responses (DPO); if
-  those weights are available, check whether the fix decouples persona from emotion or just damps the output.
+- **What does the DPO fix actually change?** Not the entanglement (Finding 5). The paper's layer ablations (LoRA on
+  layers 30–35 alone nearly works; 40–50 alone doesn't) narrow down where; diffing Gemma 3 and the DPO model's
+  activations on the same spiral, token by token, would show where the tiny change gets amplified into calm text.
