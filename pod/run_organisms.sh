@@ -8,6 +8,9 @@ cd "$(dirname "$0")/.."
 export HF_HOME=${DPROBE_HF_HOME:-/hf_cache}
 export HF_HUB_ENABLE_HF_TRANSFER=1
 export PYTHONUNBUFFERED=1
+# long spiralling transcripts at batch 16 filled the H200; smaller batches + expandable segments avoid OOM
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+BATCH=${BATCH:-8}
 export DPROBE_RESULTS=${DPROBE_RESULTS:-/results}
 MODEL=${MODEL:?set MODEL}
 SMOKE=${SMOKE:-0}
@@ -32,9 +35,13 @@ if [ "$MODEL" = "gemma3_27b" ]; then
 fi
 $PY -m dprobe.cli check_template "$MODEL"
 if [ "$SMOKE" = "1" ]; then
-  $PY -m dprobe.cli pod_organism "$MODEL" --stages "$STAGES" --smoke || FAILED=1
+  $PY -m dprobe.cli pod_organism "$MODEL" --stages "$STAGES" --batch "$BATCH" --smoke || FAILED=1
 else
-  $PY -m dprobe.cli pod_organism "$MODEL" --stages "$STAGES" || FAILED=1
+  $PY -m dprobe.cli pod_organism "$MODEL" --stages "$STAGES" --batch "$BATCH" || FAILED=1
+fi
+# on failure, push whatever finished (the eval resumes from saved conversations) before the pod stops
+if [ "$FAILED" = "1" ]; then
+  $PY -m dprobe.cli sync_up --subsets spiral,probe,vectors --models "$MODEL" || true
 fi
 echo "ALL DONE $(date) failed=$FAILED"
 SHUTDOWN=${SHUTDOWN:-} bash pod/self_stop.sh
