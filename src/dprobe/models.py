@@ -78,8 +78,9 @@ def load_model(model_key: str, device: str = "cuda", attn: str = "sdpa"):
     if spec.adapter:
         from peft import PeftModel
 
-        model = PeftModel.from_pretrained(model, spec.adapter).merge_and_unload()
-        print(f"[models] merged adapter {spec.adapter}")
+        kw = {"subfolder": spec.adapter_subfolder} if spec.adapter_subfolder else {}
+        model = PeftModel.from_pretrained(model, spec.adapter, **kw).merge_and_unload()
+        print(f"[models] merged adapter {spec.adapter}" + (f"/{spec.adapter_subfolder}" if spec.adapter_subfolder else ""))
     model.eval()
     layers = decoder_layers(model)
     n = len(layers)

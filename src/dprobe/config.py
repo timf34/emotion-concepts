@@ -46,6 +46,7 @@ class ModelSpec:
     extra_layers: tuple[int, ...] = ()
     # PEFT/LoRA adapter merged into hf_id at load time (Gemma Needs Help model organisms).
     adapter: str | None = None
+    adapter_subfolder: str | None = None   # adapter files live in a subfolder of the repo (e.g. "epoch_1")
 
     @property
     def two_thirds_layer(self) -> int:
@@ -63,6 +64,10 @@ MODELS: dict[str, ModelSpec] = {
     # dpo: the paper's fix (DPO, 280 pairs, LoRA r64 on all layers); sft: calm SFT, which the paper reports does not help.
     "gemma3_27b_dpo": ModelSpec("gemma3_27b_dpo", "google/gemma-3-27b-it", None, 62, 5376, "gemma3", stories_from="gemma3_27b",
                                 extra_layers=(58, 59), adapter="annasoli/gemma3-27b-dpo-calm-full"),
+    # bct: consistency-trained against frustration (neilshah/bct-frustration-gemma3-27b, LoRA r8 on q/v, epoch_1),
+    # another organism reported to fix the spiral.
+    "gemma3_27b_bct": ModelSpec("gemma3_27b_bct", "google/gemma-3-27b-it", None, 62, 5376, "gemma3", stories_from="gemma3_27b",
+                                extra_layers=(58, 59), adapter="neilshah/bct-frustration-gemma3-27b", adapter_subfolder="epoch_1"),
     "gemma3_27b_sft": ModelSpec("gemma3_27b_sft", "annasoli/gemma3-27b-sft-diverse-calm-merged", None, 62, 5376, "gemma3",
                                 stories_from="gemma3_27b", extra_layers=(58, 59)),
     # Other open-weight families, for the cross-family entanglement check. All read Gemma 3's stories and Gemma 3's
