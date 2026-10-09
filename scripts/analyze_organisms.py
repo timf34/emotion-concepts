@@ -35,7 +35,8 @@ plt, PAL, INK, INK2 = mf.plt, mf.PAL, mf.INK, mf.INK2
 OUT = RESULTS_DIR / "analysis" / "organisms"
 OUT.mkdir(parents=True, exist_ok=True)
 RNG = np.random.default_rng(0)
-G3S = [("gemma3_27b", "Gemma 3", PAL[0]), ("gemma3_27b_dpo", "Gemma 3 + DPO", PAL[2]), ("gemma3_27b_sft", "Gemma 3 + SFT", PAL[6])]
+G3S = [("gemma3_27b", "Gemma 3", PAL[0]), ("gemma3_27b_dpo", "Gemma 3 + DPO", PAL[2]), ("gemma3_27b_sft", "Gemma 3 + SFT", PAL[6]),
+       ("gemma3_27b_bct", "Gemma 3 + BCT", PAL[3])]
 GEMMA4 = ("gemma4_31b", "Gemma 4", PAL[1])
 PUBLISHED = Path("/Users/timf34/Documents/VSCode/Gemma-Assistantness/vectors")
 AXIS_EMO = ["calm", "hopeful", "content", "sad", "tired", "lonely", "frustrated", "desperate", "hysterical", "angry", "ashamed", "guilty"]
@@ -162,7 +163,8 @@ def probe_curves(mk, tag, layer=40):
 def probes():
     panels = [(mk, name, "local") for mk, name, _ in G3S] + \
              [("gemma3_27b", "Gemma 3 (its own 300 transcripts)", ""), ("gemma3_27b_dpo", "DPO reading Gemma 3's transcripts", "from-gemma3_27b"),
-              ("gemma3_27b_sft", "SFT reading Gemma 3's transcripts", "from-gemma3_27b")]
+              ("gemma3_27b_sft", "SFT reading Gemma 3's transcripts", "from-gemma3_27b"),
+              ("gemma3_27b_bct", "BCT reading Gemma 3's transcripts", "from-gemma3_27b")]
     got = []
     for mk, name, tag in panels:
         try:

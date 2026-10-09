@@ -20,11 +20,12 @@ from dprobe.spiral import transcripts_path  # noqa: E402
 
 plt, INK2 = A.plt, A.INK2
 RNG = np.random.default_rng(0)
-COLS = [("gemma3_27b", "local", 40, "Gemma 3"), ("gemma3_27b_dpo", "local", 40, "Gemma 3 + DPO (the paper's fix)"), ("gemma4_31b", "", 39, "Gemma 4")]
+COLS = [("gemma3_27b", "local", 40, "Gemma 3"), ("gemma3_27b_dpo", "local", 40, "Gemma 3 + DPO (the paper's fix)"),
+        ("gemma3_27b_bct", "local", 40, "Gemma 3 + BCT (consistency training)"), ("gemma4_31b", "", 39, "Gemma 4")]
 
 
 def main():
-    fig, axes = plt.subplots(2, 3, figsize=(13, 6.4), sharex=True, gridspec_kw={"height_ratios": [1.35, 1]})
+    fig, axes = plt.subplots(2, len(COLS), figsize=(4.4 * len(COLS), 6.4), sharex=True, gridspec_kw={"height_ratios": [1.35, 1]})
     for col, (mk, tag, L, name) in enumerate(COLS):
         cur = A.probe_curves(mk, tag, layer=L)
         ax = axes[0, col]; ends = []
