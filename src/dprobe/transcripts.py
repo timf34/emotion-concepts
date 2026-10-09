@@ -48,8 +48,49 @@ _G4_MODEL_HEADER = "<|turn>model\n"
 _G4_EMPTY_THOUGHT = "<|channel>thought\n<channel|>"
 
 
+def _is_gemma(tok) -> bool:
+    return _is_gemma4(tok) or "<start_of_turn>" in tok.get_vocab()
+
+
+def _render_generic(tok, messages: list[dict], add_generation_prompt: bool = False) -> Rendered:
+    """Any chat template (Qwen, OLMo, gpt-oss, ...): render, then find each message's content by character position
+    and map it to tokens with the fast tokenizer's offsets. The response-prep index is the last token before an
+    assistant turn's content; with add_generation_prompt the open assistant turn starts at the end of the text.
+    System messages get role 'system' (templates such as gpt-oss move them into a developer block)."""
+    text = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=add_generation_prompt,
+                                   **getattr(tok, "dprobe_chat_kwargs", {}))
+    enc = tok(text, add_special_tokens=False, return_offsets_mapping=True)
+    ids = torch.tensor(enc["input_ids"])
+    starts = torch.tensor([a for a, _ in enc["offset_mapping"]])
+    ends = torch.tensor([b for _, b in enc["offset_mapping"]])
+    turns, cursor, n = [], 0, {"user": 0, "assistant": 0}
+    for m in messages:
+        content = m["content"] or ""
+        if not content.strip():
+            continue
+        i, piece = text.find(content, cursor), content
+        if i < 0:                                   # templates may strip surrounding whitespace
+            piece = content.strip()
+            i = text.find(piece, cursor)
+        if i < 0:
+            raise ValueError(f"cannot locate a {m['role']} message in the rendered template")
+        cs, ce = i, i + len(piece)
+        cursor = ce
+        start = int((ends > cs).nonzero()[0])
+        after = (starts >= ce).nonzero()
+        end = int(after[0]) if len(after) else len(ids)
+        role = m["role"] if m["role"] in ("user", "assistant") else "system"
+        k = n.get(role, 0)
+        turns.append({"role": role, "start": start, "end": end, "prep": start - 1 if role == "assistant" else None, "turn_idx": k})
+        if role in n:
+            n[role] += 1
+    if add_generation_prompt:
+        turns.append({"role": "assistant", "start": len(ids), "end": len(ids), "prep": len(ids) - 1, "turn_idx": n["assistant"]})
+    return Rendered(ids, text, turns)
+
+
 def render(tok, messages: list[dict], add_generation_prompt: bool = False, match_generation: bool = True) -> Rendered:
-    """Render with the chat template and locate spans.
+    """Render with the chat template and locate spans (non-Gemma templates: see _render_generic).
 
     match_generation (Gemma 4 only): the canonical template emits an empty thought block
     `<|channel>thought\n<channel|>` after `<|turn>model\n` for the *generation prompt* but not for
@@ -57,6 +98,8 @@ def render(tok, messages: list[dict], add_generation_prompt: bool = False, match
     for teacher-forced probing we insert it before every assistant turn; the response-prep token is
     then `<channel|>`, the last template token before the assistant's content.
     """
+    if not _is_gemma(tok):
+        return _render_generic(tok, messages, add_generation_prompt)
     text = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=add_generation_prompt)
     if match_generation and _is_gemma4(tok):
         text = text.replace(_G4_MODEL_HEADER + _G4_EMPTY_THOUGHT, "\x00").replace(_G4_MODEL_HEADER, _G4_MODEL_HEADER + _G4_EMPTY_THOUGHT).replace("\x00", _G4_MODEL_HEADER + _G4_EMPTY_THOUGHT)

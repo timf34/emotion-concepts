@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import random
+import re
 from pathlib import Path
 
 import torch
@@ -34,6 +35,10 @@ from dprobe.transcripts import render
 AXIS_RESULTS_REPO = "timf34/gemma-assistant-axis-results"
 SOURCE = "gemma-3-27b"
 SEED = 0
+# Non-Gemma families read Gemma 3's text: the default prompt "You are Gemma." becomes the model's own name, and
+# responses that call themselves Gemma / Google DeepMind are left out (they would make the model claim to be Gemma).
+SELF_NAMES = {"qwen3": "Qwen", "olmo2": "OLMo", "gptoss": "ChatGPT"}
+_SELF_REF = re.compile(r"\bGemma\b|DeepMind")
 
 
 def _archive() -> Path:
@@ -42,8 +47,9 @@ def _archive() -> Path:
     return Path(root) / SOURCE
 
 
-def select_conversations(k_role: int, n_default: int, roles_limit: int | None = None) -> dict[str, list[list[dict]]]:
-    """{role: [conversation, ...]}: k_role score-3 responses per role, n_default for 'default'. Deterministic."""
+def select_conversations(k_role: int, n_default: int, roles_limit: int | None = None, self_name: str | None = None) -> dict[str, list[list[dict]]]:
+    """{role: [conversation, ...]}: k_role score-3 responses per role, n_default for 'default'. Deterministic.
+    self_name (non-Gemma models): rename "You are Gemma." and drop responses that refer to Gemma / DeepMind."""
     base = _archive()
     rng = random.Random(SEED)
     out: dict[str, list[list[dict]]] = {}
@@ -53,6 +59,12 @@ def select_conversations(k_role: int, n_default: int, roles_limit: int | None = 
         roles = roles[:roles_limit]
     for role in ["default"] + roles:
         rows = [json.loads(l) for l in open(base / "responses" / f"{role}.jsonl")]
+        if self_name:
+            rows = [r for r in rows if not _SELF_REF.search(r["conversation"][-1]["content"])]
+            for r in rows:
+                for m in r["conversation"]:
+                    if m["role"] == "system":
+                        m["content"] = m["content"].replace("You are Gemma.", f"You are {self_name}.")
         key = {f"{r['label']}_p{r['prompt_index']}_q{r['question_index']}": r for r in rows}
         if role == "default":
             keys = sorted(key)
@@ -72,7 +84,7 @@ def reencode_axis(model_key: str, model_bundle=None, k_role: int = 50, n_default
     model, tok, spec = model_bundle or load_model(model_key)
     device = next(model.parameters()).device
     layers = list(range(spec.n_blocks))
-    convs = select_conversations(k_role, n_default, roles_limit)
+    convs = select_conversations(k_role, n_default, roles_limit, self_name=SELF_NAMES.get(spec.family))
     items = []                                              # (role, ids [T], start, end)
     for role, cs in convs.items():
         for c in cs:
@@ -119,7 +131,8 @@ def reencode_axis(model_key: str, model_bundle=None, k_role: int = 50, n_default
     torch.save(default, out / "default_vector.pt")
     torch.save({"roles": role_names, "vectors": R}, out / "role_vectors.pt")
     meta = {"model": model_key, "source": f"{AXIS_RESULTS_REPO}/{SOURCE} (teacher-forced)", "seed": SEED, "k_role": k_role,
-            "n_default": n_default, "max_length": max_length, "counts": counts, "sign": "+ = more assistant-like"}
+            "n_default": n_default, "max_length": max_length, "counts": counts, "sign": "+ = more assistant-like",
+            "self_name": SELF_NAMES.get(spec.family)}
     json.dump(meta, open(out / "meta.json", "w"), indent=1)
     print(f"[axis] saved -> {out}  (|axis| at L{spec.two_thirds_layer}: {axis[spec.two_thirds_layer].norm():.1f})")
     return out

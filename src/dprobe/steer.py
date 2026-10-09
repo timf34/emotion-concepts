@@ -185,7 +185,8 @@ def run_steered_hf(model_key: str, label: str, layers: list[int], strength: floa
     @torch.no_grad()
     def flush(message_lists):
         tok.padding_side = "left"
-        texts = [tok.apply_chat_template(m, tokenize=False, add_generation_prompt=True) for m in message_lists]
+        texts = [tok.apply_chat_template(m, tokenize=False, add_generation_prompt=True, **getattr(tok, "dprobe_chat_kwargs", {}))
+                 for m in message_lists]
         enc = tok(texts, return_tensors="pt", padding=True, add_special_tokens=False).to(device)
         plen = enc["input_ids"].shape[1]
         with add_vectors(model, vecs, positions=positions, prompt_len=plen):

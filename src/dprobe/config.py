@@ -65,6 +65,11 @@ MODELS: dict[str, ModelSpec] = {
                                 extra_layers=(58, 59), adapter="annasoli/gemma3-27b-dpo-calm-full"),
     "gemma3_27b_sft": ModelSpec("gemma3_27b_sft", "annasoli/gemma3-27b-sft-diverse-calm-merged", None, 62, 5376, "gemma3",
                                 stories_from="gemma3_27b", extra_layers=(58, 59)),
+    # Other open-weight families, for the cross-family entanglement check. All read Gemma 3's stories and Gemma 3's
+    # archived role-play responses (axis_reencode). Qwen3's published axis (lu-christina/assistant-axis-vectors) validates that.
+    "qwen3_32b": ModelSpec("qwen3_32b", "Qwen/Qwen3-32B", None, 64, 5120, "qwen3", stories_from="gemma3_27b"),
+    "olmo2_32b": ModelSpec("olmo2_32b", "allenai/OLMo-2-0325-32B-Instruct", None, 64, 5120, "olmo2", stories_from="gemma3_27b"),
+    "gptoss_20b": ModelSpec("gptoss_20b", "openai/gpt-oss-20b", None, 24, 2880, "gptoss", stories_from="gemma3_27b"),
     # cheap smoke-test target for the GPU pipeline (spirals too, score 9 in the paper's table)
     "gemma3_12b": ModelSpec("gemma3_12b", "google/gemma-3-12b-it", "google/gemma-3-12b-it", 48, 3840, "gemma3"),
 }

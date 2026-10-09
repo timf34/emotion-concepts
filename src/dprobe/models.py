@@ -62,9 +62,18 @@ def load_model(model_key: str, device: str = "cuda", attn: str = "sdpa"):
         print(f"[models] {spec.hf_id} has no chat template; using {donor.hf_id}'s")
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
+    # chat-template options applied everywhere a conversation is rendered (generation, probing, axis)
+    tok.dprobe_chat_kwargs = {"enable_thinking": False} if spec.family == "qwen3" else {}
     tok.padding_side = "right"
+    extra = {}
+    if spec.family == "gptoss":
+        # MXFP4 checkpoint: dequantize to bf16 so hooks see ordinary activations; attention sinks need eager attention
+        from transformers import Mxfp4Config
+
+        extra["quantization_config"] = Mxfp4Config(dequantize=True)
+        attn = "eager"
     model = AutoModelForCausalLM.from_pretrained(
-        spec.hf_id, dtype=torch.bfloat16, device_map=device, attn_implementation=attn
+        spec.hf_id, dtype=torch.bfloat16, device_map=device, attn_implementation=attn, **extra
     )
     if spec.adapter:
         from peft import PeftModel
