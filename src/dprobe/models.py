@@ -53,7 +53,8 @@ def load_model(model_key: str, device: str = "cuda", attn: str = "sdpa"):
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     spec = get_model(model_key)
-    tok = AutoTokenizer.from_pretrained(spec.hf_id)
+    # Mistral Small 3's shipped pre-tokenizer regex is wrong; transformers fixes it only when asked
+    tok = AutoTokenizer.from_pretrained(spec.hf_id, **({"fix_mistral_regex": True} if spec.family == "mistral" else {}))
     if getattr(tok, "chat_template", None) is None and spec.stories_from:
         # base checkpoints ship no chat template; borrow the instruct model's (identical vocabulary and
         # turn tokens) so transcripts render exactly as the instruct model saw them
@@ -72,6 +73,8 @@ def load_model(model_key: str, device: str = "cuda", attn: str = "sdpa"):
 
         extra["quantization_config"] = Mxfp4Config(dequantize=True)
         attn = "eager"
+    if device == "cuda" and torch.cuda.device_count() > 1:
+        device = "auto"              # e.g. Llama 3.3 70B in bf16 is split over two GPUs
     model = AutoModelForCausalLM.from_pretrained(
         spec.hf_id, dtype=torch.bfloat16, device_map=device, attn_implementation=attn, **extra
     )

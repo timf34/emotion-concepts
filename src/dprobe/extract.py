@@ -59,7 +59,7 @@ def mean_activations(model, tok, texts: list[str], layers: list[int], cfg: Extra
         with capture(model, layers) as acts:
             model(**enc)
         for l in layers:
-            h = acts[l].float()
+            h = acts[l].float().to(device)     # layers may sit on other GPUs when the model is split
             for b in range(h.shape[0]):
                 T = int(attn[b].sum())
                 if T <= cfg.start_at_nth_token + 1:

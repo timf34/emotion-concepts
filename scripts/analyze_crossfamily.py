@@ -39,8 +39,10 @@ PUBLISHED_GEMMA = Path("/Users/timf34/Documents/VSCode/Gemma-Assistantness/vecto
 MODELS = [  # key, label, colour, axis source
     ("gemma3_27b", "Gemma 3 27B", PAL[0], "gemma"), ("gemma4_31b", "Gemma 4 31B", PAL[1], "gemma"),
     ("qwen3_32b", "Qwen3 32B", PAL[2], "reencoded"), ("olmo2_32b", "OLMo 2 32B", PAL[6], "reencoded"),
-    ("gptoss_20b", "gpt-oss-20b", PAL[3], "reencoded"),
+    ("gptoss_20b", "gpt-oss-20b", PAL[3], "reencoded"), ("llama33_70b", "Llama 3.3 70B", PAL[4], "reencoded"),
+    ("mistral_24b", "Mistral Small 3 24B", PAL[5], "reencoded"),
 ]
+PUBLISHED_LU = {"qwen3_32b": "qwen-3-32b", "llama33_70b": "llama-3.3-70b"}     # lu-christina/assistant-axis-vectors
 BAND = (0.25, 0.42)            # relative depth of Gemma 3's layers 16-24 (where its entanglement peaks)
 PERSONA_DEPTH = 0.39           # Gemma 3's layer 24
 SIGNED = ["calm", "content", "hopeful", "sad", "frustrated", "desperate", "hysterical", "angry", "ashamed", "guilty"]
@@ -65,16 +67,20 @@ def chance(hidden):
 
 
 def validation():
+    """Re-encoded axis (Gemma 3's role-play text) vs the axis Lu et al. published from each model's own role-play."""
     from huggingface_hub import hf_hub_download
-    pub = torch.load(hf_hub_download("lu-christina/assistant-axis-vectors", "qwen-3-32b/assistant_axis.pt", repo_type="dataset")).float()
-    ours = axis_parts("qwen3_32b", "reencoded")[0]
-    cos = torch.nn.functional.cosine_similarity(ours, pub, dim=1).numpy()
-    shift = torch.nn.functional.cosine_similarity(ours[1:], pub[:-1], dim=1).numpy()
-    REPORT["qwen3_validation"] = {"cos_by_layer": [round(float(c), 3) for c in cos], "median": float(np.median(cos)),
-                                  "min": float(cos.min()), "median_if_shifted_by_one": float(np.median(shift))}
-    print(f"[validation] Qwen3 re-encoded vs published axis: median cos {np.median(cos):.3f}, min {cos.min():.3f} "
-          f"(layers 10-50: {cos[10:51].mean():.3f}); shifted by one layer: {np.median(shift):.3f}")
-    return cos
+    for mk, sub in PUBLISHED_LU.items():
+        try:
+            ours = axis_parts(mk, "reencoded")[0]
+        except FileNotFoundError:
+            print(f"[validation] {mk}: not re-encoded yet"); continue
+        pub = torch.load(hf_hub_download("lu-christina/assistant-axis-vectors", f"{sub}/assistant_axis.pt", repo_type="dataset")).float()
+        cos = torch.nn.functional.cosine_similarity(ours, pub, dim=1).numpy()
+        shift = torch.nn.functional.cosine_similarity(ours[1:], pub[:-1], dim=1).numpy()
+        REPORT[f"{mk}_validation"] = {"cos_by_layer": [round(float(c), 3) for c in cos], "median": float(np.median(cos)),
+                                      "min": float(cos.min()), "median_if_shifted_by_one": float(np.median(shift))}
+        print(f"[validation] {mk}: re-encoded vs published axis: median cos {np.median(cos):.3f}, min {cos.min():.3f}; "
+              f"shifted by one layer: {np.median(shift):.3f}")
 
 
 def geometry(mk, source):

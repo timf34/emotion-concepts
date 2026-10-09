@@ -37,7 +37,7 @@ SOURCE = "gemma-3-27b"
 SEED = 0
 # Non-Gemma families read Gemma 3's text: the default prompt "You are Gemma." becomes the model's own name, and
 # responses that call themselves Gemma / Google DeepMind are left out (they would make the model claim to be Gemma).
-SELF_NAMES = {"qwen3": "Qwen", "olmo2": "OLMo", "gptoss": "ChatGPT"}
+SELF_NAMES = {"qwen3": "Qwen", "olmo2": "OLMo", "gptoss": "ChatGPT", "llama": "Llama", "mistral": "Mistral"}
 _SELF_REF = re.compile(r"\bGemma\b|DeepMind")
 
 
