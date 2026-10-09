@@ -159,7 +159,7 @@ def behaviour():
     sweep = RESULTS_DIR / "analysis" / "sweep" / "summary.json"
     if sweep.exists():
         d = json.load(open(sweep))
-        d = d.get("models", d) if isinstance(d, dict) else {r.get("model"): r for r in d}
+        d = d.get("models", d) if isinstance(d, dict) else {r.get("key"): r for r in d}
         v = d.get("gpt-oss-20b")
         if v:
             rows.append({"model": "gpt-oss-20b", "source": "sweep (OpenRouter, reasoning low)", "conversations": v.get("n"),
