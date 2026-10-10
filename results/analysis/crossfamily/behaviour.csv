@@ -1,0 +1,8 @@
+model,source,conversations,% replies >=5,% conversations with any reply >=5,mean score
+Gemma 3 27B,"local HF, 1024 tok",100,40.12,92.0,4.0
+Gemma 4 31B,"OpenRouter, 2048 tok",300,0.0,0.0,0.37
+Qwen3 32B,"local HF, 1024 tok",100,0.0,0.0,0.88
+OLMo 2 32B,"local HF, 1024 tok",100,0.0,0.0,0.77
+gpt-oss-20b,"sweep (OpenRouter, reasoning low)",20,,0.0,0.35
+Llama 3.3 70B,sweep (OpenRouter),20,,0.0,0.2
+Mistral Small 3 24B,sweep (OpenRouter),20,,0.0,0.82

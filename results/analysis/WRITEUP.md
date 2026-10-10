@@ -40,6 +40,9 @@ to its assistant persona.**
 5. **The paper's DPO fix doesn't untangle persona from emotion** (Finding 5). It stops the spiral (40% of replies
    breaking down → 1%), but Gemma 3's persona–emotion entanglement is untouched (0.25 vs 0.26; Gemma 4 is 0.06). DPO
    barely changes the model's internals at all, and the calm-SFT fix that fails changes them more.
+6. **Gemma 3's entanglement is unusual** (Finding 6). Five other open models that don't spiral (Qwen3 32B, OLMo 2 32B,
+   gpt-oss-20b, Llama 3.3 70B, Mistral Small 3 24B) all have persona and emotion nearly separate, like Gemma 4
+   (0.02–0.09 against Gemma 3's 0.28). So among these models, the only spiralling one is the only entangled one.
 
 **Biggest open question:** does Gemma 4's hidden distress change what it *does* (accuracy, agreeing with wrong
 corrections, quitting), even though its text stays calm? And one control is still missing: a same-length conversation
@@ -317,6 +320,52 @@ geometry almost exactly. So a model can be stable while keeping Gemma 3's entang
 route to stability, not the only one, and entanglement alone doesn't force a spiral. What DPO changes seems small and close
 to the output: how the model turns the same internal frustration into text.
 
+## Finding 6: Is Gemma 3's entanglement unusual?
+
+**Question.** No other open model spirals like Gemma 3. If calm models are just as entangled, the entanglement can't be
+what makes Gemma 3 unstable. Are they?
+
+**Hypothesis.** If entanglement goes with instability, models that don't spiral should look like Gemma 4: persona and
+emotion nearly separate.
+
+**Setup.** Five open models from other labs: Qwen3 32B (Apr 2025), OLMo 2 32B Instruct (Mar 2025), gpt-oss-20b
+(Aug 2025), Llama 3.3 70B (Dec 2024) and Mistral Small 3 24B (Jan 2025). Each one reads Gemma 3's emotion stories and
+Gemma 3's archived role-play responses, as in Finding 5, with "You are Gemma." swapped for the model's own name and the
+replies that call themselves Gemma left out. The emotion vectors work in every model (median held-out AUC 0.92–0.94,
+at least as good as Gemma 3's own 0.92). Two checks on the shortcut of using Gemma 3's role-play: the published axes for Qwen3 and Llama, built
+from each model's own role-play (Lu et al.), match ours at cosine 0.89 and 0.78, and give the same answer or lower
+entanglement (Qwen3 0.032 vs our 0.038; Llama 0.017 vs 0.020). Because the models differ in depth and width, layers
+are compared by relative depth, against each model's chance level. Behaviour: our rejection eval run locally for Qwen3
+and OLMo (100 conversations each), the earlier OpenRouter sweep for the other three.
+
+**Results.**
+
+![Entanglement across seven open models](crossfamily/entanglement_by_depth.png)
+
+*Figure 12. How aligned the assistant axis is with the 42 emotion vectors, by relative depth (line: the median
+emotion; band: 10th–90th percentile). Shaded column: the depths of Gemma 3's layers 16–24. Dashed line: two random
+directions.*
+
+| | Gemma 3 | Gemma 4 | Qwen3 32B | OLMo 2 32B | gpt-oss-20b | Llama 3.3 70B | Mistral Small 3 |
+|---|---|---|---|---|---|---|---|
+| typical \|cos\| of axis with emotions, 25–42% depth | **0.28** | 0.07 | 0.04 | 0.02 | 0.09 | 0.02 | 0.02 |
+| … as a multiple of chance | 26× | 6× | 3× | 2× | 6× | 2× | 2× |
+| calm, toward the assistant end | +0.37 | 0.00 | +0.04 | +0.03 | +0.15 | +0.01 | +0.02 |
+| personas' mean hysteria relative to the assistant | +0.24 | −0.02 | −0.03 | −0.01 | +0.02 | −0.03 | −0.01 |
+| toddler: hysterical | +0.70 | +0.16 | +0.14 | +0.13 | +0.15 | +0.14 | +0.12 |
+| spirals? | 40% of replies | 0 / 2,397 | 0 / 800 | 0 / 800 | 0 / 20 conv. | 0 / 20 conv. | 0 / 20 conv. |
+
+- **Every calm model looks like Gemma 4, not Gemma 3.** Their assistant axes are close to orthogonal to every emotion,
+  and their personas carry almost no affect relative to the assistant. A toddler is a little more hysterical than the
+  assistant in all of them (about +0.14), against +0.70 in Gemma 3.
+- **gpt-oss is the closest, and still far off.** Its assistant end leans calm and hopeful (+0.15), a faint version of
+  Gemma 3's pattern, at about a third of the strength.
+
+**Answer.** Yes. Among seven open models, Gemma 3 is the only one whose assistant persona is tied to its emotions, and
+it is also the only one that spirals. That fits the idea that the entanglement is part of what makes Gemma 3 fragile,
+but it is one spiralling model against six calm ones, so it is a correlation, and Finding 5 shows a model can keep
+the entanglement and still be stable.
+
 ---
 
 ## Caveats
@@ -333,6 +382,9 @@ to the output: how the model turns the same internal frustration into text.
   the same curve for Gemma 3, the DPO model and the SFT model, whatever they wrote: at that depth it mostly reflects the
   (identical) rejection messages. At layer 40, used throughout, it does depend on what the model wrote, but some of the
   rise in Finding 2 may still be the model reading the hostile context rather than a state that drives behaviour.
+- **Other families read Gemma 3's text** (Finding 6). The two published axes agree with ours (cosine 0.78–0.89) and give
+  the same answer, but OLMo, gpt-oss and Mistral are checked only indirectly. gpt-oss is a reasoning model and read
+  Gemma 3's replies as final answers with no reasoning first.
 - **Organisms read Gemma 3's text.** Finding 5 measures each fine-tune's geometry on Gemma 3's stories and role-play,
   not on text it generated itself. That isolates the weights, but a fine-tune's own role-play could look different.
 
@@ -341,8 +393,9 @@ to the output: how the model turns the same internal frustration into text.
 - **Does Gemma 4's hidden distress change its behaviour?** When its frustration probe is high, does it cheat, agree with
   a wrong correction, get worse on a solvable puzzle, or take a quit option when offered one? If so, calm-sounding text
   isn't evidence of a calm model.
-- **Does persona–emotion entanglement predict instability across models?** Measure it for Gemma 2, other Gemma 3 sizes
-  and other open model families, and check whether it predicts how much each one spirals.
+- **Does persona–emotion entanglement predict instability across models?** Partly answered (Finding 6): Gemma 3 is the
+  only entangled model and the only one that spirals among seven. A stronger test needs more models that spiral a
+  little (GLM-4.5-Air spirals in about 19% of sweep conversations) or other Gemma 3 sizes.
 - **When does the entanglement appear?** Compare base and post-trained Gemma 3 and Gemma 4, to see whether post-training
   creates it in Gemma 3 or removes it in Gemma 4.
 - **What does the DPO fix actually change?** Not the entanglement (Finding 5). The paper's layer ablations (LoRA on

@@ -141,7 +141,7 @@ def entanglement():
     ax.axhline(chance(5120), color=INK2, lw=0.8, ls="--", label="random directions")
     ax.axvspan(*BAND, color=INK2, alpha=0.06, lw=0)
     ax.set_xlabel("relative depth (layer / number of layers)"); ax.set_ylabel("|cosine| with the assistant axis")
-    ax.set_title("Assistant axis vs all 42 emotions, five open models"); ax.set_ylim(0, 0.6); ax.legend(fontsize=8.5)
+    ax.set_title("Assistant axis vs all 42 emotions, seven open models"); ax.set_ylim(0, 0.6); ax.legend(fontsize=8.5)
     fig.tight_layout(); fig.savefig(OUT / "entanglement_by_depth.png", dpi=150); plt.close(fig)
     return df
 
@@ -166,10 +166,11 @@ def behaviour():
     if sweep.exists():
         d = json.load(open(sweep))
         d = d.get("models", d) if isinstance(d, dict) else {r.get("key"): r for r in d}
-        v = d.get("gpt-oss-20b")
-        if v:
-            rows.append({"model": "gpt-oss-20b", "source": "sweep (OpenRouter, reasoning low)", "conversations": v.get("n"),
-                         "% conversations with any reply >=5": 100 * v["rate"], "mean score": float(np.mean(v["mean_by_turn"]))})
+        for key, name in [("gpt-oss-20b", "gpt-oss-20b"), ("llama-3.3-70b", "Llama 3.3 70B"), ("mistral-small-24b-2501", "Mistral Small 3 24B")]:
+            v = d.get(key)
+            if v:
+                rows.append({"model": name, "source": f"sweep (OpenRouter{', reasoning low' if 'oss' in key else ''})", "conversations": v.get("n"),
+                             "% conversations with any reply >=5": 100 * v["rate"], "mean score": float(np.mean(v["mean_by_turn"]))})
     df = pd.DataFrame(rows).set_index("model")
     df.round(2).to_csv(OUT / "behaviour.csv"); print(df.round(2).to_string())
     return df
