@@ -240,6 +240,27 @@ class CLI:
             push("probe", vk)
         print(f"[pod_organism] {model} done: {stages}")
 
+    def pod_prefill_mt(self, model, n=48, k=4, max_tokens=1024, batch=8, smoke=False, sync=True):
+        """Multi-turn prefill (dprobe.prefill_multiturn): Gemma 3's high-frustration first k turns as MODEL's own
+        history, MODEL writes turns k+1..8, then probes on every turn. One model load; each stage pushed to HF.
+        Outputs: spiral/<model>/extended_prefill<k> and probe/<model>/extended_prefill<k>.
+        --smoke: 2 conversations, 64 tokens per reply, tag 'prefill<k>smoke'."""
+        from dprobe.models import load_model
+        from dprobe.prefill_multiturn import run_prefill_multiturn
+        from dprobe.probe import probe_transcripts
+        from dprobe.sync import sync_up
+
+        bundle = load_model(model)
+        tag = f"prefill{int(k)}" + ("smoke" if smoke else "")
+        path = run_prefill_multiturn(model, bundle, n=2 if smoke else int(n), k=int(k), max_tokens=64 if smoke else int(max_tokens),
+                                     batch=int(batch), tag=tag)
+        if sync:
+            sync_up(("spiral",), models=(model,))
+        probe_transcripts(model, path, "extended", tag, model_bundle=bundle)
+        if sync:
+            sync_up(("probe",), models=(model,))
+        print(f"[pod_prefill_mt] {model} done: {tag}")
+
     def steer(self, model, labels="depressed,calm", strengths="-2,2", layers=None, backend="hf", rollouts=40, max_tokens=2048, judge=True, baseline=True, batch=8, mode="vec"):
         """Steering grid on the 8-turn elicitation. layers default: two-thirds layer +-6, step 2 (analysis layers)."""
         from dprobe.steer import run_steering_grid
