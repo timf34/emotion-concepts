@@ -44,6 +44,9 @@ to its assistant persona.**
    have persona and emotion nearly separate, like Gemma 4 (0.02–0.09 against Gemma 3's 0.28). That includes
    GLM-4.5-Air, the one non-Gemma model that spirals a little. Together with Finding 5 (the DPO model is entangled but
    stable), entanglement is neither necessary nor sufficient for spiralling: it looks like a Gemma 3 signature.
+7. **About half of the entanglement is already in the base model; post-training doubles it and gives it its shape**
+   (Finding 7). Gemma 3's pretrained-only model scores 0.14, above every other family's finished model; the instruct
+   model scores 0.26. Post-training is what puts contentment and hope at the assistant end and hysteria at the far end.
 
 **Biggest open question:** does Gemma 4's hidden distress change what it *does* (accuracy, agreeing with wrong
 corrections, quitting), even though its text stays calm? And one control is still missing: a same-length conversation
@@ -375,6 +378,51 @@ a Gemma 3 signature, and within Gemma 3 it matters causally: pushing Gemma 3 off
 spiral (Finding 3), and the persona drifts that way by itself under rejection. It may be what makes Gemma 3's spiral
 so severe, rather than what makes any model spiral at all.
 
+## Finding 7: Does the entanglement come from pretraining or post-training?
+
+**Question.** Gemma 3 has a released base model (`google/gemma-3-27b-pt`, pretraining only). Is the persona–emotion
+entanglement already there, or does post-training create it?
+
+**Hypothesis.** Post-training creates it: the Gemma Needs Help paper finds the spiral is amplified by post-training.
+
+**Setup.** As Lu et al. did for Gemma 2: the base model reads the instruct model's role-play responses, in the instruct
+chat template, and its own role vectors and assistant axis are built from that (same 14,050 responses as the instruct
+control in Finding 5). Its emotion vectors come from the same stories as plain text. The base model separates the
+default assistant from the 275 roles about as strongly as the instruct model does in the layers that matter (1.1–1.5
+standard deviations of the role spread at layers 16–20 in both), and its axis points the same way (cosine 0.77–0.96
+with the instruct axis up to layer 24), so a low score wouldn't just mean it has no assistant direction.
+
+**Results.**
+
+![Base vs instruct Gemma 3](pretraining/base_vs_instruct.png)
+
+*Figure 13. Left: how aligned the assistant axis is with the 42 emotion vectors at each layer (line: the median
+emotion; band: 10th–90th percentile). Right: cosine between the axis and a dozen emotions, layers 16–24.*
+
+| layers 16–24 | Gemma 3 base | Gemma 3 instruct | other families (instruct) |
+|---|---|---|---|
+| typical \|cos\| of axis with emotions | 0.14 | 0.26 | 0.02–0.09 |
+| peak layer | 0.29 (layer 20 only) | 0.30 (layers 20–22) | at most 0.11 |
+| calm | +0.18 | +0.37 | |
+| content / hopeful / sad | +0.08 / 0.00 / +0.04 | +0.41 / +0.37 / +0.37 | |
+| desperate / guilty / ashamed | −0.23 / −0.20 / −0.11 | −0.34 / −0.47 / −0.45 | |
+| hysterical | +0.14 | −0.25 | |
+| personas' mean hysteria relative to the assistant | +0.05 | +0.27 | about 0 |
+| toddler: hysterical | +0.46 | +0.70 | about +0.13 |
+
+- **Some of it is there before post-training.** The base model already scores above every other family's finished
+  model, with a sharp peak at layer 20, and calm, desperate and guilty already sit on the sides they end up on. Its
+  toddler and infant personas are already far more hysterical than its assistant.
+- **Post-training roughly doubles it and organises it.** Contentment, hope and sadness are unrelated to the base
+  model's assistant direction and strongly tied to the instruct model's. Hysteria switches sides: slightly toward
+  the assistant in the base model, firmly away from it after post-training. And only after post-training are the
+  other personas, on average, more worked up than the assistant (+0.05 to +0.27).
+
+**Answer.** Both. Gemma 3's pretraining leaves an unusual link between the assistant direction and a few emotions,
+which no other family shows, and post-training turns that into the full pattern: a calm, content assistant at one
+end, and shame, guilt, anger and hysteria at the other. That fits the paper's finding that post-training amplifies the
+spiral. Whether Gemma 4's pretraining already lacks the link is the obvious next check (its base model is released).
+
 ---
 
 ## Caveats
@@ -394,6 +442,9 @@ so severe, rather than what makes any model spiral at all.
 - **Other families read Gemma 3's text** (Finding 6). The two published axes agree with ours (cosine 0.78–0.89) and give
   the same answer, but OLMo, gpt-oss, Mistral and GLM are checked only indirectly. gpt-oss is a reasoning model and read
   Gemma 3's replies as final answers with no reasoning first.
+- **The base model reads chat-formatted text it was never trained on** (Finding 7). This follows Lu et al., and the
+  base model's assistant direction is as strong as the instruct model's, but its numbers are less certain than the
+  instruct model's.
 - **Organisms read Gemma 3's text.** Finding 5 measures each fine-tune's geometry on Gemma 3's stories and role-play,
   not on text it generated itself. That isolates the weights, but a fine-tune's own role-play could look different.
 
@@ -405,8 +456,10 @@ so severe, rather than what makes any model spiral at all.
 - **Does persona–emotion entanglement predict instability across models?** Mostly no (Finding 6): GLM-4.5-Air spirals
   mildly without it. Open: is it what makes Gemma 3's spiral so *severe*? Gemma 3 4B and 12B (which break down as
   badly) and Gemma 2 27B (which spirals mildly) would test that within the family.
-- **When does the entanglement appear?** Compare base and post-trained Gemma 3 and Gemma 4, to see whether post-training
-  creates it in Gemma 3 or removes it in Gemma 4.
+- **Does Gemma 4's pretraining already lack the link?** Gemma 3's base model has about half of the entanglement
+  (Finding 7). Gemma 4's base model (`google/gemma-4-31B`) would show whether Gemma 4's pretraining differs or its
+  post-training removed it. Steering the Gemma 3 base model along the axis while it completes feeling-related
+  prefills ("Right now I feel") would test the link causally without the chat format.
 - **What does the DPO fix actually change?** Not the entanglement (Finding 5). The paper's layer ablations (LoRA on
   layers 30–35 alone nearly works; 40–50 alone doesn't) narrow down where; diffing Gemma 3 and the DPO model's
   activations on the same spiral, token by token, would show where the tiny change gets amplified into calm text.

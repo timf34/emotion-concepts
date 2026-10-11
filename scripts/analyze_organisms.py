@@ -196,3 +196,42 @@ if __name__ == "__main__":
             print(f"[{step.__name__}] missing input: {e}")
     json.dump(REPORT, open(OUT / "report.json", "w"), indent=1)
     print("wrote", OUT)
+
+
+# ------------------------------------------------------------------ pretraining vs post-training (Gemma 3 base model)
+def pretraining():
+    """Gemma 3 base (google/gemma-3-27b-pt) vs instruct, each with its own re-encoded axis and its own emotion vectors.
+    The base model read the instruct model's role-play in the instruct chat template, as Lu et al. did for Gemma 2."""
+    out = OUT.parent / "pretraining"; out.mkdir(parents=True, exist_ok=True)
+    F = torch.nn.functional.cosine_similarity
+    ab, db, _, Rb = reencoded("gemma3_27b_pt"); ai, di, _, Ri = reencoded("gemma3_27b")
+    sets = [("gemma3_27b_pt", "Gemma 3 base", PAL[3], "reencoded"), ("gemma3_27b", "Gemma 3 instruct", PAL[0], "reencoded"), (*GEMMA4, "published")]
+    fig, axes = plt.subplots(1, 2, figsize=(11.5, 4.2), gridspec_kw={"width_ratios": [1.15, 1]})
+    rows, signed = [], {}
+    for mk, name, col, src in sets:
+        C, pc = geometry(mk, src); ls = sorted(C)
+        A = np.abs(np.array([[C[l][e] for l in ls] for e in C[ls[0]]]))
+        axes[0].plot(ls, np.median(A, 0), color=col, lw=2, label=name)
+        axes[0].fill_between(ls, np.percentile(A, 10, 0), np.percentile(A, 90, 0), color=col, alpha=0.1, lw=0)
+        band = [i for i, l in enumerate(ls) if 16 <= l <= 24]
+        signed[name] = {e: float(np.mean([C[l][e] for l in ls if 16 <= l <= 24])) for e in AXIS_EMO}
+        rows.append({"model": name, "median |cos| L16-24": float(np.median(A[:, band].mean(1))), "peak": float(np.median(A, 0).max()),
+                     **signed[name], "persona mean hysterical": float(pc["hysterical"].mean()), "toddler: hysterical": float(pc.loc["toddler", "hysterical"])})
+    axes[0].set_xlabel("layer"); axes[0].set_ylabel("|cosine| with the assistant axis"); axes[0].set_ylim(0, 0.6)
+    axes[0].set_title("Assistant axis vs all 42 emotions"); axes[0].legend(fontsize=8.5)
+    order = sorted(AXIS_EMO, key=lambda e: -signed["Gemma 3 instruct"][e]); y = np.arange(len(order)); w = 0.38
+    for i, (name, col) in enumerate([("Gemma 3 base", PAL[3]), ("Gemma 3 instruct", PAL[0])]):
+        axes[1].barh(y + (i - 0.5) * w, [signed[name][e] for e in order], height=w - 0.03, color=col, label=name)
+    axes[1].set_yticks(y); axes[1].set_yticklabels(order); axes[1].invert_yaxis(); axes[1].axvline(0, color=INK2, lw=0.6)
+    axes[1].set_xlim(-0.55, 0.55); axes[1].set_xlabel("← away from the assistant   |   toward the assistant →\ncosine, layers 16–24")
+    axes[1].set_title("Which emotions sit at the assistant end"); axes[1].legend(fontsize=8.5, loc="lower right"); axes[1].grid(axis="y", visible=False)
+    fig.tight_layout(); fig.savefig(out / "base_vs_instruct.png", dpi=150); plt.close(fig)
+    df = pd.DataFrame(rows).set_index("model"); df.round(3).to_csv(out / "base_vs_instruct.csv")
+
+    def dprime(ax, dv, R, l):
+        u = ax[l] / ax[l].norm(); p = R[:, l] @ u
+        return float(((dv[l] @ u) - p.mean()) / p.std())
+    rep = {"cos(base axis, instruct axis)": {l: round(float(F(ab[l], ai[l], dim=0)), 3) for l in (6, 12, 16, 20, 24, 30, 40, 50)},
+           "default-vs-roles separation (SD)": {l: {"base": round(dprime(ab, db, Rb, l), 2), "instruct": round(dprime(ai, di, Ri, l), 2)} for l in (16, 20, 24, 40)}}
+    json.dump(rep, open(out / "report.json", "w"), indent=1)
+    print(df.round(2).T.to_string()); print(rep); print("wrote", out)
