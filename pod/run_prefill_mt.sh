@@ -9,9 +9,11 @@ export HF_HUB_ENABLE_HF_TRANSFER=1
 export PYTHONUNBUFFERED=1
 # long spiralling transcripts at batch 16 filled the H200; smaller batches + expandable segments avoid OOM
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-BATCH=${BATCH:-8}
 export DPROBE_RESULTS=${DPROBE_RESULTS:-/results}
 MODEL=${MODEL:?set MODEL}
+# Batch sizes that fit an H200 (141GB) at 1024 tokens/reply: Gemma 3 variants OOM'd at 16 with ~7k-token contexts;
+# Gemma 4 31B OOM'd at 8 with the ~11k-token prefill contexts. Override with BATCH=... only with a reason.
+case "$MODEL" in gemma4_*) BATCH=${BATCH:-4} ;; *) BATCH=${BATCH:-8} ;; esac
 SMOKE=${SMOKE:-0}
 N=${N:-48}
 PY=${PY:-/venv/bin/python}
