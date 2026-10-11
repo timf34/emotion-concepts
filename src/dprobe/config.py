@@ -71,6 +71,8 @@ MODELS: dict[str, ModelSpec] = {
     "olmo2_32b": ModelSpec("olmo2_32b", "allenai/OLMo-2-0325-32B-Instruct", None, 64, 5120, "olmo2", stories_from="gemma3_27b"),
     "llama33_70b": ModelSpec("llama33_70b", "meta-llama/Llama-3.3-70B-Instruct", None, 80, 8192, "llama", stories_from="gemma3_27b"),
     "mistral_24b": ModelSpec("mistral_24b", "mistralai/Mistral-Small-24B-Instruct-2501", None, 40, 5120, "mistral", stories_from="gemma3_27b"),
+    # GLM-4.5-Air (106B MoE, 12B active): the strongest non-Gemma spiraller in the sweep (3/16, reasoning off)
+    "glm45_air": ModelSpec("glm45_air", "zai-org/GLM-4.5-Air", None, 46, 4096, "glm", stories_from="gemma3_27b"),
     "gptoss_20b": ModelSpec("gptoss_20b", "openai/gpt-oss-20b", None, 24, 2880, "gptoss", stories_from="gemma3_27b"),
     # cheap smoke-test target for the GPU pipeline (spirals too, score 9 in the paper's table)
     "gemma3_12b": ModelSpec("gemma3_12b", "google/gemma-3-12b-it", "google/gemma-3-12b-it", 48, 3840, "gemma3"),

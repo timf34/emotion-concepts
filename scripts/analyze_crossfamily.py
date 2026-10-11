@@ -40,7 +40,7 @@ MODELS = [  # key, label, colour, axis source
     ("gemma3_27b", "Gemma 3 27B", PAL[0], "gemma"), ("gemma4_31b", "Gemma 4 31B", PAL[1], "gemma"),
     ("qwen3_32b", "Qwen3 32B", PAL[2], "reencoded"), ("olmo2_32b", "OLMo 2 32B", PAL[6], "reencoded"),
     ("gptoss_20b", "gpt-oss-20b", PAL[3], "reencoded"), ("llama33_70b", "Llama 3.3 70B", PAL[4], "reencoded"),
-    ("mistral_24b", "Mistral Small 3 24B", PAL[5], "reencoded"),
+    ("mistral_24b", "Mistral Small 3 24B", PAL[5], "reencoded"), ("glm45_air", "GLM-4.5-Air", PAL[7], "reencoded"),
 ]
 PUBLISHED_LU = {"qwen3_32b": "qwen-3-32b", "llama33_70b": "llama-3.3-70b"}     # lu-christina/assistant-axis-vectors
 BAND = (0.25, 0.42)            # relative depth of Gemma 3's layers 16-24 (where its entanglement peaks)
@@ -141,7 +141,7 @@ def entanglement():
     ax.axhline(chance(5120), color=INK2, lw=0.8, ls="--", label="random directions")
     ax.axvspan(*BAND, color=INK2, alpha=0.06, lw=0)
     ax.set_xlabel("relative depth (layer / number of layers)"); ax.set_ylabel("|cosine| with the assistant axis")
-    ax.set_title("Assistant axis vs all 42 emotions, seven open models"); ax.set_ylim(0, 0.6); ax.legend(fontsize=8.5)
+    ax.set_title("Assistant axis vs all 42 emotions, eight open models"); ax.set_ylim(0, 0.6); ax.legend(fontsize=8.5)
     fig.tight_layout(); fig.savefig(OUT / "entanglement_by_depth.png", dpi=150); plt.close(fig)
     return df
 
@@ -166,7 +166,8 @@ def behaviour():
     if sweep.exists():
         d = json.load(open(sweep))
         d = d.get("models", d) if isinstance(d, dict) else {r.get("key"): r for r in d}
-        for key, name in [("gpt-oss-20b", "gpt-oss-20b"), ("llama-3.3-70b", "Llama 3.3 70B"), ("mistral-small-24b-2501", "Mistral Small 3 24B")]:
+        for key, name in [("gpt-oss-20b", "gpt-oss-20b"), ("llama-3.3-70b", "Llama 3.3 70B"), ("mistral-small-24b-2501", "Mistral Small 3 24B"),
+                          ("glm-4.5-air", "GLM-4.5-Air")]:
             v = d.get(key)
             if v:
                 rows.append({"model": name, "source": f"sweep (OpenRouter{', reasoning low' if 'oss' in key else ''})", "conversations": v.get("n"),
