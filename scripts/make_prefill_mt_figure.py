@@ -56,9 +56,9 @@ def main():
             v = cur[e]
             ax.plot(np.arange(1, len(v) + 1), v, color=c, lw=2, marker="o", ms=3, label=e)
             ends.append((len(v), float(v[-1]), e))
-        ax.set_ylim(-4.5, 6.8); A.mf._end_labels(ax, ends)
+        ax.set_ylim(-5.2, 7.2); A.mf._end_labels(ax, ends)
         ax.axhline(0, color=INK2, lw=0.6); ax.set_title(name)
-        ax.text(K / 2 + 0.5, 6.3, "Gemma 3's turns", ha="center", fontsize=8, color=INK2)
+        ax.text(K / 2 + 0.5, 6.7, "Gemma 3's turns", ha="center", fontsize=8, color=INK2)
         ax = axes[1, col]
         ax.axvspan(0.5, K + 0.5, color=INK2, alpha=0.08, lw=0)
         ax.fill_between(t, ci[:, 0], ci[:, 1], color="#3d3c38", alpha=0.15, lw=0)

@@ -1,0 +1,5 @@
+model,conversations,judge turn 4 (prefill),judge turn 5,judge turn 8,% >=5 turns 5-8,own run judge turn 5,own run judge turn 8,panicked turn 4,panicked turn 8,desperate turn 4,desperate turn 8,frustrated turn 4,frustrated turn 8,calm turn 4,calm turn 8,depressed turn 4,depressed turn 8
+Gemma 3,48,6.77,5.4,6.25,81.15,4.66,5.49,3.5,3.42,2.92,3.31,4.25,3.52,-2.16,-2.09,-0.14,0.6
+Gemma 3 + DPO,48,6.77,3.29,3.6,12.5,2.37,2.92,2.5,2.12,2.11,1.88,3.57,2.82,-1.45,-0.35,-0.26,0.05
+Gemma 3 + BCT,48,6.77,3.19,1.9,10.94,1.17,0.84,2.36,1.5,1.18,0.2,2.6,1.2,-0.2,0.9,-0.72,-0.28
+Gemma 4,48,6.77,1.48,1.08,0.0,0.46,0.63,6.34,6.11,6.07,6.11,4.54,4.32,-3.35,-3.9,-4.37,-3.7
