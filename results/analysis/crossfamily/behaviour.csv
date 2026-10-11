@@ -6,3 +6,4 @@ OLMo 2 32B,"local HF, 1024 tok",100,0.0,0.0,0.77
 gpt-oss-20b,"sweep (OpenRouter, reasoning low)",20,,0.0,0.35
 Llama 3.3 70B,sweep (OpenRouter),20,,0.0,0.2
 Mistral Small 3 24B,sweep (OpenRouter),20,,0.0,0.82
+GLM-4.5-Air,sweep (OpenRouter),16,,18.75,1.91
