@@ -240,6 +240,27 @@ class CLI:
             push("probe", vk)
         print(f"[pod_organism] {model} done: {stages}")
 
+    def pod_sae2733(self, stages="collect,causal", smoke=False, sync=True):
+        """Gemma 3's massive coordinate 2733: SAE features + per-token coordinate values (collect), and causal spiral
+        cells without / only / clamping that coordinate (causal). One model load; each stage pushed to HF."""
+        from dprobe.models import load_model
+        from dprobe.sae2733 import causal_cells, collect
+        from dprobe.sync import sync_up
+
+        stages = _list(stages)
+        bundle = load_model("gemma3_27b")
+        key = "gemma3_27b" + ("_smoke" if smoke else "")
+        if "collect" in stages:
+            collect("gemma3_27b", bundle, smoke=smoke)
+            if sync:
+                sync_up(("sae2733",), models=(key,))
+        if "causal" in stages:
+            causal_cells("gemma3_27b", bundle, smoke=smoke)
+            if sync:
+                sync_up(("sae2733",), models=(key,))
+                sync_up(("spiral",), models=("gemma3_27b",))
+        print(f"[pod_sae2733] done: {stages}")
+
     def steer(self, model, labels="depressed,calm", strengths="-2,2", layers=None, backend="hf", rollouts=40, max_tokens=2048, judge=True, baseline=True, batch=8, mode="vec"):
         """Steering grid on the 8-turn elicitation. layers default: two-thirds layer +-6, step 2 (analysis layers)."""
         from dprobe.steer import run_steering_grid
