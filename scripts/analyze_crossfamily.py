@@ -37,7 +37,7 @@ OUT = RESULTS_DIR / "analysis" / "crossfamily"
 OUT.mkdir(parents=True, exist_ok=True)
 PUBLISHED_GEMMA = Path("/Users/timf34/Documents/VSCode/Gemma-Assistantness/vectors")
 MODELS = [  # key, label, colour, axis source
-    ("gemma2_27b", "Gemma 2 27B", PAL[8 % len(PAL)], "gemma"), ("gemma3_27b", "Gemma 3 27B", PAL[0], "gemma"), ("gemma4_31b", "Gemma 4 31B", PAL[1], "gemma"),
+    ("gemma2_27b", "Gemma 2 27B", "#8a7a5c", "gemma"), ("gemma3_27b", "Gemma 3 27B", PAL[0], "gemma"), ("gemma4_31b", "Gemma 4 31B", PAL[1], "gemma"),
     ("qwen3_32b", "Qwen3 32B", PAL[2], "reencoded"), ("olmo2_32b", "OLMo 2 32B", PAL[6], "reencoded"),
     ("gptoss_20b", "gpt-oss-20b", PAL[3], "reencoded"), ("llama33_70b", "Llama 3.3 70B", PAL[4], "reencoded"),
     ("mistral_24b", "Mistral Small 3 24B", PAL[5], "reencoded"), ("glm45_air", "GLM-4.5-Air", PAL[7], "reencoded"),
@@ -177,8 +177,49 @@ def behaviour():
     return df
 
 
+def robust():
+    """The cosine above is dominated by a few huge-activation coordinates in Gemma 2/3 (Gemma 3: one coordinate, 2733,
+    carries ~70% of the axis). Report it next to measures no single coordinate can dominate:
+      drop10      cosine with the 10 largest coordinates removed
+      zscored     cosine after standardising every coordinate by its spread over the 275 role vectors
+      eff_dims    participation ratio of the axis (how many coordinates it effectively uses)
+      calm_end    P(a calm/content/hopeful held-out story projects nearer the assistant end than a
+                  hysterical/angry/desperate/panicked/ashamed/guilty one); 0.5 = no relation
+      pair_null   the same calm/agitated separation (folded, |AUC-0.5|+0.5) for random persona-pair directions"""
+    from sklearn.metrics import roc_auc_score
+    rng = np.random.default_rng(0)
+    HOT = ["hysterical", "angry", "desperate", "panicked", "ashamed", "guilty"]; COOL = ["calm", "content", "hopeful"]
+    rows = []
+    for mk, name, col, src in [*MODELS, ("gemma3_27b_pt", "Gemma 3 base", INK2, "reencoded")]:
+        try:
+            spec = get_model(mk); ax, dv, roles, R = axis_parts(mk, src)
+            pca = torch.load(vectors_dir(mk) / "neutral_pca.pt"); emo = load_vectors(mk, "emotions", True)
+            ho = torch.load(vectors_dir(mk) / "heldout_emotions.pt")
+        except FileNotFoundError as e:
+            print(f"[robust] skip {name}: {e}"); continue
+        ls = [l for l in sorted(pca) if BAND[0] <= (l + 1) / spec.n_blocks <= BAND[1]]
+        acc = {k: [] for k in ["cos", "drop10", "zscored", "eff_dims", "calm_end", "pair_null"]}
+        for l in ls:
+            P = pca[l]["components"]; dn = lambda v: v - (v @ P.T) @ P
+            a = dn(ax[l]); E = torch.stack([emo[e][l] for e in emo]); cos = lambda u, V: ((V @ u) / (V.norm(dim=1) * u.norm())).abs()
+            acc["cos"].append(float(cos(a, E).median()))
+            big = a.abs().topk(10).indices; m = torch.ones_like(a); m[big] = 0
+            acc["drop10"].append(float(cos(a * m, E * m).median()))
+            sd = R[:, l].std(0) + 1e-6; acc["zscored"].append(float(cos(a / sd, E / sd).median()))
+            acc["eff_dims"].append(float((a ** 2).sum() ** 2 / (a ** 4).sum()))
+            Xc = torch.cat([ho[e][l].float() for e in COOL]); Xh = torch.cat([ho[e][l].float() for e in HOT])
+            Xa = torch.cat([Xc, Xh]); y = np.r_[np.ones(len(Xc)), np.zeros(len(Xh))]
+            acc["calm_end"].append(roc_auc_score(y, (Xa @ ax[l]).numpy()))
+            idx = rng.integers(0, len(roles), (60, 2)); idx = idx[idx[:, 0] != idx[:, 1]]
+            acc["pair_null"].append(float(np.median([abs(roc_auc_score(y, (Xa @ (R[i, l] - R[j, l])).numpy()) - 0.5) + 0.5 for i, j in idx])))
+        rows.append({"model": name, **{k: float(np.mean(v)) for k, v in acc.items()}})
+    df = pd.DataFrame(rows).set_index("model"); df.round(3).to_csv(OUT / "robust.csv")
+    print(df.round(3).to_string())
+    return df
+
+
 if __name__ == "__main__":
-    for step in (validation, entanglement, behaviour):
+    for step in (validation, entanglement, behaviour, robust):
         try:
             step()
         except FileNotFoundError as e:
