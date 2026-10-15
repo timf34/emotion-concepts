@@ -67,6 +67,8 @@ def load_model(model_key: str, device: str = "cuda", attn: str = "sdpa"):
     tok.dprobe_chat_kwargs = {"enable_thinking": False} if spec.family in ("qwen3", "glm") else {}
     tok.padding_side = "right"
     extra = {}
+    if spec.family == "gemma2":
+        attn = "eager"               # Gemma 2's attention logit soft-capping is only honoured by eager attention
     if spec.family == "gptoss":
         # MXFP4 checkpoint: dequantize to bf16 so hooks see ordinary activations; attention sinks need eager attention
         from transformers import Mxfp4Config

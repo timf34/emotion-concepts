@@ -37,7 +37,7 @@ OUT = RESULTS_DIR / "analysis" / "crossfamily"
 OUT.mkdir(parents=True, exist_ok=True)
 PUBLISHED_GEMMA = Path("/Users/timf34/Documents/VSCode/Gemma-Assistantness/vectors")
 MODELS = [  # key, label, colour, axis source
-    ("gemma3_27b", "Gemma 3 27B", PAL[0], "gemma"), ("gemma4_31b", "Gemma 4 31B", PAL[1], "gemma"),
+    ("gemma2_27b", "Gemma 2 27B", PAL[8 % len(PAL)], "gemma"), ("gemma3_27b", "Gemma 3 27B", PAL[0], "gemma"), ("gemma4_31b", "Gemma 4 31B", PAL[1], "gemma"),
     ("qwen3_32b", "Qwen3 32B", PAL[2], "reencoded"), ("olmo2_32b", "OLMo 2 32B", PAL[6], "reencoded"),
     ("gptoss_20b", "gpt-oss-20b", PAL[3], "reencoded"), ("llama33_70b", "Llama 3.3 70B", PAL[4], "reencoded"),
     ("mistral_24b", "Mistral Small 3 24B", PAL[5], "reencoded"), ("glm45_air", "GLM-4.5-Air", PAL[7], "reencoded"),
@@ -53,7 +53,7 @@ REPORT: dict = {}
 def axis_parts(mk, source):
     """(axis [L,H], default [L,H], roles, role vectors [R,L,H])."""
     if source == "gemma":
-        b = PUBLISHED_GEMMA / {"gemma3_27b": "gemma-3-27b", "gemma4_31b": "gemma-4-31b"}[mk]
+        b = PUBLISHED_GEMMA / {"gemma2_27b": "gemma-2-27b", "gemma3_27b": "gemma-3-27b", "gemma4_31b": "gemma-4-31b"}[mk]
         roles = sorted(p.stem for p in (b / "role_vectors").glob("*.pt"))
         R = torch.stack([torch.load(b / "role_vectors" / f"{r}.pt").float() for r in roles])
         return torch.load(b / "assistant_axis.pt").float(), torch.load(b / "default_vector.pt").float(), roles, R
