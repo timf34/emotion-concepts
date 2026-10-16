@@ -527,9 +527,9 @@ aggressive or epic-storytelling voice (two features carry about 40% of the effec
   base model's assistant direction is as strong as the instruct model's, but its numbers are less certain than the
   instruct model's.
 - **Cosine similarity in Gemma 2/3 is dominated by massive activations** (Finding 8). Any geometric comparison in these
-  models should standardise coordinates or use a scale-free measure. The emotion probes (Finding 2) also put some weight
-  on these coordinates; they classify held-out stories well, but whether their turn-by-turn curves lean on coordinate
-  2733 hasn't been checked.
+  models should standardise coordinates or use a scale-free measure. The emotion probes (Finding 2) are not affected:
+  recomputing them with the massive coordinates removed correlates at 0.999+ with the originals in Gemma 3 and 0.99+ in
+  Gemma 4, and those coordinates account for 0–3% of the probes' variation, so the turn-by-turn curves stand.
 - **Organisms read Gemma 3's text.** Finding 5 measures each fine-tune's geometry on Gemma 3's stories and role-play,
   not on text it generated itself. That isolates the weights, but a fine-tune's own role-play could look different.
 
