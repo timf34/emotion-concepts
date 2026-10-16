@@ -240,6 +240,28 @@ class CLI:
             push("probe", vk)
         print(f"[pod_organism] {model} done: {stages}")
 
+    def pod_axisfeat(self, stages="steer,name", smoke=False, sync=True):
+        """Which SAE features carry the assistant axis's spiral effect (steer), and what coordinate 2733 is for (name)."""
+        import gc
+        import torch
+        from dprobe.axis_features import decompose_and_steer, name_2733
+        from dprobe.models import load_model
+        from dprobe.sync import sync_up
+
+        stages = _list(stages)
+        key = "gemma3_27b" + ("_smoke" if smoke else "")
+        if "steer" in stages:
+            bundle = load_model("gemma3_27b")
+            decompose_and_steer("gemma3_27b", bundle, smoke=smoke)
+            if sync:
+                sync_up(("axisfeat",), models=(key,)); sync_up(("spiral",), models=("gemma3_27b",))
+            del bundle; gc.collect(); torch.cuda.empty_cache()
+        if "name" in stages:
+            name_2733("gemma3_27b", smoke=smoke)
+            if sync:
+                sync_up(("axisfeat",), models=(key,))
+        print(f"[pod_axisfeat] done: {stages}")
+
     def pod_sae2733(self, stages="collect,causal", smoke=False, sync=True):
         """Gemma 3's massive coordinate 2733: SAE features + per-token coordinate values (collect), and causal spiral
         cells without / only / clamping that coordinate (causal). One model load; each stage pushed to HF."""
