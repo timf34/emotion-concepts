@@ -240,6 +240,11 @@ class CLI:
             push("probe", vk)
         print(f"[pod_organism] {model} done: {stages}")
 
+    def pod_ablate2733(self, stages="vectors,cells", cells="ctrl,1.0,0.5,0.0", rollouts=32, smoke=False):
+        """Hold Gemma 3's coordinate 2733 at s x its per-layer mean everywhere: re-extract vectors (s=0) and run the rejection eval."""
+        from dprobe.ablate2733 import run
+        run(tuple(_list(stages)), tuple(_list(cells)), rollouts=int(rollouts), smoke=bool(smoke))
+
     def pod_axisfeat(self, stages="steer,name", smoke=False, sync=True):
         """Which SAE features carry the assistant axis's spiral effect (steer), and what coordinate 2733 is for (name)."""
         import gc

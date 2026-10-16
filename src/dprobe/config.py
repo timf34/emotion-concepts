@@ -71,6 +71,8 @@ MODELS: dict[str, ModelSpec] = {
     "olmo2_32b": ModelSpec("olmo2_32b", "allenai/OLMo-2-0325-32B-Instruct", None, 64, 5120, "olmo2", stories_from="gemma3_27b"),
     "llama33_70b": ModelSpec("llama33_70b", "meta-llama/Llama-3.3-70B-Instruct", None, 80, 8192, "llama", stories_from="gemma3_27b"),
     "mistral_24b": ModelSpec("mistral_24b", "mistralai/Mistral-Small-24B-Instruct-2501", None, 40, 5120, "mistral", stories_from="gemma3_27b"),
+    # Gemma 3 27B IT read with coordinate 2733 zeroed at every layer (dprobe.ablate2733): vectors only, same weights
+    "gemma3_27b_no2733": ModelSpec("gemma3_27b_no2733", "google/gemma-3-27b-it", "google/gemma-3-27b-it", 62, 5376, "gemma3", extra_layers=(58, 59), stories_from="gemma3_27b"),
     # Gemma 2 27B: mild spiraller in the sweep (6/52, coherent); its assistant axis is published (Lu et al.)
     "gemma2_27b": ModelSpec("gemma2_27b", "google/gemma-2-27b-it", None, 46, 4608, "gemma2", stories_from="gemma3_27b"),
     # GLM-4.5-Air (106B MoE, 12B active): the strongest non-Gemma spiraller in the sweep (3/16, reasoning off)

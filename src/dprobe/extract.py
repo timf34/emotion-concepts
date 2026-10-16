@@ -192,10 +192,11 @@ def export_gguf(vectors: dict[str, dict[int, torch.Tensor]], out_dir: Path, hf_i
         w.write_header_to_file(); w.write_kv_data_to_file(); w.write_tensors_to_file(); w.close()
 
 
-def run_extract(model_key: str, sets: tuple[str, ...] = ("emotions", "syndromes"), cfg: ExtractConfig | None = None, all_layers: bool = True, model_bundle=None, smoke: bool = False):
+def run_extract(model_key: str, sets: tuple[str, ...] = ("emotions", "syndromes"), cfg: ExtractConfig | None = None, all_layers: bool = True, model_bundle=None, smoke: bool = False,
+                out_key: str | None = None):
     cfg = cfg or ExtractConfig()
     model, tok, spec = model_bundle or load_model(model_key)
-    out = vectors_dir(model_key + ("_smoke" if smoke else ""))
+    out = vectors_dir(out_key or (model_key + ("_smoke" if smoke else "")))
     layers_all = list(range(spec.n_blocks)) if all_layers else analysis_layers(spec, cfg)
     layers_an = analysis_layers(spec, cfg)
 
