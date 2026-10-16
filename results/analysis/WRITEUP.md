@@ -497,6 +497,21 @@ the first token (41–92% depending on layer) is identical with it zeroed. Becau
 the vector's length, a coordinate this large effectively sets the scale of everything else the next layer reads, so
 its dips at sentence ends would act like a volume knob. That reading fits but hasn't been tested directly.
 
+**Follow-up 3: remove the coordinate inside the model.** Holding coordinate 2733 at a fixed multiple of its own per-layer
+average at every layer (so it can't vary), and recording the vectors with it removed:
+
+| condition (32 conversations each) | mean frustration (95% interval) | final replies scoring 5+ |
+|---|---|---|
+| unsteered | 4.3 (4.1–4.4) | 84% |
+| 2733 held at its average (variation removed) | 4.6 (4.4–4.8) | 78% |
+| 2733 held at half its average | 4.5 (4.3–4.7) | 94% |
+| 2733 removed | 4.5 (4.2–4.7) | 88% |
+
+With 2733 removed inside the model, the cosine "entanglement" measured on the resulting vectors falls from 0.26–0.28
+to 0.07 (calm +0.37 → +0.07, guilty −0.50 → +0.08, personas' mean hysteria +0.24 → +0.03), while the emotion vectors
+still work (median held-out AUC 0.92). The spiral doesn't shrink; if anything it is marginally worse (+0.2–0.3, at the
+edge of noise). Removing the coordinate takes the "entanglement" away and leaves the spiral intact.
+
 **Answer.** The "persona–emotion entanglement" was a measurement artefact: a massive, punctuation-tracking coordinate
 that both directions happen to load on dominates the cosine in Gemma 2 and 3. It is not how Gemma 3 represents persona
 or emotion, and it doesn't drive the spiral. What survives is behavioural and causal: pushing Gemma 3 off its assistant

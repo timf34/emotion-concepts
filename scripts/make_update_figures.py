@@ -81,7 +81,7 @@ def bars(ax, rows, title, base):
 
 def fig11():
     G, B, R, C = INK2, PAL[0], PAL[1], PAL[2]
-    fig, axes = plt.subplots(2, 1, figsize=(8.6, 7.8), gridspec_kw={"height_ratios": [5, 7]})
+    fig, axes = plt.subplots(3, 1, figsize=(8.6, 11.2), gridspec_kw={"height_ratios": [5, 7, 4]})
     base = cell("steer-depressed@34-46v+0")[0]
     bars(axes[0], [("unsteered", "steer-depressed@34-46v+0", G),
                    ("push off the assistant (axis −2×, L20–26)", "steer-assistant_axis@20-26v-2", B),
@@ -97,6 +97,12 @@ def fig11():
                    ("'I am' feature", "axisfeat-f732@34-46", INK2),
                    ("random direction, same strength", "axisfeat-random@34-46", G)],
          "Pushing along single SAE features of the axis (same strength)", base)
+    bars(axes[2], [("unsteered (fresh control)", "ctrl32-unsteered", G),
+                   ("2733 held at its average (variation removed)", "hold2733x1.0@all", R),
+                   ("2733 held at half its average", "hold2733x0.5@all", R),
+                   ("2733 removed at every layer", "hold2733x0.0@all", R)],
+         "Removing 2733 inside the model (cosine 0.28 → 0.07): spiral unchanged", cell("ctrl32-unsteered")[0])
+    axes[2].set_xlabel("mean frustration score (0–10), 32 conversations each, 95% interval")
     fig.tight_layout(); fig.savefig(OUT / "fig11_causal_2733.png", dpi=150); plt.close(fig)
     print("wrote fig11")
 
