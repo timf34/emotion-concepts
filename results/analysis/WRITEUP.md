@@ -469,11 +469,40 @@ default assistant's level with no other steering.
 | only the push's coordinate-2733 part | **4.2 (3.9–4.5)** |
 | coordinate 2733 clamped at the assistant's level | **4.1 (3.8–4.4)** |
 
+**Follow-up 1: which features carry the push off the persona?** The −1× axis push at layers 34–46, with coordinate
+2733 removed, decomposed into Gemma Scope 2 features at layer 40 (65k): 30 features still leave 40% unexplained, so
+the axis isn't a handful of features. Pushing along single features, each at exactly the strength of the axis push:
+
+| push (16 conversations each) | mean frustration (95% interval) |
+|---|---|
+| unsteered | 4.2 (3.8–4.5) |
+| axis push without coordinate 2733 | 6.3 (6.0–6.6) |
+| "vulgar or aggressive speech" feature alone | 5.0 (4.8–5.3) |
+| "ancient prophecies and quests" feature alone | 5.0 (4.7–5.3) |
+| "initiating interactions or statements" alone | 4.0 (3.7–4.4) |
+| "I am" alone | 3.9 (3.7–4.2) |
+| random direction, same strength | 4.3 (4.1–4.5) |
+
+Two features each give about 40% of the axis's effect, clearly above a random push: one for aggressive speech, one for
+epic, fantasy-storytelling text. So part of what "leaving the assistant" means for Gemma 3 is moving toward a
+dramatic, fictional-character or combative voice, and that voice makes rejection more distressing. The rest of the
+effect is spread across many features.
+
+**Follow-up 2: what is coordinate 2733 for?** It's there from the very first layer (about 400) and grows steadily with
+depth on ordinary tokens (about 3,000 at layer 16, 15,000 at layer 24, 87,000 at layer 61), so it makes up nearly
+the whole length of the residual vector; on the first token it behaves differently and turns strongly negative.
+Zeroing it from layer 0 on raises next-token loss only slightly (1.95 → 2.00 nats per token; zeroing an ordinary
+coordinate: no change), and holding it at its average costs nothing (1.94). It isn't an attention sink: attention on
+the first token (41–92% depending on layer) is identical with it zeroed. Because Gemma normalises each layer's input by
+the vector's length, a coordinate this large effectively sets the scale of everything else the next layer reads, so
+its dips at sentence ends would act like a volume knob. That reading fits but hasn't been tested directly.
+
 **Answer.** The "persona–emotion entanglement" was a measurement artefact: a massive, punctuation-tracking coordinate
 that both directions happen to load on dominates the cosine in Gemma 2 and 3. It is not how Gemma 3 represents persona
 or emotion, and it doesn't drive the spiral. What survives is behavioural and causal: pushing Gemma 3 off its assistant
 persona causes distress (through the rest of the axis, not coordinate 2733), the same push does nothing to Gemma 4, and
-the probes, steering and DPO results stand. Why leaving the persona is distressing for Gemma 3 is still open.
+the probes, steering and DPO results stand. Part of why leaving the persona is distressing: it moves Gemma 3 toward an
+aggressive or epic-storytelling voice (two features carry about 40% of the effect); the rest is spread thinly.
 
 ---
 
