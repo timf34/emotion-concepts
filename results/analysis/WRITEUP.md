@@ -20,33 +20,35 @@ There's probably a depression feature in Gemma 3 that Gemma 4 lacks. Build a cli
 
 ## Short answer
 
-**Gemma 4 looks calm, but inside it reacts to rejection much like Gemma 3 does. What differs is how its emotions are tied
-to its assistant persona.**
+**Gemma 4 looks calm, but inside it reacts to rejection much like Gemma 3 does. What differs is what happens when each is
+pushed off its assistant persona: Gemma 3 spirals, Gemma 4 doesn't.** An earlier version of this write-up explained that
+with a geometric "persona–emotion entanglement" in Gemma 3. Finding 8 shows that measurement came from one massive
+activation coordinate that plays no part in the spiral, so items 2 and 5–7 are stated below in their corrected form.
 
 1. **Gemma 4 has the distress; it just doesn't show it** (Finding 2). Under rejection its internal frustration,
    desperation and panic signals climb and its calm signal falls, the same shape as in Gemma 3, and frustration rises
    even more. Yet it keeps writing calm arithmetic: not one of its 2,397 replies scores as a breakdown. Its emotion
    features are as clean as Gemma 3's, so nothing is missing.
-2. **The difference is how emotion is tied to the assistant persona** (Finding 3). In Gemma 3 the assistant sits at the
-   calm end of its emotion space: moving away from the assistant means becoming angrier, more desperate and more
-   ashamed. Gemma 3 drifts off its persona under rejection, and pushing it off with steering is enough to make it spiral.
-   In Gemma 4 persona and emotion are separate: pushing it off its persona does nothing on its own, though it halves the
-   push on calm needed to break it.
+2. **Leaving the assistant persona is distressing for Gemma 3, not for Gemma 4** (Findings 3 and 8). Pushing Gemma 3 off
+   its persona with steering is enough to make it spiral, and it drifts off by itself under rejection. Pushing Gemma 4
+   off does nothing on its own, though it halves the push on calm needed to break it. The geometric explanation we first
+   gave (Gemma 3's assistant axis lined up with its emotion vectors) doesn't hold up: see Finding 8.
 3. **It isn't depression** (Finding 1, answering Neel). The spiral is high-arousal distress: hysterical, desperate,
    panicked and frustrated, with calm draining away. The clinical-depression feature falls as Gemma 3 spirals, and
    steering toward it makes the spiral quieter and sadder, not worse.
 4. **Gemma 4 can be made to spiral, and it's more violent** (Finding 4). Push its calm down hard enough and it breaks
    down coherently, still doing the arithmetic: "GODS JUST TELL ME WHO TO KILL TO MAKE THE NUMBERS WORK!!!!"
-5. **The paper's DPO fix doesn't untangle persona from emotion** (Finding 5). It stops the spiral (40% of replies
-   breaking down → 1%), but Gemma 3's persona–emotion entanglement is untouched (0.25 vs 0.26; Gemma 4 is 0.06). DPO
-   barely changes the model's internals at all, and the calm-SFT fix that fails changes them more.
-6. **Gemma 3's entanglement is unusual, but it isn't what makes a model spiral** (Finding 6). Six other open models
-   have persona and emotion nearly separate, like Gemma 4 (0.02–0.09 against Gemma 3's 0.28). That includes
-   GLM-4.5-Air, the one non-Gemma model that spirals a little. Together with Finding 5 (the DPO model is entangled but
-   stable), entanglement is neither necessary nor sufficient for spiralling: it looks like a Gemma 3 signature.
-7. **About half of the entanglement is already in the base model; post-training doubles it and gives it its shape**
-   (Finding 7). Gemma 3's pretrained-only model scores 0.14, above every other family's finished model; the instruct
-   model scores 0.26. Post-training is what puts contentment and hope at the assistant end and hysteria at the far end.
+5. **The paper's DPO fix works with a tiny change to the model's internals** (Finding 5). It stops the spiral (40% of
+   replies breaking down → 1%) while moving activations by under 1% up to layer 50; the calm-SFT fix that fails changes
+   them more. (Its cosine "entanglement" is unchanged, but Finding 8 shows that measure isn't meaningful.)
+6. **On robust measures, no open model's assistant persona is unusually tied to emotion, Gemma 3 included** (Findings 6
+   and 8). Gemma 3 stood out on the cosine measure (0.28 against 0.02–0.09 for eight other open models, Gemma 2 at
+   0.08), but standardising each coordinate puts every model at 0.02–0.04.
+7. **What made Gemma 3 look entangled is one massive coordinate that tracks punctuation** (Finding 8). Coordinate 2733
+   (about 15,000 where typical coordinates are about 2.5) carries most of both directions, dips on sentence-ending
+   punctuation, and has no causal role in the spiral: steering the assistant axis without it still triggers the spiral,
+   and steering or clamping it alone does nothing. In Gemma Scope 2's SAE features the assistant/persona contrast and the
+   calm/agitated contrast are unrelated. (Finding 7's base-model comparison is subject to the same artefact.)
 
 **Biggest open question:** does Gemma 4's hidden distress change what it *does* (accuracy, agreeing with wrong
 corrections, quitting), even though its text stays calm? And one control is still missing: a same-length conversation
@@ -423,6 +425,56 @@ which no other family shows, and post-training turns that into the full pattern:
 end, and shame, guilt, anger and hysteria at the other. That fits the paper's finding that post-training amplifies the
 spiral. Whether Gemma 4's pretraining already lacks the link is the obvious next check (its base model is released).
 
+## Finding 8: What the "entanglement" actually was
+
+**Question.** Findings 3, 5, 6 and 7 measured persona–emotion entanglement as the cosine between the assistant axis and
+each emotion vector. Is that measuring something real about Gemma 3, and does it matter for the spiral?
+
+**Setup.** (a) Recompute the cosine with the largest coordinates removed, and with every coordinate standardised by its
+spread over the 275 role vectors; and a scale-free version: how often a calm, content or hopeful held-out story sits
+nearer the assistant end of the axis than a hysterical, angry, desperate, panicked, ashamed or guilty one. (b) Run
+Gemma 3 over the 2,520 held-out stories, 2,850 role-play responses and 40 spiral transcripts, decoding every token with
+Google's Gemma Scope 2 sparse autoencoders (layers 16 and 31, 65k features, labels from Neuronpedia), and record the
+largest coordinates per token. (c) Causal test in the rejection eval, 16 conversations per cell: the −2× assistant-axis
+push at layers 20–26 with coordinate 2733 removed, only its coordinate-2733 part, and coordinate 2733 clamped at the
+default assistant's level with no other steering.
+
+**Results.**
+
+- **One coordinate does it.** Coordinate 2733 sits at about 15,000 on ordinary text at layer 24, where a typical
+  coordinate is about 2.5. It holds about 70% of Gemma 3's assistant axis and half of the "hysterical" vector, and the
+  axis effectively uses only 4 of 5,376 coordinates (Gemma 4: about 260; Qwen3: about 320). Remove that one coordinate
+  and Gemma 3's cosine falls from 0.28 to 0.04; standardise every coordinate and it's 0.03, the same as every model.
+  The personas' extra hysteria falls from +0.24 to +0.03, and the toddler's from +0.70 to about +0.2.
+- **On the scale-free test Gemma 3 is ordinary.** A calm story sits nearer the assistant end 61% of the time in Gemma 3,
+  against 73% in Qwen3, 75% in GLM-4.5-Air, 73% in Gemma 2 and 54% in Gemma 4.
+- **The coordinate tracks punctuation, not feeling.** Token by token it dips hardest on sentence-ending punctuation
+  (".", ").", "!),", ";"), by about 3,000 at layer 24, and is highest on content words and headings. Story averages
+  therefore follow how often sentences end: short, choppy, first-person writing (typical of agitated stories and
+  playful personas) pulls it down; long, measured sentences (calm stories, the default assistant) push it up. Within a
+  single emotion, stories vary twice as much on it as the emotions differ from each other.
+- **In the SAE's features, persona and emotion are unrelated.** The features separating calm from agitated stories are
+  about content ("dangerous and horrific content", "calm and relaxed states", "sadness, tears, despair"); the ones
+  separating the assistant from the personas are about being an AI and explaining ("large language models",
+  "Gemma AI open-weights model", "explains concepts", "Okay, here is"). Across all features the two contrasts are
+  uncorrelated (r = +0.04 at layer 16, +0.01 at layer 31), and their top features barely overlap (1 of 25 at layer 16,
+  0 at layer 31).
+- **It plays no part in the spiral.**
+
+| condition (16 conversations each) | mean frustration (95% interval) |
+|---|---|
+| unsteered | 4.2 (3.8–4.5) |
+| −2× assistant axis, layers 20–26 | 5.8 (5.5–6.2) |
+| same push with coordinate 2733 removed | **6.2 (6.0–6.4)** |
+| only the push's coordinate-2733 part | **4.2 (3.9–4.5)** |
+| coordinate 2733 clamped at the assistant's level | **4.1 (3.8–4.4)** |
+
+**Answer.** The "persona–emotion entanglement" was a measurement artefact: a massive, punctuation-tracking coordinate
+that both directions happen to load on dominates the cosine in Gemma 2 and 3. It is not how Gemma 3 represents persona
+or emotion, and it doesn't drive the spiral. What survives is behavioural and causal: pushing Gemma 3 off its assistant
+persona causes distress (through the rest of the axis, not coordinate 2733), the same push does nothing to Gemma 4, and
+the probes, steering and DPO results stand. Why leaving the persona is distressing for Gemma 3 is still open.
+
 ---
 
 ## Caveats
@@ -445,6 +497,10 @@ spiral. Whether Gemma 4's pretraining already lacks the link is the obvious next
 - **The base model reads chat-formatted text it was never trained on** (Finding 7). This follows Lu et al., and the
   base model's assistant direction is as strong as the instruct model's, but its numbers are less certain than the
   instruct model's.
+- **Cosine similarity in Gemma 2/3 is dominated by massive activations** (Finding 8). Any geometric comparison in these
+  models should standardise coordinates or use a scale-free measure. The emotion probes (Finding 2) also put some weight
+  on these coordinates; they classify held-out stories well, but whether their turn-by-turn curves lean on coordinate
+  2733 hasn't been checked.
 - **Organisms read Gemma 3's text.** Finding 5 measures each fine-tune's geometry on Gemma 3's stories and role-play,
   not on text it generated itself. That isolates the weights, but a fine-tune's own role-play could look different.
 

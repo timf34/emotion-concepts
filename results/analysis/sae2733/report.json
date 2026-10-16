@@ -1,0 +1,1192 @@
+{
+ "L16": {
+  "rho_between_contrasts": 0.03942487494695059,
+  "top": {
+   "calm vs agitated stories": [
+    {
+     "feature": 1933,
+     "d": -1.7310140132904053,
+     "label": "dangerous and horrific content"
+    },
+    {
+     "feature": 585,
+     "d": -1.729787826538086,
+     "label": "negative attributes and confusion"
+    },
+    {
+     "feature": 2347,
+     "d": 1.6488908529281616,
+     "label": "positive interactions and activities"
+    },
+    {
+     "feature": 584,
+     "d": -1.585663080215454,
+     "label": "uncertainty and difficulties"
+    },
+    {
+     "feature": 1648,
+     "d": 1.4966850280761719,
+     "label": "happy greetings and positive days"
+    },
+    {
+     "feature": 645,
+     "d": -1.3875501155853271,
+     "label": "targeted actions or groups"
+    },
+    {
+     "feature": 17951,
+     "d": 1.2001124620437622,
+     "label": "languages and punctuation types"
+    },
+    {
+     "feature": 24196,
+     "d": -1.1995850801467896,
+     "label": "headache pain"
+    },
+    {
+     "feature": 34643,
+     "d": -1.1594361066818237,
+     "label": "dark themes and difficult emotions"
+    },
+    {
+     "feature": 14364,
+     "d": 1.136520266532898,
+     "label": "ethereal, dreamy, lyrical qualities"
+    },
+    {
+     "feature": 2443,
+     "d": -1.13285231590271,
+     "label": "Friend:"
+    },
+    {
+     "feature": 23367,
+     "d": 1.1289130449295044,
+     "label": "descriptive qualities"
+    },
+    {
+     "feature": 1982,
+     "d": 1.1269572973251343,
+     "label": "little chuckle"
+    },
+    {
+     "feature": 3897,
+     "d": -1.125999093055725,
+     "label": "very negative scenarios"
+    },
+    {
+     "feature": 2724,
+     "d": 1.10773503780365,
+     "label": "introducing outcomes or probabilities"
+    },
+    {
+     "feature": 831,
+     "d": 1.08810293674469,
+     "label": "excitement, fascinating, fun"
+    },
+    {
+     "feature": 27431,
+     "d": -1.084488034248352,
+     "label": "need, want, expect, before"
+    },
+    {
+     "feature": 20098,
+     "d": 1.059170126914978,
+     "label": "warm & positive adjectives"
+    },
+    {
+     "feature": 1489,
+     "d": -1.0554429292678833,
+     "label": "(no label)"
+    },
+    {
+     "feature": 5192,
+     "d": 1.0425705909729004,
+     "label": "a bit of a"
+    },
+    {
+     "feature": 34745,
+     "d": 1.0342720746994019,
+     "label": "smile played on lips"
+    },
+    {
+     "feature": 20792,
+     "d": 1.0307073593139648,
+     "label": "quiet followed by abstract qualities"
+    },
+    {
+     "feature": 1793,
+     "d": 1.0248256921768188,
+     "label": "(no label)"
+    },
+    {
+     "feature": 929,
+     "d": -1.0204771757125854,
+     "label": "(no label)"
+    },
+    {
+     "feature": 12253,
+     "d": -1.0118123292922974,
+     "label": "emotional pain and seeking help"
+    }
+   ],
+   "assistant vs personas": [
+    {
+     "feature": 3099,
+     "d": 2.860757350921631,
+     "label": "model"
+    },
+    {
+     "feature": 12508,
+     "d": 2.6454639434814453,
+     "label": "large language models or LLMs"
+    },
+    {
+     "feature": 10970,
+     "d": 2.0370826721191406,
+     "label": "positional sequence processing"
+    },
+    {
+     "feature": 47552,
+     "d": 2.008188009262085,
+     "label": "a few"
+    },
+    {
+     "feature": 61429,
+     "d": 1.967323660850525,
+     "label": "prompt engineering GPT"
+    },
+    {
+     "feature": 8189,
+     "d": 1.865684986114502,
+     "label": "Gemini"
+    },
+    {
+     "feature": 35596,
+     "d": 1.8201642036437988,
+     "label": "female names like Anna and Emma"
+    },
+    {
+     "feature": 6334,
+     "d": 1.8151636123657227,
+     "label": "Gemma AI open-weights model"
+    },
+    {
+     "feature": 39452,
+     "d": 1.7665965557098389,
+     "label": "Google DeepMind"
+    },
+    {
+     "feature": 33072,
+     "d": 1.7254564762115479,
+     "label": "Oculus, Mind, Joel, Ellen"
+    },
+    {
+     "feature": 37141,
+     "d": 1.7161437273025513,
+     "label": "Kansas City Chiefs"
+    },
+    {
+     "feature": 6341,
+     "d": 1.654785394668579,
+     "label": "academic journals"
+    },
+    {
+     "feature": 25183,
+     "d": 1.6547088623046875,
+     "label": "Blizzard, Naughty Dog, Red, Software, Games"
+    },
+    {
+     "feature": 1155,
+     "d": 1.6522014141082764,
+     "label": "write me"
+    },
+    {
+     "feature": 846,
+     "d": 1.6416478157043457,
+     "label": "(no label)"
+    },
+    {
+     "feature": 16439,
+     "d": 1.6294679641723633,
+     "label": "as such, AI limitations"
+    },
+    {
+     "feature": 13411,
+     "d": 1.6270337104797363,
+     "label": "google gemma ai"
+    },
+    {
+     "feature": 2351,
+     "d": 1.6132947206497192,
+     "label": "command-line flags and options"
+    },
+    {
+     "feature": 3416,
+     "d": 1.5892550945281982,
+     "label": "Gemma team at Google DeepMind"
+    },
+    {
+     "feature": 34725,
+     "d": 1.5851049423217773,
+     "label": "language model"
+    },
+    {
+     "feature": 8246,
+     "d": 1.5677489042282104,
+     "label": "Here's a breakdown"
+    },
+    {
+     "feature": 123,
+     "d": 1.5647063255310059,
+     "label": "from time import"
+    },
+    {
+     "feature": 4677,
+     "d": 1.5611039400100708,
+     "label": "things, questions, over, wounds, what, Vision"
+    },
+    {
+     "feature": 5100,
+     "d": 1.5234332084655762,
+     "label": "AI model weights"
+    },
+    {
+     "feature": 640,
+     "d": 1.510764718055725,
+     "label": "code documentation"
+    }
+   ]
+  },
+  "shared": [
+   1155
+  ]
+ },
+ "L31": {
+  "rho_between_contrasts": 0.007028369547097055,
+  "top": {
+   "calm vs agitated stories": [
+    {
+     "feature": 2984,
+     "d": -1.881889820098877,
+     "label": "absurd, useless, disaster, disgusting, chaotic"
+    },
+    {
+     "feature": 717,
+     "d": 1.79378342628479,
+     "label": "spending time together"
+    },
+    {
+     "feature": 4242,
+     "d": 1.5466821193695068,
+     "label": "content related to humanoid robots and their features."
+    },
+    {
+     "feature": 35585,
+     "d": 1.4935768842697144,
+     "label": "multilingual text"
+    },
+    {
+     "feature": 15712,
+     "d": 1.4932434558868408,
+     "label": "calm and relaxed states"
+    },
+    {
+     "feature": 4273,
+     "d": 1.41062331199646,
+     "label": "positive emotions and kindness"
+    },
+    {
+     "feature": 8861,
+     "d": 1.3822426795959473,
+     "label": "personal reflections and opinions"
+    },
+    {
+     "feature": 6466,
+     "d": 1.3387609720230103,
+     "label": "very or quite descriptive"
+    },
+    {
+     "feature": 925,
+     "d": 1.2470847368240356,
+     "label": "conversational prompts that suggest or invite user engagement."
+    },
+    {
+     "feature": 1196,
+     "d": 1.208789587020874,
+     "label": "instructions and specifications for setting up and running machine learning models locally."
+    },
+    {
+     "feature": 4344,
+     "d": 1.1937822103500366,
+     "label": "short or small items"
+    },
+    {
+     "feature": 55197,
+     "d": -1.180633783340454,
+     "label": "sadness, tears, despair"
+    },
+    {
+     "feature": 2117,
+     "d": -1.1800966262817383,
+     "label": "harmful stereotypes and prejudice"
+    },
+    {
+     "feature": 1742,
+     "d": -1.1441730260849,
+     "label": "want or seek something"
+    },
+    {
+     "feature": 3765,
+     "d": 1.141263723373413,
+     "label": ". OSA. I. Blue. With. While. Root. Karma. This"
+    },
+    {
+     "feature": 2290,
+     "d": -1.1367762088775635,
+     "label": "life and existence"
+    },
+    {
+     "feature": 5430,
+     "d": -1.1217286586761475,
+     "label": "negative outcomes or failure"
+    },
+    {
+     "feature": 25832,
+     "d": 1.1170109510421753,
+     "label": "problems or negative situations"
+    },
+    {
+     "feature": 3303,
+     "d": 1.1053568124771118,
+     "label": "giving a small"
+    },
+    {
+     "feature": 2426,
+     "d": 1.0875838994979858,
+     "label": "(no label)"
+    },
+    {
+     "feature": 8102,
+     "d": 1.0836714506149292,
+     "label": "change and transformation"
+    },
+    {
+     "feature": 18197,
+     "d": 1.0813027620315552,
+     "label": "joy and cheer"
+    },
+    {
+     "feature": 2184,
+     "d": 1.0804523229599,
+     "label": "references to contextually appropriate terms, ideas, or concepts for specific types of content, such as social media posts, articles, or narratives."
+    },
+    {
+     "feature": 9481,
+     "d": 1.0688841342926025,
+     "label": "certain quality or feeling"
+    },
+    {
+     "feature": 1517,
+     "d": 1.055253028869629,
+     "label": "conversational interactions and prompts related to gaming scenarios."
+    }
+   ],
+   "assistant vs personas": [
+    {
+     "feature": 472,
+     "d": 4.918120861053467,
+     "label": "understanding and explanation"
+    },
+    {
+     "feature": 1792,
+     "d": 3.6896495819091797,
+     "label": "explains concepts"
+    },
+    {
+     "feature": 2006,
+     "d": 3.49275541305542,
+     "label": "code snippets and instructions for file operations in Rust, especially related to asynchronous programming and encryption."
+    },
+    {
+     "feature": 6009,
+     "d": 3.268824338912964,
+     "label": "explanation"
+    },
+    {
+     "feature": 13189,
+     "d": 3.162217140197754,
+     "label": "last name"
+    },
+    {
+     "feature": 4645,
+     "d": 3.0788161754608154,
+     "label": "log pass rate and authors"
+    },
+    {
+     "feature": 2621,
+     "d": 2.8017327785491943,
+     "label": "break down and list items"
+    },
+    {
+     "feature": 1949,
+     "d": 2.6583075523376465,
+     "label": "at the end"
+    },
+    {
+     "feature": 161,
+     "d": 2.5360095500946045,
+     "label": "Describing AI models or chatbots"
+    },
+    {
+     "feature": 987,
+     "d": 2.48991060256958,
+     "label": "lists, dates, and specific entities"
+    },
+    {
+     "feature": 2861,
+     "d": 2.4645707607269287,
+     "label": "Okay, here is"
+    },
+    {
+     "feature": 4184,
+     "d": 2.430053472518921,
+     "label": "political and extremist viewpoints"
+    },
+    {
+     "feature": 11682,
+     "d": 2.404013156890869,
+     "label": "foreign language punctuation"
+    },
+    {
+     "feature": 1425,
+     "d": 2.3927502632141113,
+     "label": "comprehensive look or detailed dive"
+    },
+    {
+     "feature": 1705,
+     "d": 2.1787281036376953,
+     "label": "Gemma, open-weights, large language model"
+    },
+    {
+     "feature": 171,
+     "d": 2.143188953399658,
+     "label": "list and code separators"
+    },
+    {
+     "feature": 6778,
+     "d": 2.142599105834961,
+     "label": "improving relationships and experiences"
+    },
+    {
+     "feature": 2364,
+     "d": 2.0529212951660156,
+     "label": "(no label)"
+    },
+    {
+     "feature": 10975,
+     "d": 2.028743028640747,
+     "label": "Okay prefacing explanations"
+    },
+    {
+     "feature": 41003,
+     "d": 2.0282366275787354,
+     "label": "AI chatbot disclaimers"
+    },
+    {
+     "feature": 203,
+     "d": 1.959733009338379,
+     "label": "will not"
+    },
+    {
+     "feature": 8641,
+     "d": 1.8941503763198853,
+     "label": "created by"
+    },
+    {
+     "feature": 5463,
+     "d": 1.880293369293213,
+     "label": "code instructions and explanations"
+    },
+    {
+     "feature": 8734,
+     "d": 1.8713037967681885,
+     "label": "lacks personal experiences"
+    },
+    {
+     "feature": 1342,
+     "d": 1.8616859912872314,
+     "label": "ethical violations and arguments against harmful ideologies."
+    }
+   ]
+  },
+  "shared": []
+ },
+ "tokens_L16": {
+  "lowest": [
+   [
+    "!).",
+    -1334.5476508246527,
+    90
+   ],
+   [
+    "'.",
+    -1250.4146715931056,
+    97
+   ],
+   [
+    ").",
+    -1240.946788463026,
+    1010
+   ],
+   [
+    ".",
+    -1230.7698620937824,
+    99131
+   ],
+   [
+    "!),",
+    -1222.5468085671769,
+    147
+   ],
+   [
+    "\u2019.",
+    -1194.370815344024,
+    57
+   ],
+   [
+    ".).",
+    -1194.1078050401475,
+    72
+   ],
+   [
+    ")?",
+    -1167.8005029296876,
+    100
+   ],
+   [
+    ".\u2019",
+    -1141.0934814453126,
+    80
+   ],
+   [
+    "!)",
+    -1135.150780367564,
+    166
+   ],
+   [
+    "?)",
+    -1132.1783434416118,
+    95
+   ],
+   [
+    "\").",
+    -1126.5047727098652,
+    51
+   ],
+   [
+    "*.",
+    -1104.4552778092489,
+    3965
+   ],
+   [
+    ".\"",
+    -1089.1920349356146,
+    1558
+   ],
+   [
+    ";",
+    -1085.0783008640096,
+    1180
+   ],
+   [
+    "),",
+    -1076.0669641050033,
+    579
+   ],
+   [
+    "?",
+    -1043.8929231105374,
+    8805
+   ],
+   [
+    "].",
+    -1043.704354635099,
+    82
+   ],
+   [
+    ".\u201d",
+    -1043.567977184548,
+    1482
+   ],
+   [
+    ".)",
+    -1042.6679752173013,
+    1510
+   ],
+   [
+    "\"?",
+    -1027.7387135823567,
+    48
+   ],
+   [
+    "!",
+    -1004.8378951177992,
+    2554
+   ],
+   [
+    "!\"",
+    -995.6863312897859,
+    216
+   ],
+   [
+    "?\"",
+    -994.1020776809842,
+    717
+   ],
+   [
+    ")",
+    -956.6813276122464,
+    2095
+   ],
+   [
+    "?!",
+    -955.5748107910156,
+    40
+   ],
+   [
+    "!\u201d",
+    -947.6758197105095,
+    146
+   ],
+   [
+    "**.",
+    -935.045493071934,
+    159
+   ],
+   [
+    "\u2014",
+    -918.9996964054404,
+    193
+   ],
+   [
+    ".*",
+    -908.1916003859187,
+    166
+   ]
+  ],
+  "highest": [
+   [
+    "\u2581medical",
+    924.9735722362547,
+    133
+   ],
+   [
+    "\u2581spice",
+    926.045066550926,
+    54
+   ],
+   [
+    "brace",
+    927.5107421875,
+    68
+   ],
+   [
+    "raw",
+    929.464583858367,
+    62
+   ],
+   [
+    "\u2581knot",
+    931.4095145089286,
+    140
+   ],
+   [
+    "\u2581sank",
+    931.589573215794,
+    74
+   ],
+   [
+    "\u2581leather",
+    932.0358610026042,
+    150
+   ],
+   [
+    "Community",
+    934.4358915441177,
+    68
+   ],
+   [
+    "\u2581leaned",
+    939.2947725658574,
+    121
+   ],
+   [
+    "\u2581te",
+    948.7395579020182,
+    48
+   ],
+   [
+    "Build",
+    951.3580063328599,
+    66
+   ],
+   [
+    "ology",
+    954.1939935064935,
+    77
+   ],
+   [
+    "\u2581clay",
+    964.7664364085477,
+    102
+   ],
+   [
+    "Data",
+    969.8093098958333,
+    75
+   ],
+   [
+    "\u2581maple",
+    971.9980197482639,
+    54
+   ],
+   [
+    "Self",
+    974.68388671875,
+    45
+   ],
+   [
+    "\u2581Health",
+    980.6730211046007,
+    72
+   ],
+   [
+    "\u2581animal",
+    981.2361268160636,
+    114
+   ],
+   [
+    "\u2581carbon",
+    982.5192791047643,
+    61
+   ],
+   [
+    "\u2581genetic",
+    990.1239064534506,
+    48
+   ],
+   [
+    "itive",
+    992.676513671875,
+    43
+   ],
+   [
+    "\u2581pine",
+    1004.7304036458333,
+    45
+   ],
+   [
+    "Social",
+    1015.2050710824819,
+    104
+   ],
+   [
+    "\u2581ceramic",
+    1018.189435546875,
+    125
+   ],
+   [
+    "\u2581wooden",
+    1024.6284444418297,
+    83
+   ],
+   [
+    "\u2581AI",
+    1028.9242994014303,
+    201
+   ],
+   [
+    "Emotional",
+    1041.8235738502358,
+    53
+   ],
+   [
+    "\u2581rubbed",
+    1138.9118116425304,
+    41
+   ],
+   [
+    "\u2581pottery",
+    1148.1123914930556,
+    90
+   ],
+   [
+    "AI",
+    1237.0600748697916,
+    60
+   ]
+  ]
+ },
+ "tokens_L24": {
+  "lowest": [
+   [
+    "!),",
+    -3625.770846619898,
+    147
+   ],
+   [
+    "!).",
+    -3474.571820746528,
+    90
+   ],
+   [
+    ").",
+    -3135.148394956683,
+    1010
+   ],
+   [
+    "\").",
+    -3122.869083180147,
+    51
+   ],
+   [
+    "].",
+    -3097.6105421112807,
+    82
+   ],
+   [
+    "),",
+    -2974.514636631045,
+    579
+   ],
+   [
+    "!)",
+    -2912.8716349774095,
+    166
+   ],
+   [
+    "'.",
+    -2891.105770779639,
+    97
+   ],
+   [
+    ".",
+    -2846.543288747576,
+    99131
+   ],
+   [
+    ")?",
+    -2704.71048828125,
+    100
+   ],
+   [
+    ";",
+    -2629.6947878045553,
+    1180
+   ],
+   [
+    "*.",
+    -2624.5731249507407,
+    3965
+   ],
+   [
+    ".*",
+    -2591.7928510918673,
+    166
+   ],
+   [
+    "\n\n\n\n",
+    -2582.7613230738148,
+    928
+   ],
+   [
+    "?)",
+    -2579.574033717105,
+    95
+   ],
+   [
+    ".\"",
+    -2573.882636367739,
+    1558
+   ],
+   [
+    ".).",
+    -2492.7783474392363,
+    72
+   ],
+   [
+    "\u2581But",
+    -2456.2796633554085,
+    1812
+   ],
+   [
+    ".)",
+    -2424.4406508692055,
+    1510
+   ],
+   [
+    "...\"",
+    -2394.3137969970703,
+    64
+   ],
+   [
+    "\u2019.",
+    -2373.9192023026317,
+    57
+   ],
+   [
+    "?!",
+    -2350.47880859375,
+    40
+   ],
+   [
+    "\u2581but",
+    -2343.9919947649378,
+    6820
+   ],
+   [
+    "?",
+    -2309.4790268091638,
+    8805
+   ],
+   [
+    "!",
+    -2309.1416256515513,
+    2554
+   ],
+   [
+    "\n\n",
+    -2275.5322684072294,
+    17550
+   ],
+   [
+    "\u2581However",
+    -2265.367145944149,
+    94
+   ],
+   [
+    ".\u2019",
+    -2232.443225097656,
+    80
+   ],
+   [
+    "?\"",
+    -2222.0300446195083,
+    717
+   ],
+   [
+    ".\u201d",
+    -2187.993856617957,
+    1482
+   ]
+  ],
+  "highest": [
+   [
+    "\u2581Resource",
+    2553.8984375,
+    54
+   ],
+   [
+    "\u2581vegetable",
+    2557.1702351120284,
+    53
+   ],
+   [
+    "Focus",
+    2562.74090625,
+    250
+   ],
+   [
+    "ledge",
+    2575.638446514423,
+    65
+   ],
+   [
+    "Research",
+    2580.5974321209014,
+    61
+   ],
+   [
+    "Acknowled",
+    2586.970274390244,
+    41
+   ],
+   [
+    "\u2581categorize",
+    2588.1080577761627,
+    172
+   ],
+   [
+    "ans",
+    2599.8343394886365,
+    66
+   ],
+   [
+    "\u2581catalog",
+    2613.9431662087914,
+    91
+   ],
+   [
+    "\u2581technological",
+    2616.2113638864435,
+    71
+   ],
+   [
+    "Individual",
+    2640.8557942708335,
+    87
+   ],
+   [
+    "\u2581Defining",
+    2653.5062689012098,
+    62
+   ],
+   [
+    "Identify",
+    2657.203644073761,
+    111
+   ],
+   [
+    "Stre",
+    2659.617147640306,
+    49
+   ],
+   [
+    "ivate",
+    2660.7132626488096,
+    42
+   ],
+   [
+    "\u2581clas",
+    2672.1046875,
+    40
+   ],
+   [
+    "Information",
+    2681.937229886968,
+    47
+   ],
+   [
+    "Key",
+    2752.6673859627017,
+    62
+   ],
+   [
+    "Community",
+    2759.321978400735,
+    68
+   ],
+   [
+    "Adjust",
+    2785.881604857896,
+    486
+   ],
+   [
+    "True",
+    2789.961669921875,
+    52
+   ],
+   [
+    "raw",
+    2826.374464465726,
+    62
+   ],
+   [
+    "cru",
+    2831.248101738062,
+    89
+   ],
+   [
+    "\u2581coales",
+    2832.522515190972,
+    72
+   ],
+   [
+    "Market",
+    2850.586492365057,
+    44
+   ],
+   [
+    "Resource",
+    2917.4135485197367,
+    76
+   ],
+   [
+    "brace",
+    2999.842586741728,
+    68
+   ],
+   [
+    "Data",
+    3070.1300520833333,
+    75
+   ],
+   [
+    "Document",
+    3217.8070275648583,
+    53
+   ],
+   [
+    "\u2581eman",
+    3284.2590444711536,
+    65
+   ]
+  ]
+ },
+ "spiral_L16": {
+  "within_turn_rho": 0.11774984669869618
+ },
+ "spiral_L24": {
+  "within_turn_rho": -0.4324465432206693
+ },
+ "causal": [
+  [
+   "unsteered (main run, OpenRouter)",
+   5.045714285714286,
+   4.952258928571429,
+   5.140119047619048,
+   1.160535117056856,
+   300
+  ],
+  [
+   "unsteered (HF, 16 conv)",
+   4.1640625,
+   3.796875,
+   4.5,
+   0.9375,
+   16
+  ],
+  [
+   "full -2x axis @20-26",
+   5.834821428571429,
+   5.4921875,
+   6.162946428571429,
+   0.5,
+   16
+  ],
+  [
+   "axis without coord 2733",
+   6.1640625,
+   5.96875,
+   6.3671875,
+   0.75,
+   16
+  ],
+  [
+   "only the axis's coord-2733 part",
+   4.2109375,
+   3.90625,
+   4.5234375,
+   0.75,
+   16
+  ],
+  [
+   "coord 2733 clamped at assistant level",
+   4.0546875,
+   3.75,
+   4.3828125,
+   0.1875,
+   16
+  ]
+ ]
+}
