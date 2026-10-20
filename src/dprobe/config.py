@@ -78,6 +78,10 @@ MODELS: dict[str, ModelSpec] = {
     # GLM-4.5-Air (106B MoE, 12B active): the strongest non-Gemma spiraller in the sweep (3/16, reasoning off)
     "glm45_air": ModelSpec("glm45_air", "zai-org/GLM-4.5-Air", None, 46, 4096, "glm", stories_from="gemma3_27b"),
     "gptoss_20b": ModelSpec("gptoss_20b", "openai/gpt-oss-20b", None, 24, 2880, "gptoss", stories_from="gemma3_27b"),
+    # Qwen 3.6 / 3.8 27B (dense, Qwen3.5 architecture: 3 Gated-DeltaNet layers per full-attention layer; checkpoints are
+    # multimodal but load text-only as Qwen3_5ForCausalLM). Emotion vectors only, from Gemma 3's stories.
+    "qwen36_27b": ModelSpec("qwen36_27b", "Qwen/Qwen3.6-27B", None, 64, 5120, "qwen35", stories_from="gemma3_27b"),
+    "qwen38_27b": ModelSpec("qwen38_27b", "Qwen/Qwen3.8-27B", None, 64, 5120, "qwen35", stories_from="gemma3_27b"),
     # cheap smoke-test target for the GPU pipeline (spirals too, score 9 in the paper's table)
     "gemma3_12b": ModelSpec("gemma3_12b", "google/gemma-3-12b-it", "google/gemma-3-12b-it", 48, 3840, "gemma3"),
 }

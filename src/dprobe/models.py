@@ -64,7 +64,7 @@ def load_model(model_key: str, device: str = "cuda", attn: str = "sdpa"):
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
     # chat-template options applied everywhere a conversation is rendered (generation, probing, axis)
-    tok.dprobe_chat_kwargs = {"enable_thinking": False} if spec.family in ("qwen3", "glm") else {}
+    tok.dprobe_chat_kwargs = {"enable_thinking": False} if spec.family in ("qwen3", "qwen35", "glm") else {}
     tok.padding_side = "right"
     extra = {}
     if spec.family == "gemma2":
