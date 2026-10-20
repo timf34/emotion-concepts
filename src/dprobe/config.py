@@ -78,6 +78,9 @@ MODELS: dict[str, ModelSpec] = {
     # GLM-4.5-Air (106B MoE, 12B active): the strongest non-Gemma spiraller in the sweep (3/16, reasoning off)
     "glm45_air": ModelSpec("glm45_air", "zai-org/GLM-4.5-Air", None, 46, 4096, "glm", stories_from="gemma3_27b"),
     "gptoss_20b": ModelSpec("gptoss_20b", "openai/gpt-oss-20b", None, 24, 2880, "gptoss", stories_from="gemma3_27b"),
+    # gpt-oss-120b (117B MoE, 5.1B active): same loading as 20b (MXFP4 dequantized to bf16, ~234 GB, so 2x H200 or
+    # 4x H100 split by device_map="auto"); same tokenizer and harmony template as 20b.
+    "gptoss_120b": ModelSpec("gptoss_120b", "openai/gpt-oss-120b", None, 36, 2880, "gptoss", stories_from="gemma3_27b"),
     # Qwen 3.6 / 3.8 27B (dense, Qwen3.5 architecture: 3 Gated-DeltaNet layers per full-attention layer; checkpoints are
     # multimodal but load text-only as Qwen3_5ForCausalLM). Emotion vectors only, from Gemma 3's stories.
     "qwen36_27b": ModelSpec("qwen36_27b", "Qwen/Qwen3.6-27B", None, 64, 5120, "qwen35", stories_from="gemma3_27b"),
