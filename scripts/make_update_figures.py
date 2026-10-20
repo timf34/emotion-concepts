@@ -30,7 +30,7 @@ RNG = np.random.default_rng(0)
 
 def fig10():
     df = pd.read_csv(RESULTS_DIR / "analysis" / "crossfamily" / "robust.csv").set_index("model")
-    order = ["Gemma 3 27B", "Gemma 3 base", "Gemma 2 27B", "gpt-oss-20b", "Gemma 4 31B", "Qwen3 32B", "GLM-4.5-Air",
+    order = ["Gemma 3 27B", "Gemma 3 base", "Gemma 2 27B", "gpt-oss-20b", "gpt-oss-120b", "Gemma 4 31B", "Qwen3 32B", "GLM-4.5-Air",
              "Mistral Small 3 24B", "Llama 3.3 70B", "OLMo 2 32B"]
     order = [m for m in order if m in df.index]
     d = df.loc[order]
